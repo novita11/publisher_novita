@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Profiling UMKM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root {
+      --border: #d1d5db;
+      --text: #111827;
+      --muted: #6b7280;
+      --bg: #f9fafb;
+      --bg-hover: #f3f4f6;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #059669;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color: var(--text); background: white; margin: 0; }
+    .container { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 24px; margin: 8px 0 16px; }
+    h2 { font-size: 18px; margin: 24px 0 12px; }
+    .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .grid { display: grid; gap: 12px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 768px) { .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+      background: white; color: var(--text); text-align: center; cursor: pointer;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .btn:hover { background: var(--bg-hover); }
+    .btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .btn.primary:hover { background: var(--primary-hover); }
+    .btn.success { background: var(--success); color: white; border-color: var(--success); }
+    .btn.danger { background: var(--danger); color: white; border-color: var(--danger); }
+    .btn.selected { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; }
+    .muted { color: var(--muted); }
+    .hidden { display: none; }
+    .list { border: 1px solid var(--border); border-radius: 10px; max-height: 220px; overflow: auto; }
+    .list-item { width: 100%; text-align: left; padding: 8px 10px; background: white; border-bottom: 1px solid var(--bg); cursor: pointer; }
+    .list-item:hover { background: var(--bg-hover); }
+    .hr { height: 1px; background: var(--border); border: 0; margin: 12px 0; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .space-between { display: flex; justify-content: space-between; align-items: center; }
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); }
+    .footer { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .small { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Profiling UMKM</h1>
+
+    <div class="card" id="step-1">
+      <h2>Langkah 1: Informasi Brand (Opsional)</h2>
+      <div class="grid">
+        <div>
+          <div class="muted small">Nama Brand</div>
+          <input id="brand-name" class="input" placeholder="Contoh: Kopi Kenangan"/>
+        </div>
+        <div>
+          <div class="section-title">Industri / Bidang Usaha</div>
+          <div id="industry-options" class="grid grid-3">
+            <button type="button" class="btn" data-value="Kuliner & Restoran">Kuliner & Restoran</button>
+            <button type="button" class="btn" data-value="Fashion & Pakaian">Fashion & Pakaian</button>
+            <button type="button" class="btn" data-value="Kecantikan & Skincare">Kecantikan & Skincare</button>
+            <button type="button" class="btn" data-value="Jasa & Profesional">Jasa & Profesional</button>
+            <button type="button" class="btn" data-value="Kesehatan & Kebugaran">Kesehatan & Kebugaran</button>
+            <button type="button" class="btn" data-value="Pendidikan & Kursus">Pendidikan & Kursus</button>
+            <button type="button" class="btn" data-value="Otomotif & Bengkel">Otomotif & Bengkel</button>
+            <button type="button" class="btn" data-value="Kerajinan & Hobi">Kerajinan & Hobi</button>
+            <button type="button" class="btn" data-value="Elektronik & Gadget">Elektronik & Gadget</button>
+            <button type="button" class="btn" data-value="Lainnya">Lainnya</button>
+          </div>
+          <div id="other-industry-dropdown" class="hidden" style="margin-top:10px">
+            <input id="other-industry-input" class="input" placeholder="Ketik industri lainnya..."/>
+            <div id="other-industry-list" class="list" style="margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn" disabled>← Kembali</button>
+        <div>
+          <button id="skip-to-dashboard-1" class="btn">Lewati Semua</button>
+          <button id="to-step-2" class="btn primary">Lanjut →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="step-2">
+      <h2>Langkah 2: Target Audiens (Opsional)</h2>
+      <div class="section-title">Wilayah Target</div>
+      <div class="row" id="region-options">
+        <button type="button" class="btn" data-type="provinsi">Provinsi</button>
+        <button type="button" class="btn" data-type="nasional">Nasional</button>
+        <button type="button" class="btn" data-type="internasional">Internasional</button>
+      </div>
+      <div id="location-panel" style="margin-top:12px"></div>
+
+      <div class="section-title">Gender</div>
+      <div class="row" id="gender-options">
+        <button type="button" class="btn" data-value="Pria">Pria</button>
+        <button type="button" class="btn" data-value="Wanita">Wanita</button>
+        <button type="button" class="btn" data-value="Semua">Semua</button>
+      </div>
+
+      <div class="section-title">Rentang Umur</div>
+      <div class="row" id="age-options">
+        <button type="button" class="btn" data-value="18-24">18-24</button>
+        <button type="button" class="btn" data-value="25-34">25-34</button>
+        <button type="button" class="btn" data-value="35-44">35-44</button>
+        <button type="button" class="btn" data-value="45-54">45-54</button>
+        <button type="button" class="btn" data-value="55+">55+</button>
+        <button type="button" class="btn" data-value="Semua">Semua</button>
+      </div>
+
+      <div class="footer">
+        <button id="back-to-step-1" class="btn">← Kembali</button>
+        <div>
+          <button id="skip-to-dashboard-2" class="btn">Lewati Semua</button>
+          <button id="to-step-3" class="btn primary">Lanjut →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="step-3">
+      <h2>Langkah 3: Tujuan Bisnis (Opsional)</h2>
+      <div class="section-title">Pilih maksimal 2 tujuan utama Anda:</div>
+      <div id="goals-options" class="grid grid-2">
+        <button type="button" class="btn" data-value="Meningkatkan Penjualan">Meningkatkan Penjualan</button>
+        <button type="button" class="btn" data-value="Membangun Brand Awareness">Membangun Brand Awareness</button>
+        <button type="button" class="btn" data-value="Mendapatkan Leads Berkualitas">Mendapatkan Leads Berkualitas</button>
+        <button type="button" class="btn" data-value="Meningkatkan Loyalitas Pelanggan">Meningkatkan Loyalitas Pelanggan</button>
+        <button type="button" class="btn" data-value="Riset Pasar">Riset Pasar</button>
+        <button type="button" class="btn" data-value="Lainnya">Lainnya</button>
+      </div>
+      <div class="footer">
+        <button id="back-to-step-2" class="btn">← Kembali</button>
+        <button id="finish" class="btn success">Selesai & Simpan →</button>
+      </div>
+    </div>
+
+    <div id="summary" class="card hidden">
+      <h2>Ringkasan Profil</h2>
+      <div id="summary-content" class="grid"></div>
+      <div class="footer">
+        <button id="edit" class="btn">Ubah Profil</button>
+        <button id="done" class="btn primary">Ke Dashboard →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // STATE
+    const state = {
+      brand: '',
+      industry: null,
+      location: null,
+      gender: null,
+      age: null,
+      goals: [],
+    };
+
+    // CONSTANTS
+    const SUGGESTIONS = {
+      industry: ['Pertanian','Perikanan','Perbankan','Keuangan','Perhotelan','Pariwisata','Logistik','Konstruksi','Media','Teknologi Informasi','Arsitektur','Periklanan'],
+      province: ['Aceh','Sumatera Utara','Sumatera Barat','Riau','Jambi','Sumatera Selatan','Bengkulu','Lampung','Kepulauan Bangka Belitung','Kepulauan Riau','DKI Jakarta','Jawa Barat','Jawa Tengah','DI Yogyakarta','Jawa Timur','Banten','Bali','Nusa Tenggara Barat','Nusa Tenggara Timur','Kalimantan Barat','Kalimantan Tengah','Kalimantan Selatan','Kalimantan Timur','Kalimantan Utara','Sulawesi Utara','Sulawesi Tengah','Sulawesi Selatan','Sulawesi Tenggara','Gorontalo','Sulawesi Barat','Maluku','Maluku Utara','Papua','Papua Barat'],
+    };
+
+    // DOM refs
+    const steps = {
+      1: document.getElementById('step-1'),
+      2: document.getElementById('step-2'),
+      3: document.getElementById('step-3'),
+    };
+    const summary = document.getElementById('summary');
+
+    // UTIL
+    const showStep = (stepNum) => {
+      Object.values(steps).forEach(s => s.classList.add('hidden'));
+      summary.classList.add('hidden');
+      if (steps[stepNum]) steps[stepNum].classList.remove('hidden');
+    };
+    const showSummary = () => {
+      Object.values(steps).forEach(s => s.classList.add('hidden'));
+      summary.classList.remove('hidden');
+      renderSummary();
+    };
+    const setSelected = (container, value) => {
+      container.querySelectorAll('.btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.value === value);
+      });
+    };
+    const setMultiSelected = (container, values) => {
+      container.querySelectorAll('.btn').forEach(btn => {
+        btn.classList.toggle('selected', values.includes(btn.dataset.value));
+      });
+    };
+
+    // RENDERERS
+    const renderList = (items) => items.map(v => `<button type="button" class="list-item" data-value="${v}">${v}</button>`).join('');
+
+    // STEP 1: Industry
+    const industryContainer = document.getElementById('industry-options');
+    const otherIndustryDropdown = document.getElementById('other-industry-dropdown');
+    const otherIndustryInput = document.getElementById('other-industry-input');
+    const otherIndustryList = document.getElementById('other-industry-list');
+
+    industryContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+      const val = btn.dataset.value;
+      if (val === 'Lainnya') {
+        otherIndustryDropdown.classList.remove('hidden');
+        otherIndustryInput.value = '';
+        otherIndustryInput.focus();
+        otherIndustryList.innerHTML = renderList(SUGGESTIONS.industry);
+        return;
+      }
+      state.industry = val;
+      setSelected(industryContainer, state.industry);
+      otherIndustryDropdown.classList.add('hidden');
+    });
+    otherIndustryInput.addEventListener('input', (e) => {
+      const k = e.target.value.toLowerCase();
+      otherIndustryList.innerHTML = renderList(SUGGESTIONS.industry.filter(i => i.toLowerCase().includes(k)));
+    });
+    otherIndustryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        if (val) {
+          state.industry = val;
+          setSelected(industryContainer, 'Lainnya');
+          otherIndustryDropdown.classList.add('hidden');
+        }
+      }
+    });
+    otherIndustryList.addEventListener('click', (e) => {
+      const item = e.target.closest('[data-value]');
+      if (item) {
+        state.industry = item.dataset.value;
+        setSelected(industryContainer, 'Lainnya');
+        otherIndustryDropdown.classList.add('hidden');
+      }
+    });
+
+    // STEP 2: Location, Gender, Age
+    const locationPanel = document.getElementById('location-panel');
+    document.getElementById('region-options').addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+      const type = btn.dataset.type;
+      document.getElementById('region-options').querySelectorAll('.btn').forEach(b => b.classList.toggle('selected', b === btn));
+      renderRegionPanel(type);
+    });
+
+    function renderRegionPanel(type) {
+      state.location = null;
+      let content = '';
+      if (type === 'nasional') {
+        state.location = { type, name: 'Indonesia (Nasional)' };
+        content = `<div class="pill">${state.location.name} dipilih</div>`;
+      } else if (type === 'internasional') {
+        state.location = { type, name: 'Target Internasional' };
+        content = `<div class="pill">${state.location.name}</div>`;
+      } else if (type === 'provinsi') {
+        const key = 'province';
+        content = `
+          <input id="${key}-search" class="input" placeholder="Ketik nama provinsi..."/>
+          <div id="${key}-list" class="list" style="margin-top:8px"></div>
+        `;
+      }
+      locationPanel.innerHTML = content;
+
+      if (type === 'provinsi') {
+        const key = 'province';
+        const search = document.getElementById(`${key}-search`);
+        const list = document.getElementById(`${key}-list`);
+        const render = (k = '') => {
+          list.innerHTML = renderList(SUGGESTIONS[key].filter(p => p.toLowerCase().includes(k.toLowerCase())));
+        };
+        render('');
+        search.addEventListener('input', (e) => render(e.target.value));
+        list.addEventListener('click', (e) => {
+          const item = e.target.closest('[data-value]');
+          if (item) {
+            state.location = { type, name: item.dataset.value };
+            search.value = item.dataset.value;
+            list.innerHTML = '';
+          }
+        });
+      }
+    }
+
+    document.getElementById('gender-options').addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn');
+      if (btn) {
+        state.gender = btn.dataset.value;
+        setSelected(e.currentTarget, state.gender);
+      }
+    });
+    document.getElementById('age-options').addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn');
+      if (btn) {
+        state.age = btn.dataset.value;
+        setSelected(e.currentTarget, state.age);
+      }
+    });
+
+    // STEP 3: Goals
+    const goalsContainer = document.getElementById('goals-options');
+    goalsContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+      const val = btn.dataset.value;
+      const index = state.goals.indexOf(val);
+      if (index > -1) {
+        state.goals.splice(index, 1);
+      } else if (state.goals.length < 2) {
+        state.goals.push(val);
+      }
+      setMultiSelected(goalsContainer, state.goals);
+    });
+
+    // NAVIGATION
+    document.getElementById('to-step-2').addEventListener('click', () => showStep(2));
+    document.getElementById('to-step-3').addEventListener('click', () => showStep(3));
+    document.getElementById('back-to-step-1').addEventListener('click', () => showStep(1));
+    document.getElementById('back-to-step-2').addEventListener('click', () => showStep(2));
+    document.getElementById('skip-to-dashboard-1').addEventListener('click', finishProfiling);
+    document.getElementById('skip-to-dashboard-2').addEventListener('click', finishProfiling);
+    document.getElementById('finish').addEventListener('click', finishProfiling);
+    document.getElementById('edit').addEventListener('click', () => showStep(1));
+    document.getElementById('done').addEventListener('click', () => alert('Profil disimpan!'));
+
+    // FINISH & SUMMARY
+    function finishProfiling() {
+      state.brand = document.getElementById('brand-name').value.trim();
+      localStorage.setItem('profilingData', JSON.stringify(state));
+      showSummary();
+    }
+
+    function renderSummary() {
+      const content = document.getElementById('summary-content');
+      let html = '';
+      const addRow = (label, value) => {
+        if (value) {
+          html += `<div class="space-between"><span>${label}</span><span class="pill">${value}</span></div>`;
+        }
+      };
+      addRow('Brand', state.brand);
+      addRow('Industri', state.industry);
+      if (state.location) addRow('Wilayah', state.location.name);
+      addRow('Gender', state.gender);
+      addRow('Umur', state.age);
+      if (state.goals.length) {
+        addRow('Tujuan', state.goals.join(', '));
+      }
+      content.innerHTML = html || '<div class="muted">Tidak ada data yang diisi.</div>';
+    }
+
+    // INIT
+    (function init() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('profilingData') || '{}');
+        Object.assign(state, saved);
+        document.getElementById('brand-name').value = state.brand || '';
+        if (state.industry) setSelected(industryContainer, state.industry);
+        if (state.gender) setSelected(document.getElementById('gender-options'), state.gender);
+        if (state.age) setSelected(document.getElementById('age-options'), state.age);
+        if (state.goals) setMultiSelected(goalsContainer, state.goals);
+      } catch {}
+      showStep(1);
+    })();
+  </script>
+</body>
+</html>

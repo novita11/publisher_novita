@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Client API Connect — Simple Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { background: #f7f9fc; color: #222; font-family: Inter, Arial, sans-serif; margin: 0; }
+    .container { max-width: 400px; margin: 60px auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); padding: 32px 28px; }
+    h1 { font-size: 1.6rem; margin-bottom: 18px; font-weight: 700; }
+    label { display: block; margin-bottom: 6px; color: #64748b; font-size: 13px; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #e5e7eb; background: #f9fafb; color: #222; margin-bottom: 16px; font-size: 1rem;
+    }
+    .btn {
+      width: 100%; background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 12px 0; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .btn:active { background: #1d4ed8; }
+    .status {
+      margin-top: 18px; padding: 10px 0; border-radius: 8px; text-align: center; font-size: 1rem; font-weight: 600;
+    }
+    .connected { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .not-connected { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Koneksi API (Client POV)</h1>
+    <form id="connect-form" autocomplete="off">
+      <label for="username">Username</label>
+      <input type="text" id="username" required placeholder="Masukkan username" />
+      <label for="password">Password</label>
+      <input type="password" id="password" required placeholder="Masukkan password" />
+      <button type="submit" class="btn" id="btn-connect">Konek API</button>
+    </form>
+    <div id="status" class="status not-connected">Belum terkoneksi</div>
+  </div>
+  <script>
+    const form = document.getElementById('connect-form');
+    const statusDiv = document.getElementById('status');
+    let connected = false;
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!username || !password) {
+        statusDiv.textContent = 'Username dan password wajib diisi';
+        statusDiv.className = 'status not-connected';
+        return;
+      }
+      // Simulasi koneksi API (anggap sukses jika username dan password tidak kosong)
+      connected = true;
+      statusDiv.textContent = 'Terkoneksi ke API sebagai ' + username;
+      statusDiv.className = 'status connected';
+      form.querySelectorAll('input').forEach(i => i.disabled = true);
+      form.querySelector('button').disabled = true;
+    });
+  </script>
+</body>
+</html>

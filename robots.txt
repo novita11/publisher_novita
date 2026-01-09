@@ -1,0 +1,34 @@
+# ============================================
+# PENERBIT NUSANTARA - ROBOTS.TXT
+# SEO Configuration
+# ============================================
+
+# Allow all bots
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /private/
+Disallow: /temp/
+Disallow: /*.json$
+Disallow: /.env
+Disallow: /.git
+Disallow: /node_modules/
+
+# Crawl delay
+Crawl-delay: 1
+
+# Request rate limit
+Request-rate: 10/1m
+
+# Sitemap location
+Sitemap: https://penerbitnusantara.id/sitemap.xml
+
+# Google Search Console
+User-agent: Googlebot
+Allow: /
+Request-rate: 0
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2

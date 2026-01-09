@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Prototype Konek/Sync: Meta (Facebook & Instagram), TikTok, Shopee</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --fg: #0f172a;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --border: #e5e7eb;
+      --card: #ffffff;
+      --shadow: 0 6px 20px rgba(0,0,0,0.06);
+    }
+    body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; background: var(--bg); color: var(--fg); }
+    header { padding: 16px 24px; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    header h1 { margin: 0; font-size: 20px; }
+    main { max-width: 1200px; margin: 24px auto; padding: 0 24px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(320px, 1fr)); gap: 20px; align-items: start; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+    .card h2 { margin: 0 0 8px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+    .subtitle { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+    .row { display: flex; gap: 10px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="url"], select, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color: var(--fg);
+    }
+    textarea { min-height: 64px; resize: vertical; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: var(--card); padding: 10px 14px; border-radius: 8px; cursor: pointer; color: var(--fg); text-decoration: none; }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-outline { background: var(--card); color: var(--primary); border-color: var(--primary); }
+    .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+    .small { font-size: 12px; color: var(--muted); }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--border); color: var(--muted); }
+    .section { margin-top: 16px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .codebox { background: #0b1020; color: #cbd5e1; border-radius: 8px; padding: 12px; overflow-x: auto; }
+    .hl { color: #93c5fd; }
+    .flex-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .notice { background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; padding: 8px 12px; border-radius: 8px; font-size: 12px; }
+    .success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 8px 12px; border-radius: 8px; font-size: 12px; }
+    .error { background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d; padding: 8px 12px; border-radius: 8px; font-size: 12px; }
+    .footer { margin-top: 24px; color: var(--muted); font-size: 12px; }
+    .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .connected-pill { display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 999px; padding: 4px 8px; font-size: 12px; }
+    .stepper {
+      max-width: 900px;
+      margin: 0 auto 32px auto;
+      padding: 0 24px;
+    }
+    .stepper ol {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      justify-content: flex-start;
+    }
+    .stepper li {
+      display: flex;
+      align-items: center;
+      font-size: 1.05rem;
+      color: #a3a3a3;
+      font-weight: 500;
+      margin-right: 32px;
+      position: relative;
+      opacity: 0.7;
+    }
+    .stepper li.active {
+      color: var(--primary);
+      font-weight: 700;
+      opacity: 1;
+    }
+    .stepper li span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e0e7ef;
+      color: var(--primary);
+      font-weight: 700;
+      margin-right: 10px;
+      font-size: 1.1rem;
+      border: 2px solid #e0e7ef;
+      transition: background 0.2s, color 0.2s;
+    }
+    .stepper li.active span {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .stepper li:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 2px;
+      background: #e0e7ef;
+      position: absolute;
+      right: -34px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 0;
+    }
+    .stepper li.active:not(:last-child)::after {
+      background: var(--primary);
+    }
+    .platform-card {
+      padding: 28px 20px 22px 20px;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      border: 1.5px solid var(--border);
+      min-height: 340px;
+      position: relative;
+      background: #fff;
+      transition: box-shadow 0.2s, border 0.2s;
+    }
+    .platform-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .platform-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #f3f4f6;
+      object-fit: contain;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #e5e7eb;
+      padding: 4px;
+    }
+    .platform-card.meta { border-left: 5px solid #2563eb; }
+  </style>
+</head>
+<body>
+  <header style="background:var(--card);border-bottom:1px solid var(--border);padding:40px 0 24px 0;box-shadow:0 2px 12px rgba(0,0,0,0.03);">
+    <div style="max-width:900px;margin:0 auto;padding:0 24px;">
+      <h1 style="font-size:2.6rem;font-weight:800;letter-spacing:-1px;margin:0 0 8px 0;line-height:1.1;">UMKM Client Portal</h1>
+      <div style="font-size:1.25rem;color:var(--muted);font-weight:500;margin-bottom:10px;">Koneksi & Integrasi Sosial Media Bisnis Anda</div>
+      <div style="font-size:1rem;color:#64748b;max-width:600px;line-height:1.6;">Kelola dan integrasikan akun Meta (Facebook & Instagram), TikTok, Shopee, Tokopedia, dan WhatsApp secara mudah dan aman. Semua proses otorisasi mengikuti standar OAuth resmi tiap platform. <span class="tag" style="margin-left:8px;vertical-align:middle;">Prototype • OAuth/Authorization</span></div>
+    </div>
+  </header>
+  <nav class="stepper">
+    <ol>
+      <li class="active"><span>1</span> Pilih Platform</li>
+      <li><span>2</span> Data</li>
+      <li><span>3</span> Otorisasi</li>
+      <li><span>4</span> Selesai</li>
+    </ol>
+  </nav>
+  <main>
+    <div class="notice">
+      Prototype ini menyiapkan link otorisasi sesuai standar platform. Token exchange dan penyimpanan credential WAJIB dilakukan di backend. Jangan menaruh client_secret/partner_key di front‑end.
+    </div>
+
+    <div class="grid">
+      <!-- META (Facebook & Instagram Graph) -->
+      <div class="card platform-card meta" id="card-meta">
+        <div class="platform-header">
+          <img src="https://static.xx.fbcdn.net/rsrc.php/yo/r/iRmz9lCMBD2.ico" alt="Meta" class="platform-logo" />
+          <h2>Meta (Facebook & Instagram)</h2>
+        </div>
+        <div class="subtitle">Otorisasi via Facebook Login /dialog/oauth untuk akses Facebook Page & Instagram Graph (akun Profesional).</div>
+
+        <div class="section">
+          <div class="row">
+            <div style="flex:1">
+              <label>client_id (App ID)</label>
+              <input id="fb-client-id" type="text" placeholder="Contoh: 123456789012345" />
+            </div>
+            <div style="flex:1">
+              <label>redirect_uri (callback)</label>
+              <input id="fb-redirect" type="url" placeholder="https://yourapp.com/auth/meta/callback" />
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <label>scope</label>
+              <input id="fb-scope" type="text" value="public_profile,email,pages_show_list,instagram_basic" />
+              <div class="small">Tambahkan izin sesuai kebutuhan (mis. pages_manage_metadata, pages_read_engagement, instagram_manage_comments, dsb).</div>
+            </div>
+            <div style="flex:1">
+              <label>state (opsional)</label>
+              <input id="fb-state" type="text" placeholder="CSRF token atau session id" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="toolbar">
+            <button class="btn btn-primary" id="btn-fb-auth">Authorize via Facebook</button>
+            <button class="btn btn-outline" id="btn-fb-preview">Preview URL</button>
+            <button class="btn" id="btn-fb-copy">Copy URL</button>
+            <span id="fb-connected" class="connected-pill" style="display:none;">Connected</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="codebox mono" id="fb-url-box" hidden>
+            <div><span class="hl">GET</span> https://www.facebook.com/dialog/oauth?client_id=...&redirect_uri=...&response_type=code&scope=...&state=...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW: Meta (Facebook) Pixel & Conversions API -->
+      <div class="card" id="card-meta-pixel">
+        <div class="flex-between">
+          <h2>Meta (Facebook) Pixel & Conversions API</h2>
+          <span id="meta-pixel-status" class="status-badge status-danger">Not Connected</span>
+        </div>
+        <div class="subtitle">Set up your Meta(Facebook) Pixel</div>
+
+        <div class="section">
+          <label>Meta (Facebook) Pixel</label>
+          <div class="input-action">
+            <input id="meta-pixel-id" type="text" placeholder="63740****401158" disabled />
+            <a href="#" id="btn-meta-edit-pixel" class="inline-link">Edit</a>
+          </div>
+        </div>
+
+        <div class="section">
+          <label>Meta (Facebook) Conversions API Token</label>
+          <div class="input-action">
+            <input id="meta-capi-token" type="text" placeholder="AAa******401158azsdx" disabled />
+            <a href="#" id="btn-meta-edit-token" class="inline-link">Edit</a>
+          </div>
+        </div>
+
+        <div class="section" style="display:flex; justify-content:flex-end;">
+          <button class="btn btn-success" id="btn-meta-connect" disabled>Connect</button>
+        </div>
+
+        <div class="small">
+          Benefits of adding FB pixel <a href="#" target="_blank">click here</a>.<br/>
+          How to find FB pixel ID? <a href="#" target="_blank">Click here</a>.
+        </div>
+      </div>
+
+      <!-- TikTok OAuth v2 -->
+      <div class="card platform-card tiktok" id="card-tiktok">
+        <div class="platform-header">
+          <img src="https://www.svgrepo.com/show/303234/tiktok-icon-logo.svg" alt="TikTok" class="platform-logo" />
+          <h2>TikTok <span class="tag" style="background:#fef9c3; color:#b45309; border-color:#fde68a;">Coming Soon</span></h2>
+        </div>
+        <div class="subtitle">OAuth v2: authorize di TikTok, tukar code ke access_token di backend (24 jam) dan refresh_token (365 hari).</div>
+
+        <div class="section">
+          <div class="row">
+            <div style="flex:1">
+              <label>client_key</label>
+              <input id="tt-client-key" type="text" placeholder="Contoh: awe123abc456xyz" />
+            </div>
+            <div style="flex:1">
+              <label>redirect_uri (HTTPS, statis)</label>
+              <input id="tt-redirect" type="url" placeholder="https://yourapp.com/auth/tiktok/callback" />
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <label>scope (comma-separated)</label>
+              <input id="tt-scope" type="text" value="user.info.basic,video.list" />
+              <div class="small">Sesuaikan scope sesuai kebutuhan.</div>
+            </div>
+            <div style="flex:1">
+              <label>state (opsional)</label>
+              <input id="tt-state" type="text" placeholder="CSRF token atau session id" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="toolbar">
+            <button class="btn btn-primary" id="btn-tt-auth">Authorize TikTok</button>
+            <button class="btn btn-outline" id="btn-tt-preview">Preview URL</button>
+            <button class="btn" id="btn-tt-copy">Copy URL</button>
+            <span id="tt-connected" class="connected-pill" style="display:none;">Connected</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="codebox mono" id="tt-url-box" hidden>
+            <div><span class="hl">GET</span> https://www.tiktok.com/v2/auth/authorize/?client_key=...&redirect_uri=...&response_type=code&scope=...&state=...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shopee Shop Authorization v2 -->
+      <div class="card platform-card shopee" id="card-shopee">
+        <div class="platform-header">
+          <img src="https://cdn.brandfolder.io/3RTKFAFA/at/6k7k7jv7q7q7q7/Shopee-Logo.png" alt="Shopee" class="platform-logo" />
+          <h2>Shopee <span class="tag" style="background:#fef9c3; color:#b45309; border-color:#fde68a;">Coming Soon</span></h2>
+        </div>
+        <div class="subtitle">Shop Authorization v2: generate auth link dengan HMAC-SHA256 sign. Timestamp valid 5 menit. Redirect mengandung code & shop_id.</div>
+      <!-- Tokopedia & WhatsApp Coming Soon -->
+      <div class="card platform-card tokopedia" id="card-tokopedia">
+        <div class="platform-header">
+          <img src="https://assets.tokopedia.net/assets-tokopedia-lite/v2/atreus/kratos/kratos-kratos-logo.png" alt="Tokopedia" class="platform-logo" />
+          <h2>Tokopedia <span class="tag" style="background:#fef9c3; color:#b45309; border-color:#fde68a;">Coming Soon</span></h2>
+        </div>
+        <div class="subtitle">Integrasi OAuth & API Tokopedia akan segera tersedia.</div>
+        <div style="height:48px;"></div>
+      </div>
+
+      <div class="card platform-card whatsapp" id="card-whatsapp">
+        <div class="platform-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="platform-logo" />
+          <h2>WhatsApp <span class="tag" style="background:#fef9c3; color:#b45309; border-color:#fde68a;">Coming Soon</span></h2>
+        </div>
+        <div class="subtitle">Integrasi WhatsApp Business API akan segera tersedia.</div>
+        <div style="height:48px;"></div>
+      </div>
+
+        <div class="section">
+          <div class="row">
+            <div style="flex:1">
+              <label>partner_id</label>
+              <input id="sh-partner-id" type="text" placeholder="Contoh: 2001887" />
+            </div>
+            <div style="flex:1">
+              <label>redirect (callback)</label>
+              <input id="sh-redirect" type="url" placeholder="https://yourapp.com/auth/shopee/callback" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label>Mode perhitungan sign</label>
+              <select id="sh-sign-mode">
+                <option value="manual">Gunakan sign (disediakan backend)</option>
+                <option value="local">Hitung di browser (DEV ONLY)</option>
+              </select>
+              <div class="small">Produksi: backend menandatangani base string dengan partner_key. Front‑end tidak boleh menyimpan partner_key.</div>
+            </div>
+            <div style="flex:1">
+              <label id="label-sh-key">partner_key (DEV ONLY)</label>
+              <input id="sh-partner-key" type="text" placeholder="Masukkan partner_key hanya untuk uji dev" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label>sign (jika mode: manual)</label>
+              <input id="sh-sign" type="text" placeholder="Tempel sign dari backend" />
+            </div>
+            <div style="flex:1">
+              <label>environment host</label>
+              <select id="sh-host">
+                <option value="https://partner.shopeemobile.com">Production (SG region)</option>
+                <option value="https://partner.test-stable.shopeemobile.com">Sandbox</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="toolbar">
+            <button class="btn btn-primary" id="btn-sh-auth">Authorize Shopee</button>
+            <button class="btn btn-outline" id="btn-sh-preview">Preview URL</button>
+            <button class="btn" id="btn-sh-copy">Copy URL</button>
+            <span class="small">Path tetap: <span class="mono">/api/v2/shop/auth_partner</span></span>
+            <span id="sh-connected" class="connected-pill" style="display:none;">Connected</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="codebox mono" id="sh-url-box" hidden>
+            <div><span class="hl">GET</span> https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=...&timestamp=...&sign=...&redirect=...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Callback result parser (untuk semua platform) -->
+    <div class="card section">
+      <h2>Callback Result</h2>
+      <div class="subtitle">Halaman ini juga menampilkan parameter di query string saat kembali dari otorisasi.</div>
+      <div id="cb-result"></div>
+      <div class="section">
+        <div class="notice">
+          Developer: lakukan token exchange di backend.
+          <ul>
+            <li>TikTok: POST <span class="mono">https://open.tiktokapis.com/v2/oauth/token/</span> dengan <span class="mono">client_key, client_secret, code, grant_type=authorization_code, redirect_uri</span>.</li>
+            <li>Meta (FB/IG): tukar <span class="mono">code</span> ke access token via Graph API /oauth/access_token.</li>
+            <li>Shopee: panggil <span class="mono">/api/v2/auth/token/get</span> dengan <span class="mono">code</span> dan <span class="mono">shop_id</span> untuk mendapatkan <span class="mono">access_token</span> dan <span class="mono">refresh_token</span>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Tips UI/UX: gunakan state (CSRF) untuk persist context; tampilkan status “Connected” setelah token exchange sukses; sediakan tombol “Disconnect” yang memanggil revoke (mis. TikTok /v2/oauth/revoke).
+    </div>
+  </main>
+
+  <script>
+    // Util: random state
+    function randState(prefix = "state") {
+      return prefix + "_" + Math.random().toString(36).slice(2, 10);
+    }
+
+    // Util: URL builder
+    function buildQuery(params) {
+      const esc = encodeURIComponent;
+      return Object.keys(params)
+        .filter(k => params[k] !== undefined && params[k] !== null && params[k] !== "")
+        .map(k => esc(k) + "=" + esc(params[k]))
+        .join("&");
+    }
+
+    // Util: copy to clipboard
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("URL disalin ke clipboard");
+      } catch {
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        alert("URL disalin ke clipboard");
+      }
+    }
+
+    // META (Facebook & Instagram via dialog/oauth)
+    const fbBtnAuth = document.getElementById("btn-fb-auth");
+    const fbBtnPreview = document.getElementById("btn-fb-preview");
+    const fbBtnCopy = document.getElementById("btn-fb-copy");
+    const fbUrlBox = document.getElementById("fb-url-box");
+
+    fbBtnAuth.addEventListener("click", () => {
+      const clientId = document.getElementById("fb-client-id").value.trim();
+      const redirectUri = document.getElementById("fb-redirect").value.trim();
+      const scope = document.getElementById("fb-scope").value.trim();
+      const stateInput = document.getElementById("fb-state").value.trim();
+      const state = stateInput || randState("fb");
+
+      if (!clientId || !redirectUri) {
+        alert("Isi client_id dan redirect_uri untuk Meta.");
+        return;
+      }
+
+      const params = {
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: "code",
+        scope,
+        state
+      };
+      const url = "https://www.facebook.com/dialog/oauth?" + buildQuery(params);
+      window.location.href = url;
+    });
+
+    fbBtnPreview.addEventListener("click", () => {
+      const clientId = document.getElementById("fb-client-id").value.trim() || "{client_id}";
+      const redirectUri = document.getElementById("fb-redirect").value.trim() || "https://yourapp.com/auth/meta/callback";
+      const scope = document.getElementById("fb-scope").value.trim() || "public_profile,email,pages_show_list,instagram_basic";
+      const stateInput = document.getElementById("fb-state").value.trim();
+      const state = stateInput || randState("fb");
+      const params = { client_id: clientId, redirect_uri: redirectUri, response_type: "code", scope, state };
+      const url = "https://www.facebook.com/dialog/oauth?" + buildQuery(params);
+      fbUrlBox.innerText = url;
+      fbUrlBox.hidden = false;
+      fbBtnCopy.onclick = () => copyText(url);
+    });
+
+    // TikTok OAuth v2 authorize
+    const ttBtnAuth = document.getElementById("btn-tt-auth");
+    const ttBtnPreview = document.getElementById("btn-tt-preview");
+    const ttBtnCopy = document.getElementById("btn-tt-copy");
+    const ttUrlBox = document.getElementById("tt-url-box");
+
+    function validateTikTokRedirect(uri) {
+      try {
+        const u = new URL(uri);
+        if (u.protocol !== "https:") return "Redirect URI TikTok harus HTTPS.";
+        if (u.search && u.search.length > 0) return "Redirect URI TikTok tidak boleh punya query params.";
+        if (u.hash && u.hash.length > 0) return "Redirect URI TikTok tidak boleh punya fragment (#).";
+        return "";
+      } catch {
+        return "Redirect URI TikTok tidak valid.";
+      }
+    }
+
+    ttBtnAuth.addEventListener("click", () => {
+      const clientKey = document.getElementById("tt-client-key").value.trim();
+      const redirectUri = document.getElementById("tt-redirect").value.trim();
+      const scope = document.getElementById("tt-scope").value.trim();
+      const stateInput = document.getElementById("tt-state").value.trim();
+      const state = stateInput || randState("tt");
+
+      if (!clientKey || !redirectUri) {
+        alert("Isi client_key dan redirect_uri untuk TikTok.");
+        return;
+      }
+      const redirectError = validateTikTokRedirect(redirectUri);
+      if (redirectError) {
+        alert(redirectError);
+        return;
+      }
+
+      const params = {
+        client_key: clientKey,
+        redirect_uri: redirectUri,
+        response_type: "code",
+        scope,
+        state
+      };
+      const url = "https://www.tiktok.com/v2/auth/authorize/?" + buildQuery(params);
+      window.location.href = url;
+    });
+
+    ttBtnPreview.addEventListener("click", () => {
+      const clientKey = document.getElementById("tt-client-key").value.trim() || "{client_key}";
+      const redirectUri = document.getElementById("tt-redirect").value.trim() || "https://yourapp.com/auth/tiktok/callback";
+      const scope = document.getElementById("tt-scope").value.trim() || "user.info.basic,video.list";
+      const stateInput = document.getElementById("tt-state").value.trim();
+      const state = stateInput || randState("tt");
+      const params = { client_key: clientKey, redirect_uri: redirectUri, response_type: "code", scope, state };
+      const url = "https://www.tiktok.com/v2/auth/authorize/?" + buildQuery(params);
+      ttUrlBox.innerText = url;
+      ttUrlBox.hidden = false;
+      ttBtnCopy.onclick = () => copyText(url);
+    });
+
+    // Shopee: HMAC-SHA256 helpers (DEV ONLY). In production, generate sign in backend.
+    async function hmacSha256Hex(keyText, messageText) {
+      const enc = new TextEncoder();
+      const keyData = enc.encode(keyText);
+      const msgData = enc.encode(messageText);
+      const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+      const sig = await crypto.subtle.sign("HMAC", cryptoKey, msgData);
+      const bytes = new Uint8Array(sig);
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    const shBtnAuth = document.getElementById("btn-sh-auth");
+    const shBtnPreview = document.getElementById("btn-sh-preview");
+    const shBtnCopy = document.getElementById("btn-sh-copy");
+    const shUrlBox = document.getElementById("sh-url-box");
+    const shSignMode = document.getElementById("sh-sign-mode");
+    const shPartnerKeyLabel = document.getElementById("label-sh-key");
+
+    // Toggle label when mode changes
+    shSignMode.addEventListener("change", () => {
+      const mode = shSignMode.value;
+      shPartnerKeyLabel.textContent = mode === "local" ? "partner_key (DEV ONLY)" : "partner_key (tidak diperlukan)";
+    });
+
+    async function buildShopeeAuthUrl(previewOnly = false) {
+      const partnerId = document.getElementById("sh-partner-id").value.trim();
+      const redirect = document.getElementById("sh-redirect").value.trim();
+      const mode = document.getElementById("sh-sign-mode").value;
+      const partnerKey = document.getElementById("sh-partner-key").value.trim();
+      const manualSign = document.getElementById("sh-sign").value.trim();
+      const host = document.getElementById("sh-host").value;
+
+      if (!partnerId || !redirect) {
+        alert("Isi partner_id dan redirect untuk Shopee.");
+        return null;
+      }
+
+      const path = "/api/v2/shop/auth_partner";
+      const timestamp = Math.floor(Date.now() / 1000);
+      let sign = manualSign;
+
+      if (mode === "local") {
+        if (!partnerKey) {
+          alert("Masukkan partner_key untuk perhitungan lokal (DEV ONLY).");
+          return null;
+        }
+        const baseString = `${partnerId}${path}${timestamp}`;
+        sign = await hmacSha256Hex(partnerKey, baseString);
+      } else {
+        if (!manualSign) {
+          alert("Tempel sign dari backend (mode manual).");
+          return null;
+        }
+      }
+
+      const url = `${host}${path}?` + buildQuery({
+        partner_id: partnerId,
+        timestamp,
+        sign,
+        redirect
+      });
+
+      if (previewOnly) {
+        shUrlBox.innerText = url;
+        shUrlBox.hidden = false;
+        shBtnCopy.onclick = () => copyText(url);
+        return url;
+      } else {
+        window.location.href = url;
+        return url;
+      }
+    }
+
+    shBtnAuth.addEventListener("click", () => { buildShopeeAuthUrl(false); });
+    shBtnPreview.addEventListener("click", () => { buildShopeeAuthUrl(true); });
+
+    // Util: masking (agar tampak seperti nyata seperti screenshot)
+    function maskMid(value, start = 5, end = 5) {
+      if (!value) return "";
+      const s = value.slice(0, start);
+      const e = value.slice(-end);
+      return s + "****" + e;
+    }
+
+    // Meta Pixel & Conversions API (real-like UI)
+    const metaPixelIdInput = document.getElementById("meta-pixel-id");
+    const metaCapiTokenInput = document.getElementById("meta-capi-token");
+    const btnMetaEditPixel = document.getElementById("btn-meta-edit-pixel");
+    const btnMetaEditToken = document.getElementById("btn-meta-edit-token");
+    const btnMetaConnect = document.getElementById("btn-meta-connect");
+    const metaPixelStatus = document.getElementById("meta-pixel-status");
+
+    let metaPixelEditing = false;
+    let metaTokenEditing = false;
+
+    function setMetaConnected(connected) {
+      if (!metaPixelStatus) return;
+      if (connected) {
+        metaPixelStatus.textContent = "Connected";
+        metaPixelStatus.classList.remove("status-danger");
+        metaPixelStatus.classList.add("status-success");
+      } else {
+        metaPixelStatus.textContent = "Not Connected";
+        metaPixelStatus.classList.remove("status-success");
+        metaPixelStatus.classList.add("status-danger");
+      }
+    }
+
+    function updateMetaConnectEnabled() {
+      const pixelOk = /^\d{8,18}$/.test(metaPixelIdInput.value.trim());
+      const tokenOk = metaCapiTokenInput.value.trim().length >= 20;
+      btnMetaConnect.disabled = !(metaPixelEditing && metaTokenEditing && pixelOk && tokenOk);
+    }
+
+    btnMetaEditPixel?.addEventListener("click", (e) => {
+      e.preventDefault();
+      metaPixelIdInput.disabled = false;
+      metaPixelIdInput.placeholder = "Masukkan Pixel ID (angka)";
+      metaPixelEditing = true;
+      updateMetaConnectEnabled();
+    });
+
+    btnMetaEditToken?.addEventListener("click", (e) => {
+      e.preventDefault();
+      metaCapiTokenInput.disabled = false;
+      metaCapiTokenInput.placeholder = "Masukkan Conversions API Token";
+      metaTokenEditing = true;
+      updateMetaConnectEnabled();
+    });
+
+    metaPixelIdInput?.addEventListener("input", updateMetaConnectEnabled);
+    metaCapiTokenInput?.addEventListener("input", updateMetaConnectEnabled);
+
+    btnMetaConnect?.addEventListener("click", () => {
+      const rawPixel = metaPixelIdInput.value.trim();
+      const rawToken = metaCapiTokenInput.value.trim();
+      if (!/^\d{8,18}$/.test(rawPixel)) {
+        alert("Pixel ID harus berupa angka (8–18 digit).");
+        return;
+      }
+      if (rawToken.length < 20) {
+        alert("Conversions API Token terlalu pendek.");
+        return;
+      }
+      // Simpan di localStorage agar tampak persist (di produksi: simpan di backend)
+      localStorage.setItem("meta_pixel_id", rawPixel);
+      localStorage.setItem("meta_capi_token", rawToken);
+
+      // Kunci kembali input & tampilkan versi masked
+      metaPixelIdInput.disabled = true;
+      metaCapiTokenInput.disabled = true;
+      metaPixelIdInput.value = maskMid(rawPixel, 5, 6);
+      metaCapiTokenInput.value = maskMid(rawToken, 3, 5);
+      btnMetaConnect.disabled = true;
+      setMetaConnected(true);
+      alert("Meta Pixel & CAPI tersimpan (simulasi). Di produksi, kirim ke backend untuk dipakai mengirimkan event.");
+    });
+
+    function loadMetaPixelState() {
+      const savedPixel = localStorage.getItem("meta_pixel_id");
+      const savedToken = localStorage.getItem("meta_capi_token");
+      if (savedPixel) {
+        metaPixelIdInput.value = maskMid(savedPixel, 5, 6);
+        metaPixelIdInput.disabled = true;
+      }
+      if (savedToken) {
+        metaCapiTokenInput.value = maskMid(savedToken, 3, 5);
+        metaCapiTokenInput.disabled = true;
+      }
+      setMetaConnected(!!(savedPixel && savedToken));
+    }
+
+    // Setter status untuk TikTok & Shopee (badge di header)
+    function setTikTokConnected(connected) {
+      const badge = document.getElementById("tt-status");
+      const pill = document.getElementById("tt-connected");
+      if (!badge) return;
+      if (connected) {
+        badge.textContent = "Connected";
+        badge.classList.remove("status-danger");
+        badge.classList.add("status-success");
+        if (pill) pill.style.display = "inline-flex";
+        localStorage.setItem("tiktok_connected", "1");
+      } else {
+        badge.textContent = "Not Connected";
+        badge.classList.remove("status-success");
+        badge.classList.add("status-danger");
+        if (pill) pill.style.display = "none";
+        localStorage.removeItem("tiktok_connected");
+      }
+    }
+
+    function setShopeeConnected(connected) {
+      const badge = document.getElementById("sh-status");
+      const pill = document.getElementById("sh-connected");
+      if (!badge) return;
+      if (connected) {
+        badge.textContent = "Connected";
+        badge.classList.remove("status-danger");
+        badge.classList.add("status-success");
+        if (pill) pill.style.display = "inline-flex";
+        localStorage.setItem("shopee_connected", "1");
+      } else {
+        badge.textContent = "Not Connected";
+        badge.classList.remove("status-success");
+        badge.classList.add("status-danger");
+        if (pill) pill.style.display = "none";
+        localStorage.removeItem("shopee_connected");
+      }
+    }
+
+    // Inisialisasi state saat load
+    window.addEventListener("DOMContentLoaded", () => {
+      loadMetaPixelState();
+      if (localStorage.getItem("tiktok_connected") === "1") setTikTokConnected(true);
+      if (localStorage.getItem("shopee_connected") === "1") setShopeeConnected(true);
+    });
+
+    // Callback parser (common)
+    function parseQuery() {
+      const params = new URLSearchParams(window.location.search);
+      if ([...params.keys()].length === 0) return;
+
+      const entries = {};
+      params.forEach((v, k) => { entries[k] = v; });
+
+      const container = document.getElementById("cb-result");
+
+      const platformGuess = (() => {
+        // Heuristik ringan berdasarkan parameter
+        if (entries.shop_id && entries.code) return "Shopee";
+        if (entries.code && entries.state && entries.from_url?.includes("tiktok")) return "TikTok";
+        if (entries.code && entries.state) return "Meta (Facebook/Instagram)";
+        return "Tidak diketahui";
+      })();
+
+      // Update badge status berdasarkan callback agar tampak nyata
+      if (platformGuess === "TikTok") setTikTokConnected(true);
+      if (platformGuess === "Shopee") setShopeeConnected(true);
+
+      const box = document.createElement("div");
+      box.className = "success";
+      box.innerHTML = `
+        <div><strong>Platform:</strong> ${platformGuess}</div>
+        <div class="mono" style="margin-top:6px">${JSON.stringify(entries, null, 2)}</div>
+        <div style="margin-top:8px" class="small">
+          Lanjutkan proses di backend untuk tukar code ➜ access_token (dan refresh_token bila ada).
+        </div>
+      `;
+      container.appendChild(box);
+    }
+    parseQuery();
+  </script>
+</body>
+</html>

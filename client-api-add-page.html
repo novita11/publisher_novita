@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Client API Add Page — Demo Interaktif</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { background: #f7f9fc; color: #222; font-family: Inter, Arial, sans-serif; margin: 0; }
+    .modal {
+      max-width: 540px; margin: 48px auto; background: #fff; border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.10); padding: 0 0 32px 0; overflow: hidden;
+    }
+    .modal-header { padding: 28px 32px 0 32px; }
+    .modal-header h2 { font-size: 1.35rem; font-weight: 700; margin: 0 0 12px 0; }
+    .tabs { display: flex; gap: 0; border-bottom: 1.5px solid #e5e7eb; margin: 0 32px; }
+    .tab {
+      flex: 1 1 0; text-align: center; padding: 14px 0 10px 0; font-size: 1.1rem; color: #b0b3b8; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.2s, border 0.2s; background: none; outline: none;
+    }
+    .tab.active { color: #2563eb; border-bottom: 3px solid #2563eb; font-weight: 700; background: #f7f9fc; }
+    .tab[disabled] { color: #d1d5db; cursor: not-allowed; }
+    .tab svg { display: block; margin: 0 auto 4px auto; height: 22px; width: 22px; }
+    .cards { display: flex; gap: 18px; padding: 32px 32px 0 32px; }
+    .card {
+      flex: 1 1 0; background: #f9fafb; border: 1.5px dashed #e5e7eb; border-radius: 14px; padding: 28px 10px 18px 10px; text-align: center; cursor: pointer; transition: box-shadow 0.2s, border 0.2s, background 0.2s;
+      min-width: 120px; min-height: 120px; position: relative;
+    }
+    .card:hover { background: #f3f4f6; box-shadow: 0 2px 12px rgba(37,99,235,0.07); border-color: #2563eb; }
+    .card .icon { font-size: 2.1rem; margin-bottom: 10px; color: #2563eb; }
+    .card .new { position: absolute; top: 10px; right: 12px; background: #fee2e2; color: #b91c1c; font-size: 11px; border-radius: 8px; padding: 2px 7px; font-weight: 600; }
+    .card.selected { border: 2.5px solid #16a34a; background: #ecfdf5; }
+    .card .info { position: absolute; top: 10px; left: 12px; color: #64748b; font-size: 15px; cursor: pointer; }
+    .close-btn { position: absolute; top: 18px; right: 24px; background: none; border: none; font-size: 1.5rem; color: #b0b3b8; cursor: pointer; }
+    @media (max-width: 700px) {
+      .modal { max-width: 98vw; }
+      .cards { flex-direction: column; gap: 16px; padding: 24px 10px 0 10px; }
+      .tabs { margin: 0 10px; }
+      .modal-header { padding: 18px 10px 0 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal" id="main-modal">
+    <button class="close-btn" onclick="alert('Tutup dialog (simulasi)')">&times;</button>
+    <div class="modal-header">
+      <h2>Add pages to test</h2>
+    </div>
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="facebook" title="Facebook">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.406.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.406 24 22.674V1.326C24 .592 23.406 0 22.675 0"></path></svg>
+      </div>
+      <div class="tab" data-tab="ads" title="Meta Ads Account">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM11 6h2v6h-2V6zm0 8h2v2h-2v-2z"/></svg>
+      </div>
+      <div class="tab" data-tab="mockup" title="Mockup Page">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v2H3V3zm0 4h18v14H3V7zm2 2v10h14V9H5z"/></svg>
+      </div>
+      <div class="tab" data-tab="instagram" title="Instagram">
+        <svg viewBox="0 0 24 24"><path fill="#E4405F" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.2 2.3.4.5.2.8.4 1.2.8.4.4.6.7.8 1.2.2.4.3 1.1.4 2.3.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.9-.4 2.3-.2.5-.4.8-.8 1.2-.4.4-.7.6-1.2.8-.4.2-1.1.3-2.3.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.9-.2-2.3-.4-.5-.2-.8-.4-1.2-.8-.4-.4-.6-.7-.8-1.2-.2-.4-.3-1.1-.4-2.3C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.9.4-2.3.2-.5.4-.8.8-1.2.4-.4.7-.6 1.2-.8.4-.2 1.1-.3 2.3-.4C8.4 2.2 8.8 2.2 12 2.2z"/></svg>
+      </div>
+      <div class="tab" data-tab="linkedin" title="LinkedIn">
+        <svg viewBox="0 0 24 24"><path fill="#0077B5" d="M19 0h-14c-2.8 0-5 2.2-5 5v14c0 2.8 2.2 5 5 5h14c2.8 0 5-2.2 5-5v-14c0-2.8-2.2-5-5-5zm-11.5 19h-3v-9h3v9zm-1.5-10.3c-1 0-1.7-.8-1.7-1.7s.8-1.7 1.7-1.7c1 0 1.7.8 1.7 1.7s-.7 1.7-1.7 1.7zm13 10.3h-3v-4.5c0-1.1 0-2.5-1.5-2.5s-1.7 1.2-1.7 2.4v4.6h-3v-9h2.9v1.2h.1c.4-.7 1.3-1.5 2.7-1.5 2.9 0 3.4 1.9 3.4 4.3v5z"/></svg>
+      </div>
+      <div class="tab" data-tab="google" title="Google">
+        <svg viewBox="0 0 48 48"><g><path fill="#4285F4" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.3-5.7 7-11.3 7-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8.1 3.1l6.1-6.1C34.5 4.5 29.6 2 24 2 12.9 2 4 10.9 4 22s8.9 20 20 20c11.1 0 20-8.9 20-20 0-1.3-.1-2.1-.4-3.5z"/><path fill="#34A853" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.8 13 24 13c3.1 0 5.9 1.1 8.1 3.1l6.1-6.1C34.5 4.5 29.6 2 24 2 15.1 2 7.6 7.6 6.3 14.7z"/><path fill="#FBBC05" d="M24 44c5.4 0 10.3-1.8 14.1-4.9l-6.5-5.3c-2.1 1.4-4.8 2.2-7.6 2.2-5.6 0-10.3-3.8-12-9l-6.6 5.1C7.6 40.4 15.1 46 24 46z"/><path fill="#EA4335" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.3-5.7 7-11.3 7-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8.1 3.1l6.1-6.1C34.5 4.5 29.6 2 24 2 12.9 2 4 10.9 4 22s8.9 20 20 20c11.1 0 20-8.9 20-20 0-1.3-.1-2.1-.4-3.5z"/></g></svg>
+      </div>
+      <div class="tab" data-tab="youtube" title="YouTube">
+        <svg viewBox="0 0 24 24"><path fill="#FF0000" d="M23.498 6.186a2.994 2.994 0 0 0-2.112-2.112C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.386.574A2.994 2.994 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a2.994 2.994 0 0 0 2.112 2.112C4.5 20.5 12 20.5 12 20.5s7.5 0 9.386-.574a2.994 2.994 0 0 0 2.112-2.112C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      </div>
+      <div class="tab" data-tab="tiktok" title="TikTok">
+        <svg viewBox="0 0 48 48"><g><path fill="#25F4EE" d="M41.5 17.5c-2.5 0-4.5-2-4.5-4.5V6h-4v24c0 3.3-2.7 6-6 6s-6-2.7-6-6 2.7-6 6-6c.7 0 1.4.1 2 .3V18c-2.2-.6-4.5-.9-7-.9-7.2 0-13 5.8-13 13s5.8 13 13 13 13-5.8 13-13V17.5h4z"/><path fill="#FE2C55" d="M41.5 17.5c-2.5 0-4.5-2-4.5-4.5V6h-4v24c0 3.3-2.7 6-6 6s-6-2.7-6-6 2.7-6 6-6c.7 0 1.4.1 2 .3V18c-2.2-.6-4.5-.9-7-.9-7.2 0-13 5.8-13 13s5.8 13 13 13 13-5.8 13-13V17.5h4z"/><path fill="#000" d="M37 6v7c0 2.5 2 4.5 4.5 4.5h2V6h-6.5z"/></g></svg>
+      </div>
+      <div class="tab" data-tab="pinterest" title="Pinterest">
+        <svg viewBox="0 0 24 24"><path fill="#E60023" d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.387 7.633 11.093-.105-.943-.2-2.393.042-3.425.219-.963 1.406-6.144 1.406-6.144s-.359-.719-.359-1.781c0-1.668.968-2.915 2.172-2.915 1.025 0 1.52.77 1.52 1.693 0 1.031-.656 2.572-.994 4.004-.283 1.197.601 2.174 1.782 2.174 2.138 0 3.781-2.254 3.781-5.504 0-2.877-2.07-4.892-5.03-4.892-3.43 0-5.438 2.572-5.438 5.23 0 1.031.396 2.137.891 2.738.099.12.113.225.083.345-.09.375-.293 1.197-.334 1.363-.05.2-.162.242-.375.146-1.406-.57-2.281-2.354-2.281-3.792 0-3.084 2.238-6.63 6.68-6.63 3.5 0 6.23 2.5 6.23 5.83 0 3.48-2.188 6.28-5.219 6.28-1.043 0-2.025-.543-2.36-1.188l-.642 2.44c-.188.719-.563 1.619-.844 2.168.637.197 1.309.305 2.012.305 6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+      </div>
+      <div class="tab" data-tab="other" title="Other">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#888"/></svg>
+      </div>
+    </div>
+    <div class="cards" id="cards">
+      <div class="card" data-card="fb-page">
+        <span class="icon">&#x1F6A9;</span>
+        <div>Add Facebook pages</div>
+      </div>
+      <div class="card" data-card="ads">
+        <span class="icon">&#x221E;</span>
+        <div>Add Meta Ads Account</div>
+        <span class="new">NEW</span>
+      </div>
+      <div class="card" data-card="mockup">
+        <span class="icon">&#10022;</span>
+        <div>Create a mockup page</div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="fb-login-modal" style="display:none;max-width:370px;padding:0 0 24px 0;">
+    <div style="background:#3b5998;color:#fff;padding:18px 24px 10px 24px;font-size:1.2rem;font-weight:700;">Facebook</div>
+    <div style="padding:22px 24px 0 24px;">
+      <div style="font-size:1.08rem;margin-bottom:18px;">Log in to use your Facebook account with <b>Planable</b>.</div>
+      <form id="fb-login-form" autocomplete="off">
+        <label for="fb-email" style="font-weight:600;">Email address or phone number:</label>
+        <input type="text" id="fb-email" style="width:100%;margin-bottom:12px;padding:8px 10px;border-radius:6px;border:1px solid #ccd0d5;font-size:1rem;" required />
+        <label for="fb-pass" style="font-weight:600;">Password:</label>
+        <input type="password" id="fb-pass" style="width:100%;margin-bottom:18px;padding:8px 10px;border-radius:6px;border:1px solid #ccd0d5;font-size:1rem;" required />
+        <button type="submit" style="width:100%;background:#1877f2;color:#fff;border:none;border-radius:6px;padding:10px 0;font-size:1.1rem;font-weight:700;">Log in</button>
+      </form>
+      <div style="margin-top:10px;text-align:right;">
+        <a href="#" style="color:#1877f2;font-size:0.98rem;text-decoration:none;">Forgotten account?</a>
+      </div>
+      <button onclick="closeFbLogin()" style="width:100%;background:#42b72a;color:#fff;border:none;border-radius:6px;padding:10px 0;font-size:1.1rem;font-weight:700;margin-top:12px;">Create New Account</button>
+      <div style="margin-top:10px;text-align:center;font-size:0.97rem;">
+        <a href="#" style="color:#1877f2;text-decoration:none;">Log in with a managed Meta account</a>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="ig-login-modal" style="display:none;max-width:370px;padding:0 0 24px 0;">
+    <div style="padding:32px 0 0 0;text-align:center;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="width:60px;height:60px;margin-bottom:10px;" />
+    </div>
+    <div style="font-family:'Billabong',cursive;font-size:2.2rem;text-align:center;margin-bottom:18px;">Instagram</div>
+    <div style="padding:0 24px;">
+      <form id="ig-login-form" autocomplete="off">
+        <input type="text" id="ig-user" placeholder="Phone number, username, or email" style="width:100%;margin-bottom:12px;padding:10px 12px;border-radius:6px;border:1px solid #dbdbdb;font-size:1rem;" required />
+        <input type="password" id="ig-pass" placeholder="Password" style="width:100%;margin-bottom:18px;padding:10px 12px;border-radius:6px;border:1px solid #dbdbdb;font-size:1rem;" required />
+        <button type="submit" style="width:100%;background:#0095f6;color:#fff;border:none;border-radius:6px;padding:10px 0;font-size:1.1rem;font-weight:700;">Log in</button>
+      </form>
+      <div style="margin:18px 0 10px 0;display:flex;align-items:center;">
+        <div style="flex:1;height:1px;background:#dbdbdb;"></div>
+        <div style="padding:0 10px;color:#8e8e8e;font-size:0.98rem;">OR</div>
+        <div style="flex:1;height:1px;background:#dbdbdb;"></div>
+      </div>
+      <button onclick="alert('Login with Facebook (simulasi)')" style="width:100%;background:#fff;color:#385185;border:1px solid #385185;border-radius:6px;padding:10px 0;font-size:1.05rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#385185"><path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.406.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.406 24 22.674V1.326C24 .592 23.406 0 22.675 0"/></svg>
+        Log in with Facebook
+      </button>
+      <div style="margin-top:18px;text-align:center;font-size:0.97rem;">
+        <a href="#" style="color:#00376b;text-decoration:none;">Forgot password?</a>
+      </div>
+    </div>
+  </div>
+  <div id="fb-login-status" style="display:none;text-align:center;margin-top:18px;font-size:1.1rem;font-weight:600;color:#059669;">Facebook login success!</div>
+  <div id="ig-login-status" style="display:none;text-align:center;margin-top:18px;font-size:1.1rem;font-weight:600;color:#059669;">Instagram login success!</div>
+  <script>
+    // Tab interaktif
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        if (tab.hasAttribute('disabled')) return;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        // Demo: hanya Facebook tab yang aktif, lain disable
+        document.getElementById('cards').innerHTML = `
+          <div class="card" data-card="fb-page">
+            <span class="icon">&#x1F6A9;</span>
+            <div>Add Facebook pages</div>
+          </div>
+          <div class="card" data-card="ads">
+            <span class="icon">&#x221E;</span>
+            <div>Add Meta Ads Account</div>
+            <span class="new">NEW</span>
+          </div>
+          <div class="card" data-card="mockup">
+            <span class="icon">&#10022;</span>
+            <div>Create a mockup page</div>
+          </div>
+        `;
+      });
+    });
+    function closeFbLogin() {
+      document.getElementById('fb-login-modal').style.display = 'none';
+      document.getElementById('main-modal').style.display = '';
+    }
+    function closeIgLogin() {
+      document.getElementById('ig-login-modal').style.display = 'none';
+      document.getElementById('main-modal').style.display = '';
+    }
+    // Tambahkan event untuk tab Instagram (aktifkan demo)
+    document.querySelectorAll('.tab[data-tab="instagram"]').forEach(tab => {
+      tab.removeAttribute('disabled');
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('cards').innerHTML = `
+          <div class=\"card\" data-card=\"ig-page\">\n  <span class=\"icon\">\uD83D\uDCF7</span>\n  <div>Add Instagram account</div>\n</div>\n`;
+      });
+    });
+    // Card interaktif
+    document.getElementById('cards').addEventListener('click', function(e) {
+      let card = e.target.closest('.card');
+      if (!card) return;
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      if (card.dataset.card === 'fb-page') {
+        document.getElementById('main-modal').style.display = 'none';
+        document.getElementById('fb-login-modal').style.display = '';
+      } else if (card.dataset.card === 'ig-page') {
+        document.getElementById('main-modal').style.display = 'none';
+        document.getElementById('ig-login-modal').style.display = '';
+      } else {
+        setTimeout(() => {
+          alert('Berhasil memilih: ' + card.innerText.trim().split('\n')[0]);
+        }, 300);
+      }
+    });
+    document.getElementById('fb-login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('fb-login-modal').style.display = 'none';
+      document.getElementById('fb-login-status').style.display = '';
+      setTimeout(() => {
+        document.getElementById('fb-login-status').style.display = 'none';
+        document.getElementById('main-modal').style.display = '';
+      }, 1800);
+    });
+    document.getElementById('ig-login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('ig-login-modal').style.display = 'none';
+      document.getElementById('ig-login-status').style.display = '';
+      setTimeout(() => {
+        document.getElementById('ig-login-status').style.display = 'none';
+        document.getElementById('main-modal').style.display = '';
+      }, 1800);
+    });
+  </script>
+</body>
+</html>

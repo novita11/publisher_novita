@@ -1,0 +1,13 @@
+{
+  "url": "https://example.com",
+  "title": "Contoh Judul Halaman — Contoh Situs",
+  "metaDescription": "Ini adalah contoh meta description yang mendeskripsikan isi halaman secara ringkas dan informatif.",
+  "robotMeta": "index, follow",
+  "h1s": ["Contoh Halaman"],
+  "canonical": "https://example.com/",
+  "imgs": 5,
+  "links": 38,
+  "words": 820,
+  "mobileFriendly": true,
+  "pageSpeed": 73
+}

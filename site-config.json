@@ -1,0 +1,190 @@
+{
+  "site_config": {
+    "name": "Penerbit Nusantara",
+    "tagline": "Platform Penerbitan Digital dengan Sertifikasi ISBN",
+    "description": "Penerbit Nusantara adalah platform penerbitan terpercaya Indonesia dengan sertifikasi ISBN internasional, distribusi luas, dan layanan profesional untuk penulis dan penerbit.",
+    "url": "https://penerbitnusantara.id",
+    "logo": "/assets/logo-nusantara.svg",
+    "favicon": "/assets/favicon.ico",
+    
+    "contact": {
+      "phone": ["+62 21 1234 5678", "+62 851 6789 0123"],
+      "email": "info@penerbitnusantara.id",
+      "address": "Jl. Gatot Subroto No. 123, Jakarta Selatan 12345, Indonesia",
+      "business_hours": {
+        "weekday": "09:00 - 17:00",
+        "saturday": "09:00 - 13:00",
+        "sunday": "Closed"
+      }
+    },
+    
+    "social_media": {
+      "facebook": "https://facebook.com/penerbitnusantara",
+      "instagram": "@penerbitnusantara",
+      "twitter": "@penerbitnusantara",
+      "tiktok": "@penerbitnusantara",
+      "youtube": "Penerbit Nusantara"
+    },
+    
+    "seo": {
+      "keywords": "penerbit, ISBN, penerbitan, buku, Indonesia, Nusantara, penerbit Indonesia, terbit buku, distribusi buku",
+      "author": "Penerbit Nusantara",
+      "og_type": "website",
+      "og_image": "/assets/og-image.png"
+    },
+    
+    "services": {
+      "starter": {
+        "name": "Paket Starter",
+        "price": 2500000,
+        "currency": "IDR",
+        "description": "Penerbitan dengan ISBN dasar untuk penerbit pemula",
+        "features": [
+          "Penerbitan 1 judul buku",
+          "Nomor ISBN",
+          "Desain cover basic",
+          "Layout & formatting",
+          "Distribusi terbatas"
+        ]
+      },
+      "professional": {
+        "name": "Paket Professional",
+        "price": 5000000,
+        "currency": "IDR",
+        "description": "Penerbitan premium dengan distribusi nasional",
+        "features": [
+          "Penerbitan 1 judul buku",
+          "Nomor ISBN + registrasi perpusnas",
+          "Desain cover premium",
+          "Layout profesional",
+          "Distribusi nasional",
+          "Marketing support"
+        ],
+        "popular": true
+      },
+      "enterprise": {
+        "name": "Paket Enterprise",
+        "price": "custom",
+        "currency": "IDR",
+        "description": "Solusi custom untuk penerbit besar",
+        "features": [
+          "Penerbitan unlimited",
+          "Konsultasi bisnis",
+          "Branding lengkap",
+          "Distribusi premium",
+          "Marketing campaign",
+          "Dedicated account manager"
+        ]
+      }
+    },
+    
+    "dummy_user": {
+      "email": "novita@testmail.com",
+      "password": "123456",
+      "name": "Novita Rani Brginting",
+      "company": "Penerbit Nusantara",
+      "role": "Admin",
+      "note": "Use this for testing purposes only"
+    },
+    
+    "analytics": {
+      "google_analytics_id": "G-XXXXXXXXXX",
+      "google_tag_manager_id": "GTM-XXXXXXXX",
+      "hotjar_id": "0000000",
+      "facebook_pixel_id": "000000000000000"
+    },
+    
+    "payment": {
+      "midtrans": {
+        "enabled": false,
+        "server_key": "YOUR_SERVER_KEY",
+        "client_key": "YOUR_CLIENT_KEY"
+      },
+      "gopay": {
+        "enabled": false,
+        "merchant_id": "YOUR_MERCHANT_ID"
+      },
+      "manual_transfer": {
+        "enabled": true,
+        "bank": "Bank Mandiri",
+        "account_number": "1234567890",
+        "account_name": "PT Penerbit Nusantara"
+      }
+    },
+    
+    "email_service": {
+      "provider": "sendgrid",
+      "api_key": "YOUR_API_KEY",
+      "from_email": "noreply@penerbitnusantara.id",
+      "from_name": "Penerbit Nusantara"
+    },
+    
+    "smtp": {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "your-email@gmail.com",
+      "password": "your-app-password"
+    },
+    
+    "database": {
+      "type": "mongodb",
+      "host": "localhost",
+      "port": 27017,
+      "name": "penerbit_nusantara",
+      "note": "Configure after moving to backend"
+    },
+    
+    "features": {
+      "authentication": true,
+      "user_registration": true,
+      "catalog_management": true,
+      "shopping_cart": false,
+      "payment_gateway": false,
+      "order_management": false,
+      "email_notifications": false,
+      "dashboard": false,
+      "analytics": false,
+      "admin_panel": false
+    },
+    
+    "seo_pages": [
+      {
+        "path": "/",
+        "title": "Penerbit Nusantara - Platform Penerbitan ISBN Indonesia",
+        "meta_description": "Platform penerbitan terpercaya Indonesia dengan sertifikasi ISBN internasional, distribusi luas, dan layanan profesional."
+      },
+      {
+        "path": "/catalog",
+        "title": "Katalog Buku - Penerbit Nusantara",
+        "meta_description": "Jelajahi katalog lengkap buku dari Penerbit Nusantara. Fiksi, non-fiksi, dan buku anak-anak dengan ISBN resmi."
+      },
+      {
+        "path": "/services",
+        "title": "Paket Layanan Penerbitan - Penerbit Nusantara",
+        "meta_description": "Paket penerbitan dari Starter hingga Enterprise dengan harga terjangkau dan kualitas internasional."
+      },
+      {
+        "path": "/contact",
+        "title": "Hubungi Kami - Penerbit Nusantara",
+        "meta_description": "Hubungi tim Penerbit Nusantara untuk konsultasi gratis penerbitan buku Anda."
+      }
+    ],
+    
+    "legal": {
+      "privacy_policy_url": "/privacy.html",
+      "terms_and_conditions_url": "/terms.html",
+      "cookie_policy_url": "/cookies.html"
+    },
+    
+    "version": "1.0.0",
+    "last_updated": "2025-01-09",
+    "authors": [
+      {
+        "name": "Novita Rani Brginting",
+        "email": "novita@testmail.com",
+        "role": "Creator"
+      }
+    ]
+  }
+}

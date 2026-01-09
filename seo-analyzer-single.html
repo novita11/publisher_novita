@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEO Analyzer — Single File Prototype (Client POV)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{--bg:#f6f8fb;--card:#fff;--accent:#2b6cb0;--muted:#6b7280}
+    body{font-family:Inter,system-ui,Segoe UI,Arial,Helvetica,sans-serif;background:var(--bg);color:#111;margin:0}
+    header{background:linear-gradient(90deg,#0ea5e9,#6366f1);color:white;padding:24px}
+    header h1{margin:0 0 6px}
+    main{max-width:980px;margin:24px auto;padding:0 16px}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+    .controls input{padding:8px 10px;border:1px solid #e6edf3;border-radius:6px;min-width:220px}
+    .buttons button{background:var(--accent);color:white;border:none;padding:8px 12px;margin-right:6px;border-radius:6px;cursor:pointer}
+    .buttons button:nth-child(2){background:#10b981}
+    .buttons button:nth-child(3){background:#f59e0b}
+    .panel{background:var(--card);padding:16px;border-radius:8px;border:1px solid #e6edf3;margin-bottom:16px}
+    #rawData{max-height:220px;overflow:auto;background:#f8fafc;padding:8px;border-radius:6px}
+    #scores{display:flex;gap:12px;flex-wrap:wrap}
+    .scoreCard{padding:12px;border-radius:8px;background:#fafafa;border:1px solid #eef2ff;min-width:140px}
+    #advice{margin-top:12px}
+    footer{max-width:980px;margin:0 auto 24px;color:var(--muted);font-size:13px}
+    @media (max-width:640px){.controls{flex-direction:column;align-items:stretch}.buttons{display:flex;gap:8px}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SEO Analyzer — Single File Prototype</h1>
+    <p>Simulasi tool SEO untuk aplikasi AI Digital Marketing. Data bisa diambil dari Apify Store atau mock lokal (inline).</p>
+  </header>
+
+  <main>
+    <!-- Hidden original controls (kept for dev/testing but hidden in demo mode) -->
+    <section class="controls" style="display:none">
+      <label for="url">URL:</label>
+      <input id="url" placeholder="https://example.com" value="https://example.com">
+
+      <label for="apifyToken">(Optional) Apify Token:</label>
+      <input id="apifyToken" placeholder="(optional) apify_token_here">
+
+      <div class="buttons">
+        <button id="fetchBtn">Fetch from Apify</button>
+        <button id="mockBtn">Use Mock Data</button>
+        <button id="analyzeBtn">Analyze</button>
+      </div>
+      <label style="margin-left:6px"><input type="checkbox" id="umkmMode" checked> Mode UMKM (cek lokal & kontak)</label>
+    </section>
+
+    <!-- Demo-only controls: runs a realistic demo analysis without URL/token -->
+    <section class="panel" style="margin-bottom:16px;">
+      <strong>Demo Mode</strong>
+      <p>Hasil analisis siap pakai—tanpa masukkan URL atau token. Cocok untuk demo cepat dan presentasi klien UMKM.</p>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="demoBtn" style="background:#ef4444;color:white;padding:10px;border-radius:8px;border:none;">Run Demo Analysis</button>
+        <label style="margin-left:8px"><input id="autoDemo" type="checkbox" checked> Auto run on load</label>
+      </div>
+    </section>
+
+    <!-- Surfer-like workspace -->
+    <section class="panel" style="display:flex;gap:12px;align-items:flex-start">
+      <div style="flex:1">
+        <h3>Content Editor</h3>
+        <label for="targetKeyword">Target Keyword:</label>
+        <input id="targetKeyword" placeholder="contoh: jasa laundry jakarta" style="width:100%;margin-bottom:8px">
+        <textarea id="contentEditor" placeholder="Paste atau tulis konten di sini..." style="width:100%;height:220px;padding:8px;border-radius:6px;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="analyzeContentBtn" style="background:#10b981;color:white;border:none;padding:8px;border-radius:6px">Analyze Content</button>
+          <button id="suggestBtn" style="background:#3b82f6;color:white;border:none;padding:8px;border-radius:6px">Get Suggestions</button>
+          <button id="copyJson" style="background:#6b7280;color:white;border:none;padding:8px;border-radius:6px">Copy JSON</button>
+        </div>
+      </div>
+      <div style="width:360px">
+        <h3>Content Score</h3>
+        <div id="contentScoreCard" class="panel" style="background:#fff;padding:12px;">
+          <div style="font-size:28px;color:#0b5fff" id="contentScore">—</div>
+          <div id="keywordDensity">—</div>
+          <div id="tfidfTop">—</div>
+        </div>
+
+        <h3 style="margin-top:12px">SERP Competitors (sample)</h3>
+        <div id="serpList" class="panel" style="max-height:220px;overflow:auto;background:#fff;padding:8px"></div>
+      </div>
+    </section>
+
+    <section id="dataSection" class="panel">
+      <h2>Fetched Data</h2>
+      <pre id="rawData">—</pre>
+    </section>
+
+    <section id="reportSection" class="panel">
+      <h2>Analysis Report</h2>
+      <div id="scores"></div>
+      <canvas id="scoreChart" width="400" height="200"></canvas>
+      <div id="advice"></div>
+      <div id="summaryScores" class="panel">
+        <h3>Ringkasan Audit Utama</h3>
+        <div id="mainScores"></div>
+      </div>
+      <div id="detailedAudits" class="panel">
+        <h3>Detail Audit</h3>
+        <div id="auditDetails"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Prototype • Client POV • Single-file • Not for production</small>
+  </footer>
+
+  <script>
+    // Inline mock (replaces apify-mock.json to keep single-file)
+    const MOCK = {
+      url: 'https://example.com',
+      title: 'Contoh Judul Halaman — Contoh Situs',
+      metaDescription: 'Ini adalah contoh meta description yang mendeskripsikan isi halaman secara ringkas dan informatif.',
+      robotMeta: 'index, follow',
+      h1s: ['Contoh Halaman'],
+      canonical: 'https://example.com/',
+      imgs: 5,
+      links: 38,
+      words: 820,
+      mobileFriendly: true,
+      pageSpeed: 73
+    };
+
+    // Elements
+    const urlInput = document.getElementById('url');
+    const apifyTokenInput = document.getElementById('apifyToken');
+    const fetchBtn = document.getElementById('fetchBtn');
+    const mockBtn = document.getElementById('mockBtn');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const rawData = document.getElementById('rawData');
+    const scoresEl = document.getElementById('scores');
+    const adviceEl = document.getElementById('advice');
+    const umkmMode = document.getElementById('umkmMode');
+    let lastData = null;
+    let currentChart = null;
+
+    fetchBtn.addEventListener('click', async () => {
+      const url = urlInput.value.trim();
+      if (!url) return alert('Masukkan URL');
+
+      const token = apifyTokenInput.value.trim();
+      if (token) {
+        rawData.textContent = 'Mencoba ambil data dari Apify (contoh placeholder)...';
+        try {
+          // NOTE: This is a placeholder demo call; for real use provide dataset/actor ID and server-side proxy
+          const resp = await fetch(`https://api.apify.com/v2/datasets/DEFAULT/items?token=${encodeURIComponent(token)}&limit=1`);
+          if (!resp.ok) throw new Error('Apify response not OK');
+          const items = await resp.json();
+          if (items && items.length) {
+            lastData = items[0]; renderRaw(lastData); return;
+          }
+        } catch (err) {
+          console.warn('Apify fetch failed, falling back to page fetch', err);
+          rawData.textContent = 'Apify fetch gagal, fallback ke fetch langsung...';
+        }
+      }
+
+      rawData.textContent = 'Mengambil halaman melalui proxy...';
+      try { const pageData = await fetchPageData(url); lastData = pageData; renderRaw(pageData); }
+      catch (e) { rawData.textContent = 'Gagal mengambil halaman: ' + e.message; }
+    });
+
+    mockBtn.addEventListener('click', () => { lastData = MOCK; renderRaw(MOCK); });
+    analyzeBtn.addEventListener('click', () => { if (!lastData) return alert('Tidak ada data. Tekan Fetch atau Mock terlebih dahulu.'); const report = analyze(lastData); renderReport(report); const full = fullAudit({words:lastData.words||0,pageSpeed:lastData.pageSpeed||50,mobileFriendly:lastData.mobileFriendly,links:lastData.links||0,data:lastData}); renderExtendedReport(full); });
+
+    function renderRaw(data) { rawData.textContent = JSON.stringify(data, null, 2); }
+
+    async function fetchPageData(url) {
+      const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+      const resp = await fetch(proxy);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const html = await resp.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const title = doc.querySelector('title')?.innerText?.trim() || '';
+      const metaDescription = doc.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+      const robotMeta = doc.querySelector('meta[name="robots"]')?.getAttribute('content') || '';
+      const h1s = Array.from(doc.querySelectorAll('h1')).map(h => h.innerText.trim());
+      const canonical = doc.querySelector('link[rel=canonical]')?.getAttribute('href') || '';
+      const imgs = doc.querySelectorAll('img').length;
+      const links = doc.querySelectorAll('a[href]').length;
+      const text = doc.body?.innerText || '';
+      const words = text.split(/\s+/).filter(Boolean).length;
+      // UMKM-specific checks
+      const telLinks = Array.from(doc.querySelectorAll('a[href^="tel:"]')).map(a=>a.getAttribute('href'));
+      const mailLinks = Array.from(doc.querySelectorAll('a[href^="mailto:"]')).map(a=>a.getAttribute('href'));
+      const addressTag = doc.querySelector('address')?.innerText?.trim() || '';
+      const textLower = (text || '').toLowerCase();
+      const hasAddressKeywords = /\b(jl\.?|jalan|komplek|perumahan|kec\.|kecamatan|kab\.|kel\.|kelurahan|rt\.|rw\.|no\.)\b/i.test(textLower) || /\b\d{5}\b/.test(textLower);
+      const scripts = Array.from(doc.querySelectorAll('script[type="application/ld+json"]'));
+      let hasLocalBusinessSchema = false;
+      const schemaTypes = [];
+      scripts.forEach(s=>{ try{ const j = JSON.parse(s.textContent); const types = (j['@type'] || j['type'] || (Array.isArray(j)? j.map(x=>x['@type']) : null)); if(types){ if(Array.isArray(types)) types.forEach(t=>schemaTypes.push(t)); else schemaTypes.push(types); if((JSON.stringify(j)||'').toLowerCase().includes('localbusiness')) hasLocalBusinessSchema = true; } }catch(e){} });
+      const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || doc.querySelector('meta[name="og:title"]')?.getAttribute('content') || '';
+      const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute('content') || doc.querySelector('meta[name="og:description"]')?.getAttribute('content') || '';
+      const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') || '';
+      const hasMapEmbed = !!doc.querySelector('iframe[src*="google.com/maps"], iframe[src*="maps.google"]');
+      const ctaElems = Array.from(doc.querySelectorAll('a,button')).filter(el=>/(hubungi|kontak|pesan|order|beli|whatsapp|wa\.?me|chat|booking)/i.test(el.innerText || el.getAttribute('aria-label') || ''));
+      const pricesPresent = /(rp\.?\s?\d+|harga|idr\s?\d+)/i.test(text);
+      const mobileFriendly = true;
+      const pageSpeed = Math.floor(50 + Math.random() * 40);
+      return { url, title, metaDescription, robotMeta, h1s, canonical, imgs, links, words, mobileFriendly, pageSpeed,
+        telLinks, mailLinks, addressTag, hasAddressKeywords, hasLocalBusinessSchema, schemaTypes, ogTitle, ogDesc, ogImage, hasMapEmbed, ctaCount: ctaElems.length, pricesPresent };
+    }
+
+    function analyze(data) {
+      const details = []; let score = 0;
+      // Title (10)
+      const titleLen = (data.title || '').length; let titleScore = 0;
+      if (!data.title) {details.push(['Title',0,'Tidak ada title']);}
+      else if (titleLen >= 50 && titleLen <= 60) { titleScore = 10; details.push(['Title',10,'Panjang optimal']); }
+      else if (titleLen >= 30) { titleScore = 7; details.push(['Title',7,'Agak pendek']); }
+      else { titleScore = 4; details.push(['Title',4,'Terlalu pendek']); }
+      score += titleScore;
+
+      // Meta Description (10)
+      const descLen = (data.metaDescription || '').length; let descScore = 0;
+      if (!data.metaDescription) { details.push(['Meta Description',0,'Tidak ada']); }
+      else if (descLen >= 120 && descLen <= 160) { descScore = 10; details.push(['Meta Description',10,'Optimal']); }
+      else if (descLen >= 70) { descScore = 7; details.push(['Meta Description',7,'Cukup']); }
+      else { descScore = 4; details.push(['Meta Description',4,'Terlalu singkat']); }
+      score += descScore;
+
+      // H1 (8)
+      const h1Count = (data.h1s||[]).length; const h1Score = h1Count >= 1 ? Math.min(8, 4 + Math.min(4,h1Count)) : 0;
+      details.push(['H1', h1Score, h1Count ? `${h1Count} ditemukan` : 'Tidak ada']); score += h1Score;
+
+      // Word count (8)
+      const wc = data.words || 0; let wcScore = 0;
+      if (wc >= 1000) { wcScore = 8; details.push(['Word Count',8,'Kaya konten']); }
+      else if (wc >= 300) { wcScore = 6; details.push(['Word Count',6,'Cukup'] ); }
+      else { wcScore = 2; details.push(['Word Count',2,'Sedikit']); }
+      score += wcScore;
+
+      // Canonical (6)
+      const canScore = data.canonical ? 6 : 0; details.push(['Canonical', canScore, data.canonical ? 'Ada' : 'Tidak ada']); score += canScore;
+
+      // Robots (4)
+      const robotsScore = (data.robotMeta && data.robotMeta.toLowerCase().includes('noindex')) ? 0 : 4; details.push(['Robots', robotsScore, data.robotMeta || '—']); score += robotsScore;
+
+      // PageSpeed (10)
+      const ps = data.pageSpeed || 50; const psScore = Math.round((ps / 100) * 10); details.push(['PageSpeed', psScore, `Lighthouse approx ${ps}`]); score += psScore;
+
+      // UMKM-specific: Contact (15)
+      const hasContact = (data.telLinks && data.telLinks.length) || (data.mailLinks && data.mailLinks.length) || data.addressTag || data.hasAddressKeywords;
+      const contactScore = hasContact ? 15 : 0; details.push(['Contact (NAP)', contactScore, hasContact ? 'Kontak terlihat' : 'Kontak/Alamat tidak jelas']); score += contactScore;
+
+      // UMKM-specific: LocalBusiness schema (15)
+      const schemaScore = data.hasLocalBusinessSchema ? 15 : 0; details.push(['LocalBusiness schema', schemaScore, data.hasLocalBusinessSchema ? `Terbaca: ${data.schemaTypes.join(', ')}` : 'Tidak ada']); score += schemaScore;
+
+      // OG tags (6)
+      const ogScore = (data.ogTitle && data.ogDesc) ? 6 : (data.ogTitle || data.ogDesc) ? 3 : 0; details.push(['Open Graph', ogScore, (data.ogTitle||data.ogDesc) ? 'Ada' : 'Tidak ada']); score += ogScore;
+
+      // CTA presence (8)
+      const ctaScore = Math.min(8, (data.ctaCount || 0) >= 1 ? 8 : 0); details.push(['CTA', ctaScore, (data.ctaCount||0) + ' tombol/link relevan']); score += ctaScore;
+
+      // Map embed (5)
+      const mapScore = data.hasMapEmbed ? 5 : 0; details.push(['Map Embed', mapScore, data.hasMapEmbed ? 'Ada' : 'Tidak ada']); score += mapScore;
+
+      // Prices (4) — useful for merchants
+      const priceScore = data.pricesPresent ? 4 : 0; details.push(['Price Info', priceScore, data.pricesPresent ? 'Ada' : 'Tidak ada']); score += priceScore;
+
+      score = Math.max(0, Math.min(100, Math.round(score)));
+      return {score, details, data};
+    }
+
+    // Full audit combining multiple sections suitable for UMKM with dummy data
+    function fullAudit(data) {
+      // technical health (broken links, sitemap, url issues)
+      const brokenLinks = [];
+      const anchors = (data.links || 0);
+      // dummy sample: simulate 0-5 broken links depending on anchors
+      const brokenCount = Math.min(5, Math.floor((anchors / 20)) );
+      for (let i=0;i<brokenCount;i++) brokenLinks.push({url: data.url + '/broken-' + (i+1), status: 404});
+      const sitemapFound = Math.random() > 0.3; // dummy
+      const techScore = Math.round(70 - brokenCount*8 + (sitemapFound?10:0));
+
+      // content & keyword (use simple keyword density dummy)
+      const sampleKeyword = 'usaha';
+      const text = (data.data && data.data.text) || '';
+      const wc = data.words || 0;
+      const density = Math.min(8, Math.round(((text.match(new RegExp(sampleKeyword,'gi'))||[]).length / Math.max(1,wc)) * 1000));
+      const contentScore = Math.round(Math.min(100, 40 + density*6 + (wc>500?20:0)));
+
+      // speed & UX
+      const speedScore = Math.round((data.pageSpeed || 50) * 0.9);
+      const mobileScore = data.mobileFriendly ? 90 : 30;
+
+      // backlink (dummy counts & quality)
+      const backlinks = Math.floor(10 + Math.random()*120);
+      const referringDomains = Math.floor(backlinks / (2 + Math.random()*5));
+      const highQuality = Math.max(0, Math.round(backlinks * (0.1 + Math.random()*0.3)));
+      const backlinkScore = Math.round(Math.min(100, Math.log10(Math.max(1, backlinks))*20 + highQuality*0.4));
+
+      // competitor analysis (dummy list)
+      const competitors = [
+        {domain:'kompetitorA.com', topKeywords: ['kata kunci A','jualan online'], estOrganic: 320},
+        {domain:'kompetitorB.co.id', topKeywords: ['produk X','harga murah'], estOrganic: 210}
+      ];
+      const competitorScore = Math.round(50 + Math.random()*30);
+
+      // assemble main scores
+      const sections = {
+        technical: {score: Math.max(0, Math.min(100, techScore)), details: {brokenLinks, sitemapFound}},
+        content: {score: contentScore, details: {sampleKeyword, density, wc}},
+        speed: {score: Math.round((speedScore + mobileScore)/2), details: {pageSpeed: data.pageSpeed, mobileFriendly: data.mobileFriendly}},
+        backlink: {score: backlinkScore, details: {backlinks, referringDomains, highQuality}},
+        competitor: {score: competitorScore, details: {competitors}}
+      };
+
+      // overall score weighted
+      const overall = Math.round((sections.technical.score*0.18 + sections.content.score*0.22 + sections.speed.score*0.18 + sections.backlink.score*0.22 + sections.competitor.score*0.2));
+
+      // practical recommendations per section
+      const recommendations = [];
+      if (sections.technical.details.brokenLinks.length) recommendations.push('Perbaiki broken links ('+sections.technical.details.brokenLinks.length+').');
+      if (!sections.technical.details.sitemapFound) recommendations.push('Tambahkan file sitemap.xml dan submit ke Google Search Console.');
+      if (sections.content.details.wc < 300) recommendations.push('Perkaya konten agar lebih informatif dan relevan untuk kata kunci target.');
+      if (sections.speed.details.pageSpeed < 60) recommendations.push('Optimalkan gambar, gunakan caching, dan perbaiki render-blocking resources (tingkatkan PageSpeed).');
+      if (sections.backlink.details.backlinks < 30) recommendations.push('Rencanakan strategi membangun backlink berkualitas (kolaborasi lokal, list bisnis, guest post).');
+      if (sections.competitor.details.competitors && sections.competitor.details.competitors.length) recommendations.push('Pantau kata kunci kompetitor dan fokus pada long-tail keyword lokal.');
+
+      // dummy data for display convenience
+      const dummy = {sections, overall, recommendations};
+      return dummy;
+    }
+
+    function renderReport(report) {
+      scoresEl.innerHTML = ''; adviceEl.innerHTML = '';
+      report.details.forEach(([name,val,desc]) => {
+        const el = document.createElement('div'); el.className = 'scoreCard'; el.innerHTML = `<strong>${name}</strong><div style="font-size:20px;color:#0b5fff">${val}</div><div style="color:#6b7280">${desc}</div>`; scoresEl.appendChild(el);
+      });
+
+      const ctx = document.getElementById('scoreChart');
+      const labels = report.details.map(d=>d[0]); const vals = report.details.map(d=>d[1]);
+      if (window.Chart) {
+        if (currentChart) currentChart.destroy();
+        currentChart = new Chart(ctx.getContext('2d'), {type:'bar',data:{labels, datasets:[{label:'Component score',data:vals,backgroundColor:'#60a5fa'}] }, options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+      } else {
+        // Fallback: simple textual bar
+        ctx.style.display = 'none';
+        const fallback = document.createElement('div'); report.details.forEach(([name,val])=>{ const r = document.createElement('div'); r.innerHTML = `<strong>${name}</strong> <div style="background:#eef2ff;height:10px;border-radius:6px;margin:6px 0"><div style="width:${val}%;background:#60a5fa;height:10px;border-radius:6px"></div></div>`; fallback.appendChild(r); }); adviceEl.appendChild(fallback);
+      }
+
+      const overall = document.createElement('div'); overall.className = 'panel'; overall.innerHTML = `<h3>Overall Score: ${report.score}/100</h3>`; adviceEl.appendChild(overall);
+
+      const recs = [];
+      const dmap = Object.fromEntries(report.details.map(d=>[d[0],d]));
+      // General SEO
+      if ((dmap['Title']||[0,0])[1] < 8) recs.push('Perbaiki Title: buat 50–60 karakter dan masukkan keyword utama + nama usaha.');
+      if ((dmap['Meta Description']||[0,0])[1] < 7) recs.push('Tambahkan/Perbaiki meta description (120–160 karakter) untuk meningkatkan CTR.');
+      if ((dmap['H1']||[0,0])[1] === 0) recs.push('Tambahkan setidaknya satu <code>&lt;h1&gt;</code> yang jelas berisi kata kunci utama.');
+      if ((dmap['Word Count']||[0,0])[1] < 4) recs.push('Perkuat konten produk/layanan (minimal 300 kata; halaman produk bisa lebih pendek tetapi tetap lengkap).');
+      if (!report.data.canonical) recs.push('Tambahkan tag <code>rel=canonical</code> untuk menghindari duplikat.');
+
+      // UMKM-specific recommendations (only if UMKM mode enabled)
+      if (umkmMode && umkmMode.checked) {
+        if ((dmap['Contact (NAP)']||[0,0])[1] === 0) {
+          recs.push('Sertakan informasi NAP (Name, Address, Phone) yang jelas dan tampak — nomor telepon dengan link <code>tel:</code> dan tombol WhatsApp jika ada.');
+        } else {
+          // Show detected contact details
+          const found = [];
+          if (report.data.telLinks && report.data.telLinks.length) found.push('Tel: ' + report.data.telLinks.join(', '));
+          if (report.data.mailLinks && report.data.mailLinks.length) found.push('Email: ' + report.data.mailLinks.join(', '));
+          if (report.data.addressTag) found.push('Address tag: ' + report.data.addressTag);
+          if (found.length) recs.push('Info kontak terdeteksi: ' + found.join(' • '));
+        }
+
+        if ((dmap['LocalBusiness schema']||[0,0])[1] === 0) {
+          recs.push('Tambahkan structured data LocalBusiness (JSON-LD) untuk membantu muncul di hasil lokal. Contoh:');
+          const pre = document.createElement('pre');
+          pre.style.background = '#f3f4f6'; pre.style.padding = '8px'; pre.style.borderRadius = '6px'; pre.innerText = `{
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Nama Usaha",
+      "telephone": "+62-8xx-xxxx-xxxx",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Jl. Contoh No.1",
+        "addressLocality": "Kota",
+        "postalCode": "12345"
+      }
+    }`;
+          adviceEl.appendChild(pre);
+        }
+
+        if ((dmap['Open Graph']||[0,0])[1] < 3) recs.push('Tambahkan meta Open Graph (og:title, og:description, og:image) agar share ke sosial terlihat menarik.');
+        if ((dmap['CTA']||[0,0])[1] === 0) recs.push('Tambahkan CTA yang jelas (contoh: tombol "Hubungi via WhatsApp" atau "Pesan Sekarang").');
+        if ((dmap['Map Embed']||[0,0])[1] === 0) recs.push('Tambahkan Google Maps embed agar pelanggan dapat menemukan lokasi usaha dengan mudah.');
+        if ((dmap['Price Info']||[0,0])[1] === 0 && report.data.pricesPresent === false) recs.push('Jika menjual produk, tampilkan harga di halaman produk untuk kemudahan pembeli dan SEO e‑commerce.');
+      }
+
+      if (!recs.length) recs.push('Bagus! Halaman sudah cukup siap untuk UMKM. Pertimbangkan optimasi PageSpeed dan penambahan schema untuk hasil lokal lebih baik.');
+
+      const ul = document.createElement('ul'); recs.forEach(r=>{ const li = document.createElement('li'); li.innerHTML = r; ul.appendChild(li); }); adviceEl.appendChild(ul);
+    }
+
+        function renderExtendedReport(full) {
+          const mainScores = document.getElementById('mainScores');
+          const auditDetails = document.getElementById('auditDetails');
+          mainScores.innerHTML = '';
+          auditDetails.innerHTML = '';
+
+          // Show per-section cards
+          Object.entries(full.sections).forEach(([k,v])=>{
+            const card = document.createElement('div'); card.className = 'scoreCard'; card.style.minWidth='180px';
+            card.innerHTML = `<strong>${k.charAt(0).toUpperCase()+k.slice(1)}</strong><div style="font-size:18px;color:#0b5fff">${v.score}</div>`;
+            mainScores.appendChild(card);
+
+            const det = document.createElement('div'); det.style.marginTop='8px'; det.innerHTML = `<h4>${k.charAt(0).toUpperCase()+k.slice(1)} details</h4><pre style='background:#fff;padding:8px;border-radius:6px;overflow:auto'>${JSON.stringify(v.details,null,2)}</pre>`;
+            auditDetails.appendChild(det);
+          });
+
+          const overall = document.createElement('div'); overall.className = 'panel'; overall.innerHTML = `<h3>Overall Audit Score: ${full.overall}/100</h3><h4>Rekomendasi</h4>`;
+          const u = document.createElement('ul'); full.recommendations.forEach(r=>{ const li = document.createElement('li'); li.innerText = r; u.appendChild(li); }); overall.appendChild(u);
+          auditDetails.appendChild(overall);
+        }
+
+        // Simple TF and TF-IDF like helper (very lightweight & local dummy)
+        function tokenize(text){ return (text||'').toLowerCase().replace(/[^a-z0-9\s\u00C0-\u017F]/gi,' ').split(/\s+/).filter(Boolean); }
+        function topTerms(text, n=10){ const t=tokenize(text); const m={}; t.forEach(w=>m[w]=(m[w]||0)+1); return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n).map(x=>({term:x[0],count:x[1]})); }
+
+        function analyzeContentForKeyword(content, keyword){
+          const tokens = tokenize(content);
+          const wc = tokens.length;
+          const keywordCount = (content.toLowerCase().match(new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'))||[]).length;
+          const density = wc? Math.round((keywordCount/wc)*10000)/100 : 0; // percent
+          const tfTop = topTerms(content,8);
+          // sample scoring: base 40 + density factor + uniqueness factor
+          const uniqueness = Math.min(30, Math.round((tfTop.length? (tfTop[0].count / Math.max(1,wc))*1000 : 0)));
+          const score = Math.max(0, Math.min(100, Math.round(40 + density*4 + uniqueness )));
+          return {wc, keywordCount, density, tfTop, score};
+        }
+
+        // Dummy SERP competitor generator (inspired by Surfer's competitor list)
+        function sampleSERP(keyword){
+          const list = [
+            {domain:'example-competitor1.com', title:keyword+' — layanan terbaik', traffic:320, wordCount:820},
+            {domain:'umkm-sukses.id', title:'Jasa '+keyword+' di Jakarta', traffic:210, wordCount:430},
+            {domain:'marketplace.co.id', title:keyword+' murah', traffic:890, wordCount:980}
+          ];
+          return list;
+        }
+
+        // event handlers for content editor
+        document.getElementById('analyzeContentBtn').addEventListener('click', ()=>{
+          const kw = (document.getElementById('targetKeyword').value||'').trim().toLowerCase();
+          const content = document.getElementById('contentEditor').value;
+          if (!kw) return alert('Masukkan target keyword terlebih dahulu');
+          const res = analyzeContentForKeyword(content, kw);
+          document.getElementById('contentScore').innerText = res.score + '/100';
+          document.getElementById('keywordDensity').innerText = `Density: ${res.density}% (${res.keywordCount} occ)`;
+          document.getElementById('tfidfTop').innerHTML = 'Top terms: ' + res.tfTop.map(t=>t.term+'('+t.count+')').join(', ');
+
+          // show sample SERP
+          const serp = sampleSERP(kw);
+          const serpList = document.getElementById('serpList'); serpList.innerHTML = '';
+          serp.forEach(s=>{ const d = document.createElement('div'); d.style.padding='8px'; d.style.borderBottom='1px solid #eef2ff'; d.innerHTML = `<strong>${s.domain}</strong><div style="font-size:13px;color:#6b7280">${s.title}</div><div style="margin-top:6px">Traffic: ${s.traffic} • Words: ${s.wordCount}</div>`; serpList.appendChild(d); });
+        });
+
+        document.getElementById('suggestBtn').addEventListener('click', ()=>{
+          const kw = (document.getElementById('targetKeyword').value||'').trim().toLowerCase();
+          const content = document.getElementById('contentEditor').value;
+          if (!kw) return alert('Masukkan target keyword terlebih dahulu');
+          const top = topTerms(content,10).map(x=>x.term).filter(t=>t!==kw).slice(0,6);
+          alert('Keyword suggestions (from content): ' + top.join(', '));
+        });
+
+        document.getElementById('copyJson').addEventListener('click', ()=>{
+          const obj = {keyword:document.getElementById('targetKeyword').value, content:document.getElementById('contentEditor').value};
+          navigator.clipboard.writeText(JSON.stringify(obj)).then(()=>alert('Copied'));
+        });
+
+        // Demo run: generate richer mock data and show all analysis without requiring URL/token
+        function runDemoAnalysis() {
+          const sampleText = `Jasa laundry Jakarta terbaik melayani cuci, setrika, dan antar jemput. Kami melayani laundry kiloan dan satuan. ${'jasa laundry jakarta '.repeat(12)}Layanan cepat dan ramah.`;
+          const demo = Object.assign({}, MOCK, {
+            url: 'https://contoh-usaha.com',
+            title: 'Jasa Laundry Jakarta — Cepat & Terpercaya',
+            metaDescription: 'Jasa laundry terdekat di Jakarta. Layanan antar jemput, mesin cuci ramah lingkungan, harga terjangkau.',
+            h1s: ['Jasa Laundry Jakarta Terbaik'],
+            canonical: 'https://contoh-usaha.com/',
+            words: 720,
+            pageSpeed: 68,
+            telLinks: ['tel:+628123456789'],
+            mailLinks: ['mailto:info@contoh-usaha.com'],
+            addressTag: 'Jl. Contoh No. 12, Jakarta',
+            hasAddressKeywords: true,
+            hasLocalBusinessSchema: true,
+            schemaTypes: ['LocalBusiness'],
+            ogTitle: 'Jasa Laundry Jakarta',
+            ogDesc: 'Laundry cepat & terpercaya',
+            ogImage: 'https://example.com/image.jpg',
+            hasMapEmbed: true,
+            ctaCount: 2,
+            pricesPresent: true,
+            text: sampleText
+          });
+
+          lastData = demo;
+          renderRaw(demo);
+          const report = analyze(demo);
+          renderReport(report);
+          const full = fullAudit({words:demo.words||0,pageSpeed:demo.pageSpeed||60,mobileFriendly:demo.mobileFriendly,links:demo.links||0,data:demo});
+          renderExtendedReport(full);
+
+          // populate content editor and auto-run content analysis
+          document.getElementById('targetKeyword').value = 'jasa laundry jakarta';
+          document.getElementById('contentEditor').value = sampleText;
+          document.getElementById('analyzeContentBtn').click();
+        }
+
+        document.getElementById('demoBtn').addEventListener('click', runDemoAnalysis);
+        // Auto-run demo on load if checked
+        window.addEventListener('DOMContentLoaded', ()=>{ if (document.getElementById('autoDemo') && document.getElementById('autoDemo').checked) runDemoAnalysis(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prototype SEO Analyzer (Client POV)</title>
+  <link rel="stylesheet" href="seo-analyzer.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>SEO Analyzer — Client Prototype</h1>
+    <p>Simulasi tool SEO untuk aplikasi AI Digital Marketing. Data bisa diambil dari Apify Store atau mock lokal.</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <label for="url">URL:</label>
+      <input id="url" placeholder="https://example.com" value="https://example.com">
+
+      <label for="apifyToken">(Optional) Apify Token:</label>
+      <input id="apifyToken" placeholder="(optional) apify_token_here">
+
+      <div class="buttons">
+        <button id="fetchBtn">Fetch from Apify</button>
+        <button id="mockBtn">Use Mock Data</button>
+        <button id="analyzeBtn">Analyze</button>
+      </div>
+    </section>
+
+    <section id="dataSection" class="panel">
+      <h2>Fetched Data</h2>
+      <pre id="rawData">—</pre>
+    </section>
+
+    <section id="reportSection" class="panel">
+      <h2>Analysis Report</h2>
+      <div id="scores">
+        <!-- scores inserted here -->
+      </div>
+      <canvas id="scoreChart" width="400" height="200"></canvas>
+      <div id="advice">
+        <!-- recommendations here -->
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Prototype • Client POV • Data: Apify or local mock • Not for production</small>
+  </footer>
+
+  <script src="seo-analyzer.js"></script>
+</body>
+</html>

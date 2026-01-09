@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Back Office Portal - Client Management POV</title>
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --bg-hover: #f3f4f6;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #059669;
+      --danger: #dc2626;
+      --warn: #d97706;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif; color: var(--text); background: var(--bg); }
+    header { background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top:0; z-index: 10; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 16px; }
+    .title { font-size: 20px; font-weight: 700; }
+    .subtitle { color: var(--muted); margin-top: 4px; }
+
+    .layout { display: grid; grid-template-columns: 240px 1fr; gap: 16px; }
+    @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+
+    .sidebar { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; height: fit-content; position: sticky; top: 72px; }
+    .menu-title { font-weight: 700; margin-bottom: 8px; }
+    .menu { display: grid; gap: 6px; }
+    .menu-item { padding: 10px 12px; border:1px solid var(--border); border-radius: 10px; background: #fff; cursor: pointer; text-align: left; transition: background .15s ease, color .15s ease; }
+    .menu-item:hover { background: var(--bg-hover); }
+    .menu-item.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .grid { display:grid; gap:12px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    @media (max-width: 960px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    .card-title { font-weight: 700; margin-bottom: 8px; }
+    .metric { display:flex; align-items:center; justify-content: space-between; padding: 10px 12px; border:1px solid var(--border); border-radius: 12px; background: var(--bg); }
+    .metric .label { color: var(--muted); }
+    .metric .value { font-weight: 700; }
+
+    .controls { display:flex; gap:8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .input, .select { padding: 10px 12px; border:1px solid var(--border); border-radius: 10px; background:#fff; min-width: 160px; }
+    .input:focus, .select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+    .btn { display:inline-flex; align-items:center; gap:6px; padding: 10px 12px; border:1px solid var(--border); border-radius: 10px; background:#fff; cursor:pointer; transition: background .15s ease, color .15s ease, border-color .15s ease; }
+    .btn:hover { background: var(--bg-hover); }
+    .btn.primary { background: var(--primary); color:#fff; border-color: var(--primary); }
+
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; border-bottom:1px solid var(--border); text-align: left; }
+    th { background: var(--bg); font-weight: 700; }
+    tbody tr:hover { background: var(--bg-hover); }
+
+    .status { padding: 4px 8px; border-radius: 999px; font-size: 12px; border:1px solid var(--border); display:inline-block; background:#fff; text-transform: capitalize; }
+    .status.green { color: var(--success); border-color: var(--success); }
+    .status.red { color: var(--danger); border-color: var(--danger); }
+    .status.blue { color: var(--primary); border-color: var(--primary); }
+    .status.orange { color: var(--warn); border-color: var(--warn); }
+
+    .type-badge { padding: 4px 8px; border-radius: 999px; font-size: 12px; display:inline-block; background:#fff; border:1px solid transparent; text-transform: capitalize; font-weight: 600; }
+    .type-badge.free { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
+    .type-badge.basic { color: #d97706; border-color: #fcd34d; background: #fef3c7; }
+    .type-badge.pro { color: #7c3aed; border-color: #c4b5fd; background: #ede9fe; }
+    .type-badge.ultimate { color: #db2777; border-color: #f9a8d4; background: #fce7f3; }
+
+    .space-between { display:flex; justify-content: space-between; align-items:center; }
+    .hidden { display:none; }
+
+    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
+    .chart-title { font-weight: 600; margin-bottom: 8px; }
+    canvas { width: 100%; height: 260px; }
+
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,.25); display:none; align-items:center; justify-content:center; }
+    .modal { width: 640px; max-width: calc(100% - 32px); background:#fff; border:1px solid var(--border); border-radius: 14px; box-shadow: 0 16px 36px rgba(0,0,0,.18); }
+    .modal-header { padding: 14px 16px; border-bottom:1px solid var(--border); font-weight:700; }
+    .modal-body { padding: 14px 16px; }
+    .modal-footer { padding: 12px 16px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; }
+  </style>
+  <script>
+    async function loadLibsForCharts() {
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = src;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+      if (!window.Chart) {
+        try { await loadScript('./plugins/chart.umd.js'); }
+        catch { try { await loadScript('https://cdn.jsdelivr.net/npm/chart.js'); } catch {} }
+      }
+      if (!window.ChartDataLabels) {
+        try { await loadScript('./plugins/chartjs-plugin-datalabels.min.js'); }
+        catch { try { await loadScript('https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2'); } catch {} }
+      }
+      if (window.Chart && window.ChartDataLabels) Chart.register(ChartDataLabels);
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="title">Back Office Portal</div>
+      <div class="subtitle">Client Management UMKM</div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:16px;">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="menu-title">Menu</div>
+        <div id="sidebar-menu" class="menu">
+          <button class="menu-item active" data-view="clients">Client Progress</button>
+          <button class="menu-item" data-view="generate">Content Generate</button>
+          <button class="menu-item" data-view="scheduler">Content Scheduler</button>
+          <button class="menu-item" data-view="campaigns">Campaign Management</button>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div id="global-summary" class="card" style="margin-bottom:16px;">
+          <div class="card-title">Ringkasan Global</div>
+          <div class="grid grid-3">
+            <div class="chart-card pie">
+              <div class="chart-title">Status User</div>
+              <canvas id="ch_user"></canvas>
+            </div>
+            <div class="chart-card pie">
+              <div class="chart-title">Type User</div>
+              <canvas id="ch_type"></canvas>
+            </div>
+            <div class="chart-card pie">
+              <div class="chart-title">Status Onboarding</div>
+              <canvas id="ch_onb"></canvas>
+            </div>
+          </div>
+          <div class="grid grid-2" style="margin-top:12px;">
+            <div class="chart-card bar">
+              <div class="chart-title">Konten Draft vs Scheduled vs Posted</div>
+              <canvas id="ch_content"></canvas>
+            </div>
+            <div class="chart-card bar">
+              <div class="chart-title">Campaign by Status</div>
+              <canvas id="ch_campaign"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <section id="view-clients" class="grid">
+          <div class="card">
+            <div class="card-title">Ringkasan Client Progress</div>
+            <div class="grid grid-4">
+              <div class="metric"><span class="label">Total Client</span><span id="cl_total" class="value">0</span></div>
+              <div class="metric"><span class="label">User Aktif</span><span id="cl_active" class="value">0</span></div>
+              <div class="metric"><span class="label">Onboarded</span><span id="cl_onboarded" class="value">0</span></div>
+              <div class="metric"><span class="label">Pending Onboarding</span><span id="cl_pending" class="value">0</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="space-between">
+              <div class="card-title">Data Client</div>
+              <div class="controls">
+                <input id="cl_search" class="input" placeholder="Cari nama atau email"/>
+                <select id="cl_sort_field" class="select">
+                  <option value="name">Urutkan: Nama</option>
+                  <option value="email">Urutkan: Email</option>
+                  <option value="userStatus">Urutkan: Status User</option>
+                  <option value="onboarding">Urutkan: Status Onboarding</option>
+                  <option value="typeUser">Urutkan: Type User</option>
+                </select>
+                <select id="cl_sort_dir" class="select">
+                  <option value="asc">ASC</option>
+                  <option value="desc">DESC</option>
+                </select>
+                <select id="cl_filter_user" class="select">
+                  <option value="">Status User: Semua</option>
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <select id="cl_filter_onb" class="select">
+                  <option value="">Onboarding: Semua</option>
+                  <option value="onboarded">Onboarded</option>
+                  <option value="pending">Pending</option>
+                </select>
+                <select id="cl_filter_type" class="select">
+                  <option value="">Type: Semua</option>
+                  <option value="free">Free</option>
+                  <option value="basic">Basic</option>
+                  <option value="pro">Pro</option>
+                  <option value="ultimate">Ultimate</option>
+                </select>
+                <button id="cl_reset" class="btn">Reset</button>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nama</th>
+                    <th>Email</th>
+                    <th>Status User</th>
+                    <th>Status Onboarding</th>
+                    <th>Type User</th>
+                    <th>Token Used</th>
+                    <th>Token Available</th>
+                    <th style="width:160px">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="cl_tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-generate" class="grid hidden">
+          <div class="card">
+            <div class="card-title">Ringkasan Content Generate</div>
+            <div class="grid grid-4">
+              <div class="metric"><span class="label">Total Client</span><span id="cg_total" class="value">0</span></div>
+              <div class="metric"><span class="label">Konten Draft</span><span id="cg_draft" class="value">0</span></div>
+              <div class="metric"><span class="label">Konten Dijadwalkan</span><span id="cg_scheduled" class="value">0</span></div>
+              <div class="metric"><span class="label">Konten Dipost</span><span id="cg_posted" class="value">0</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="space-between">
+              <div class="card-title">Tabel Content Generate</div>
+              <div class="controls">
+                <input id="cg_search" class="input" placeholder="Cari client atau industri"/>
+                <select id="cg_sort_field" class="select">
+                  <option value="client">Urutkan: Nama Client</option>
+                  <option value="industry">Urutkan: Industri</option>
+                  <option value="draft">Urutkan: Draft</option>
+                  <option value="scheduled">Urutkan: Scheduled</option>
+                  <option value="posted">Urutkan: Posted</option>
+                </select>
+                <select id="cg_sort_dir" class="select">
+                  <option value="asc">ASC</option>
+                  <option value="desc">DESC</option>
+                </select>
+                <select id="cg_filter_ind" class="select">
+                  <option value="">Industri: Semua</option>
+                </select>
+                <button id="cg_reset" class="btn">Reset</button>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nama Client</th>
+                    <th>Industri</th>
+                    <th>Draft</th>
+                    <th>Scheduled</th>
+                    <th>Posted</th>
+                    <th style="width:160px">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="cg_tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-scheduler" class="grid hidden">
+          <div class="card">
+            <div class="card-title">Ringkasan Scheduler</div>
+            <div class="grid grid-4">
+              <div class="metric"><span class="label">Total Konten</span><span id="sc_total" class="value">0</span></div>
+              <div class="metric"><span class="label">Sudah Dijadwalkan</span><span id="sc_scheduled" class="value">0</span></div>
+              <div class="metric"><span class="label">Belum Dijadwalkan</span><span id="sc_unscheduled" class="value">0</span></div>
+              <div class="metric"><span class="label">Next Publish</span><span id="sc_next" class="value">-</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="space-between">
+              <div class="card-title">Tabel Scheduler</div>
+              <div class="controls">
+                <input id="sc_search" class="input" placeholder="Cari client"/>
+                <select id="sc_sort_field" class="select">
+                  <option value="client">Urutkan: Nama Client</option>
+                  <option value="scheduled">Urutkan: Scheduled</option>
+                  <option value="unscheduled">Urutkan: Unscheduled</option>
+                </select>
+                <select id="sc_sort_dir" class="select">
+                  <option value="asc">ASC</option>
+                  <option value="desc">DESC</option>
+                </select>
+                <select id="sc_filter" class="select">
+                  <option value="">Status: Semua</option>
+                  <option value="scheduled">Scheduled</option>
+                  <option value="unscheduled">Unscheduled</option>
+                </select>
+                <button id="sc_reset" class="btn">Reset</button>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nama Client</th>
+                    <th>Total Konten</th>
+                    <th>Scheduled</th>
+                    <th>Unscheduled</th>
+                    <th>Next Publish</th>
+                    <th style="width:160px">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="sc_tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-campaigns" class="grid hidden">
+          <div class="card">
+            <div class="card-title">Ringkasan Campaign</div>
+            <div class="grid grid-4">
+              <div class="metric"><span class="label">Total Campaign</span><span id="cm_total" class="value">0</span></div>
+              <div class="metric"><span class="label">Running</span><span id="cm_running" class="value">0</span></div>
+              <div class="metric"><span class="label">Paused</span><span id="cm_paused" class="value">0</span></div>
+              <div class="metric"><span class="label">Completed</span><span id="cm_completed" class="value">0</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="space-between">
+              <div class="card-title">Tabel Campaign Management</div>
+              <div class="controls">
+                <input id="cm_search" class="input" placeholder="Cari campaign atau client"/>
+                <select id="cm_sort_field" class="select">
+                  <option value="name">Urutkan: Nama Campaign</option>
+                  <option value="client">Urutkan: Nama Client</option>
+                  <option value="status">Urutkan: Status</option>
+                  <option value="budget">Urutkan: Budget</option>
+                  <option value="spend">Urutkan: Spend</option>
+                </select>
+                <select id="cm_sort_dir" class="select">
+                  <option value="asc">ASC</option>
+                  <option value="desc">DESC</option>
+                </select>
+                <select id="cm_filter_status" class="select">
+                  <option value="">Status: Semua</option>
+                  <option value="draft">Draft</option>
+                  <option value="running">Running</option>
+                  <option value="paused">Paused</option>
+                  <option value="completed">Completed</option>
+                </select>
+                <button id="cm_reset" class="btn">Reset</button>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nama Campaign</th>
+                    <th>Client</th>
+                    <th>Status</th>
+                    <th>Budget</th>
+                    <th>Spend</th>
+                    <th style="width:160px">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="cm_tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <div id="modal" class="modal-backdrop">
+    <div class="modal">
+      <div id="modal-title" class="modal-header">Detail</div>
+      <div id="modal-body" class="modal-body"></div>
+      <div class="modal-footer">
+            <button id="modal-close" class="btn">Tutup</button>
+            <button id="modal-action" class="btn primary">Aksi</button>
+          </div>
+        </div>
+      </div>
+
+  <script src="./pbo-store.js"></script>
+      <script>
+    const FALLBACK_DATA = {
+      clients: [
+      { name: 'Warung Nusantara', email: 'halo@warungnusantara.id', userStatus: 'active', onboarding: 'onboarded', onboardingTimestamp: '2025-11-01T09:30:00', phone: '+62 812-3456-7890', connectedAccounts: ['facebook:warungnusantara', 'instagram:warung.nusantara'], typeUser: 'free', tokenUsed: 1200, tokenAvailable: 1800,
+        brand: 'Warung Nusantara', industry: 'Kuliner', targetRegion: 'Jakarta & Jawa Barat', gender: 'all', ageFrom: 20, ageTo: 50, businessGoal: 'Tingkatkan penjualan harian' },
+      { name: 'Kopi Kreatif', email: 'hei@kopikreatif.co', userStatus: 'active', onboarding: 'onboarded', onboardingTimestamp: '2025-10-12T11:20:00', phone: '+62 813-9876-5432', connectedAccounts: ['facebook:kopikreatif', 'instagram:kopikreatif.id'], typeUser: 'basic', tokenUsed: 2480, tokenAvailable: 520,
+        brand: 'Kopi Kreatif', industry: 'F&B', targetRegion: 'Bandung', gender: 'all', ageFrom: 18, ageTo: 45, businessGoal: 'Brand awareness & promosi product baru' },
+      { name: 'Batikkita', email: 'cs@batikkita.id', userStatus: 'inactive', onboarding: 'pending', onboardingTimestamp: null, phone: '+62 812-1111-2222', connectedAccounts: [], typeUser: 'pro', tokenUsed: 980, tokenAvailable: 3020,
+        brand: 'Batikkita', industry: 'Fashion', targetRegion: 'Jawa Tengah', gender: 'female', ageFrom: 20, ageTo: 40, businessGoal: 'Tingkatkan traffic toko online' },
+      { name: 'Sehat Herbal', email: 'info@sehatherbal.co.id', userStatus: 'active', onboarding: 'onboarded', onboardingTimestamp: '2025-09-15T08:45:00', phone: '+62 821-5555-6666', connectedAccounts: ['facebook:sehatherbal'], typeUser: 'ultimate', tokenUsed: 5120, tokenAvailable: 1880,
+        brand: 'Sehat Herbal', industry: 'Kesehatan', targetRegion: 'Seluruh Indonesia', gender: 'all', ageFrom: 25, ageTo: 60, businessGoal: 'Kampanye edukasi & penjualan' },
+      { name: 'Kuliner Klasik', email: 'care@kulinerklasik.com', userStatus: 'inactive', onboarding: 'pending', onboardingTimestamp: null, phone: '+62 822-4444-3333', connectedAccounts: [], typeUser: 'free', tokenUsed: 430, tokenAvailable: 2570,
+        brand: 'Kuliner Klasik', industry: 'Kuliner', targetRegion: 'Yogyakarta', gender: 'all', ageFrom: 18, ageTo: 55, businessGoal: 'Promosi menu baru' },
+      { name: 'Dekorasi Rumahku', email: 'support@rumahku.id', userStatus: 'active', onboarding: 'onboarded', onboardingTimestamp: '2025-10-01T14:10:00', phone: '+62 815-2222-8888', connectedAccounts: ['instagram:rumahku'], typeUser: 'pro', tokenUsed: 3200, tokenAvailable: 800,
+        brand: 'Dekorasi Rumahku', industry: 'Home Living', targetRegion: 'Jakarta', gender: 'all', ageFrom: 25, ageTo: 50, businessGoal: 'Lead generation (konsultasi interior)' },
+      { name: 'Toko Organik', email: 'halo@tokorganik.id', userStatus: 'active', onboarding: 'pending', onboardingTimestamp: null, phone: '+62 816-7777-0000', connectedAccounts: ['shopee:tokorganik_store'], typeUser: 'basic', tokenUsed: 1760, tokenAvailable: 1240,
+        brand: 'Toko Organik', industry: 'Retail', targetRegion: 'Bali', gender: 'all', ageFrom: 20, ageTo: 45, businessGoal: 'Penjualan paket sehat' },
+      { name: 'Tekno UMKM', email: 'team@teknoumkm.io', userStatus: 'active', onboarding: 'onboarded', onboardingTimestamp: '2025-11-05T10:05:00', phone: '+62 812-9999-1111', connectedAccounts: ['facebook:teknoumkm', 'instagram:teknoumkm_official'], typeUser: 'ultimate', tokenUsed: 6840, tokenAvailable: 860,
+        brand: 'Tekno UMKM', industry: 'Teknologi', targetRegion: 'Jakarta & Surabaya', gender: 'all', ageFrom: 22, ageTo: 40, businessGoal: 'Acquire users for SaaS' }
+      ],
+      contentGenerate: [
+      { client: 'Warung Nusantara', industry: 'Kuliner', draft: 18, scheduled: 10, posted: 6 },
+      { client: 'Kopi Kreatif', industry: 'F&B', draft: 24, scheduled: 18, posted: 12 },
+      { client: 'Batikkita', industry: 'Fashion', draft: 12, scheduled: 6, posted: 4 },
+      { client: 'Sehat Herbal', industry: 'Kesehatan', draft: 36, scheduled: 22, posted: 20 },
+      { client: 'Kuliner Klasik', industry: 'Kuliner', draft: 9, scheduled: 4, posted: 3 },
+      { client: 'Dekorasi Rumahku', industry: 'Home Living', draft: 21, scheduled: 14, posted: 11 },
+      { client: 'Toko Organik', industry: 'Retail', draft: 17, scheduled: 9, posted: 8 },
+      { client: 'Tekno UMKM', industry: 'Teknologi', draft: 28, scheduled: 24, posted: 18 }
+      ],
+      scheduler: [
+      { client: 'Warung Nusantara', total: 34, scheduled: 22, unscheduled: 12, nextPublish: '15 Nov 2025' },
+      { client: 'Kopi Kreatif', total: 54, scheduled: 40, unscheduled: 14, nextPublish: '14 Nov 2025' },
+      { client: 'Batikkita', total: 26, scheduled: 16, unscheduled: 10, nextPublish: '19 Nov 2025' },
+      { client: 'Sehat Herbal', total: 58, scheduled: 44, unscheduled: 14, nextPublish: '12 Nov 2025' },
+      { client: 'Kuliner Klasik', total: 19, scheduled: 10, unscheduled: 9, nextPublish: '21 Nov 2025' },
+      { client: 'Dekorasi Rumahku', total: 37, scheduled: 27, unscheduled: 10, nextPublish: '13 Nov 2025' },
+      { client: 'Toko Organik', total: 33, scheduled: 20, unscheduled: 13, nextPublish: '16 Nov 2025' },
+      { client: 'Tekno UMKM', total: 64, scheduled: 52, unscheduled: 12, nextPublish: '11 Nov 2025' }
+      ],
+      campaigns: [
+      { id: 'CMP-001', name: 'Warung Nusantara - Promo Nataru', client: 'Warung Nusantara', status: 'running', budget: 25000000, spend: 18500000, objective: 'Awareness', startDate: '2025-11-01', endDate: '2025-12-31' },
+      { id: 'CMP-002', name: 'Kopi Kreatif - Seasonal Beans', client: 'Kopi Kreatif', status: 'paused', budget: 18000000, spend: 9200000, objective: 'Engagement', startDate: '2025-10-10', endDate: '2025-11-30' },
+      { id: 'CMP-003', name: 'Batik Kita - Batik Friday', client: 'Batikkita', status: 'draft', budget: 12000000, spend: 0, objective: 'Sales', startDate: '2025-11-20', endDate: '2025-12-05' },
+      { id: 'CMP-004', name: 'Sehat Herbal - Detox Week', client: 'Sehat Herbal', status: 'completed', budget: 32000000, spend: 31850000, objective: 'Sales', startDate: '2025-09-01', endDate: '2025-10-01' },
+      { id: 'CMP-005', name: 'Dekorasi Rumahku - Living Room Upgrade', client: 'Dekorasi Rumahku', status: 'running', budget: 22000000, spend: 14600000, objective: 'Lead', startDate: '2025-10-15', endDate: '2025-12-15' },
+      { id: 'CMP-006', name: 'Toko Organik - Healthy Bundle', client: 'Toko Organik', status: 'running', budget: 14000000, spend: 8800000, objective: 'Sales', startDate: '2025-10-05', endDate: '2025-11-25' },
+      { id: 'CMP-007', name: 'Tekno UMKM - SaaS Launch', client: 'Tekno UMKM', status: 'draft', budget: 41000000, spend: 0, objective: 'Awareness', startDate: '2025-11-25', endDate: '2026-01-15' },
+      { id: 'CMP-008', name: 'Kuliner Klasik - Nostalgia Menu', client: 'Kuliner Klasik', status: 'paused', budget: 11000000, spend: 4700000, objective: 'Traffic', startDate: '2025-10-20', endDate: '2025-12-01' }
+      ]
+    };
+
+    let clients = [];
+    let contentGenerate = [];
+    let scheduler = [];
+    let campaigns = [];
+
+    const STORAGE_KEY = 'PBO_DATA_V1';
+
+    const clone = (value) => JSON.parse(JSON.stringify(value));
+
+    function readDataFromStore() {
+      if (window.PBOStore && typeof window.PBOStore.getData === 'function') {
+        try {
+          return window.PBOStore.getData();
+        } catch (err) {
+          console.warn('[PBO] Failed reading store, fallback to defaults', err);
+        }
+      }
+      return clone(FALLBACK_DATA);
+    }
+
+    function assignDataSets(dataset) {
+      const source = dataset || {};
+      clients = Array.isArray(source.clients) ? source.clients : [];
+      contentGenerate = Array.isArray(source.contentGenerate) ? source.contentGenerate : [];
+      scheduler = Array.isArray(source.scheduler) ? source.scheduler : [];
+      campaigns = Array.isArray(source.campaigns) ? source.campaigns : [];
+    }
+
+    const state = {
+      clients: { search: '', sortField: 'name', sortDir: 'asc', userFilter: '', onboardingFilter: '', typeFilter: '' },
+      content: { search: '', sortField: 'client', sortDir: 'asc', industryFilter: '' },
+      scheduler: { search: '', sortField: 'client', sortDir: 'asc', statusFilter: '' },
+      campaigns: { search: '', sortField: 'name', sortDir: 'asc', statusFilter: '' }
+    };
+
+    const charts = {};
+
+    const formatNumber = (value) =>
+      value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    const formatCurrency = (value) =>
+      `Rp ${formatNumber(value)}`;
+
+    function formatDateTime(iso) {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      const opts = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return d.toLocaleString('id-ID', opts);
+    }
+
+    function switchView(view) {
+      document.querySelectorAll('[id^="view-"]').forEach(section => {
+        section.classList.add('hidden');
+      });
+      const target = document.getElementById(`view-${view}`);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.menu-item').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+    }
+
+    function filterSortClients() {
+      const { search, sortField, sortDir, userFilter, onboardingFilter, typeFilter } = state.clients;
+      return clients
+        .filter(c => {
+          const matchesSearch = !search ||
+            c.name.toLowerCase().includes(search) ||
+            c.email.toLowerCase().includes(search);
+          const matchesUser = !userFilter || c.userStatus === userFilter;
+          const matchesOnb = !onboardingFilter || c.onboarding === onboardingFilter;
+          const matchesType = !typeFilter || c.typeUser === typeFilter;
+          return matchesSearch && matchesUser && matchesOnb && matchesType;
+        })
+        .sort((a, b) => {
+          const av = String(a[sortField]).toLowerCase();
+          const bv = String(b[sortField]).toLowerCase();
+          if (av === bv) return 0;
+          return sortDir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+        });
+    }
+
+    function filterSortContent() {
+      const { search, sortField, sortDir, industryFilter } = state.content;
+      return contentGenerate
+        .filter(row => {
+          const matchesSearch = !search ||
+            row.client.toLowerCase().includes(search) ||
+            row.industry.toLowerCase().includes(search);
+          const matchesInd = !industryFilter || row.industry === industryFilter;
+          return matchesSearch && matchesInd;
+        })
+        .sort((a, b) => {
+          const av = a[sortField];
+          const bv = b[sortField];
+          if (av === bv) return 0;
+          return sortDir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+        });
+    }
+
+    function filterSortScheduler() {
+      const { search, sortField, sortDir, statusFilter } = state.scheduler;
+      return scheduler
+        .filter(row => {
+          const matchesSearch = !search || row.client.toLowerCase().includes(search);
+          let matchesStatus = true;
+          if (statusFilter === 'scheduled') matchesStatus = row.scheduled > 0;
+          if (statusFilter === 'unscheduled') matchesStatus = row.unscheduled > 0;
+          return matchesSearch && matchesStatus;
+        })
+        .sort((a, b) => {
+          const av = a[sortField];
+          const bv = b[sortField];
+          if (av === bv) return 0;
+          return sortDir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+        });
+    }
+
+    function filterSortCampaigns() {
+      const { search, sortField, sortDir, statusFilter } = state.campaigns;
+      return campaigns
+        .filter(row => {
+          const matchesSearch = !search ||
+            row.name.toLowerCase().includes(search) ||
+            row.client.toLowerCase().includes(search);
+          const matchesStatus = !statusFilter || row.status === statusFilter;
+          return matchesSearch && matchesStatus;
+        })
+        .sort((a, b) => {
+          const av = a[sortField];
+          const bv = b[sortField];
+          if (av === bv) return 0;
+          return sortDir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+        });
+    }
+
+    function renderClientsTable() {
+      const tbody = document.getElementById('cl_tbody');
+      if (!tbody) return;
+
+      const rows = filterSortClients();
+      tbody.innerHTML = rows.map(row => `
+        <tr>
+          <td>${row.name}</td>
+          <td>${row.email}</td>
+          <td><span class="status ${row.userStatus === 'active' ? 'green' : 'red'}">${row.userStatus}</span></td>
+          <td><span class="status ${row.onboarding === 'onboarded' ? 'blue' : 'orange'}">${row.onboarding}</span></td>
+          <td><span class="type-badge ${row.typeUser}">${row.typeUser}</span></td>
+          <td>${formatNumber(row.tokenUsed)}</td>
+          <td>${formatNumber(row.tokenAvailable)}</td>
+          <td><button class="btn" data-modal="client" data-name="${row.name}">Detail</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="8" style="text-align:center; padding:24px;">Tidak ada data</td></tr>';
+    }
+
+    function renderContentTable() {
+      const tbody = document.getElementById('cg_tbody');
+      if (!tbody) return;
+
+      const rows = filterSortContent();
+      tbody.innerHTML = rows.map(row => `
+        <tr>
+          <td>${row.client}</td>
+          <td>${row.industry}</td>
+          <td>${row.draft}</td>
+          <td>${row.scheduled}</td>
+          <td>${row.posted}</td>
+          <td><button class="btn" data-modal="content" data-name="${row.client}">Detail</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="6" style="text-align:center; padding:24px;">Tidak ada data</td></tr>';
+    }
+
+    function renderSchedulerTable() {
+      const tbody = document.getElementById('sc_tbody');
+      if (!tbody) return;
+
+      const rows = filterSortScheduler();
+      tbody.innerHTML = rows.map(row => `
+        <tr>
+          <td>${row.client}</td>
+          <td>${row.total}</td>
+          <td>${row.scheduled}</td>
+          <td>${row.unscheduled}</td>
+          <td>${row.nextPublish}</td>
+          <td><button class="btn" data-modal="scheduler" data-name="${row.client}">Detail</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="6" style="text-align:center; padding:24px;">Tidak ada data</td></tr>';
+    }
+
+    function renderCampaignTable() {
+      const tbody = document.getElementById('cm_tbody');
+      if (!tbody) return;
+
+      const rows = filterSortCampaigns();
+      tbody.innerHTML = rows.map(row => `
+        <tr>
+          <td>${row.name}</td>
+          <td>${row.client}</td>
+          <td><span class="status ${row.status === 'running' ? 'green' : row.status === 'draft' ? 'orange' : row.status === 'paused' ? 'red' : 'blue'}">${row.status}</span></td>
+          <td>${formatCurrency(row.budget)}</td>
+          <td>${formatCurrency(row.spend)}</td>
+          <td><button class="btn" data-modal="campaign" data-name="${row.name}">Detail</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="6" style="text-align:center; padding:24px;">Tidak ada data</td></tr>';
+    }
+
+        function aggregateSummary() {
+            const userActive = clients.filter(c => c.userStatus === 'active').length;
+            const userInactive = clients.filter(c => c.userStatus === 'inactive').length;
+            const onboarded = clients.filter(c => c.onboarding === 'onboarded').length;
+            const pending = clients.filter(c => c.onboarding === 'pending').length;
+        
+      const totalDraft = contentGenerate.reduce((acc, row) => acc + (row.draft || 0), 0);
+      const totalScheduled = contentGenerate.reduce((acc, row) => acc + (row.scheduled || 0), 0);
+      const totalPosted = contentGenerate.reduce((acc, row) => acc + (row.posted || 0), 0);
+
+      const campRunning = campaigns.filter(c => c.status === 'running').length;
+      const campPaused = campaigns.filter(c => c.status === 'paused').length;
+            const campCompleted = campaigns.filter(c => c.status === 'completed').length;
+      const campDraft = campaigns.filter(c => c.status === 'draft').length;
+
+      const typeFree = clients.filter(c => c.typeUser === 'free').length;
+      const typeBasic = clients.filter(c => c.typeUser === 'basic').length;
+      const typePro = clients.filter(c => c.typeUser === 'pro').length;
+            const typeUltimate = clients.filter(c => c.typeUser === 'ultimate').length;
+        
+            return {
+              user: { active: userActive, inactive: userInactive },
+              onboarding: { onboarded, pending },
+              content: { draft: totalDraft, scheduled: totalScheduled, posted: totalPosted },
+              campaign: { running: campRunning, paused: campPaused, completed: campCompleted, draft: campDraft },
+              type: { free: typeFree, basic: typeBasic, pro: typePro, ultimate: typeUltimate }
+            };
+        }
+
+    function updateSummaryCounters(summary) {
+      const totalClients = clients.length;
+      document.getElementById('cl_total').textContent = totalClients;
+      document.getElementById('cl_active').textContent = summary.user.active;
+      document.getElementById('cl_onboarded').textContent = summary.onboarding.onboarded;
+      document.getElementById('cl_pending').textContent = summary.onboarding.pending;
+        
+          document.getElementById('cg_total').textContent = contentGenerate.length;
+      document.getElementById('cg_draft').textContent = summary.content.draft;
+      document.getElementById('cg_scheduled').textContent = summary.content.scheduled;
+      document.getElementById('cg_posted').textContent = summary.content.posted;
+        
+          document.getElementById('cm_total').textContent = campaigns.length;
+      document.getElementById('cm_running').textContent = summary.campaign.running;
+      document.getElementById('cm_paused').textContent = summary.campaign.paused;
+      document.getElementById('cm_completed').textContent = summary.campaign.completed;
+    }
+
+    function refreshData(options = {}) {
+      assignDataSets(readDataFromStore());
+      populateIndustryFilter();
+      renderClientsTable();
+      renderContentTable();
+      renderSchedulerTable();
+      renderCampaignTable();
+      const summary = aggregateSummary();
+      if (options.skipCharts) {
+        updateSummaryCounters(summary);
+      } else {
+        renderCharts(summary);
+      }
+    }
+
+    function makeChart(id, config) {
+            const ctx = document.getElementById(id);
+      if (!ctx || !window.Chart) return null;
+            if (charts[id]) charts[id].destroy();
+            charts[id] = new Chart(ctx, config);
+            return charts[id];
+    }
+
+    function renderCharts(summaryInput) {
+      const summary = summaryInput || aggregateSummary();
+      updateSummaryCounters(summary);
+      if (!window.Chart) return;
+
+      makeChart('ch_user', {
+        type: 'doughnut',
+        data: {
+          labels: ['Active', 'Inactive'],
+          datasets: [{
+            data: [summary.user.active, summary.user.inactive],
+            backgroundColor: ['#34d399', '#f87171']
+          }]
+        },
+        options: {
+          plugins: {
+            datalabels: {
+              color: '#fff',
+              formatter: (value, ctx) => {
+                const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                return total ? `${Math.round((value / total) * 100)}%` : '0%';
+              }
+            },
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+
+      makeChart('ch_type', {
+        type: 'doughnut',
+        data: {
+          labels: ['Free', 'Basic', 'Pro', 'Ultimate'],
+          datasets: [{
+            data: [
+              summary.type.free,
+              summary.type.basic,
+              summary.type.pro,
+              summary.type.ultimate
+            ],
+            backgroundColor: ['#93c5fd', '#fcd34d', '#a78bfa', '#fb7185']
+          }]
+        },
+        options: {
+          plugins: {
+            datalabels: {
+              color: '#fff',
+              formatter: (value, ctx) => {
+                const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                return total ? `${Math.round((value / total) * 100)}%` : '0%';
+              }
+            },
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+
+      makeChart('ch_onb', {
+        type: 'doughnut',
+        data: {
+          labels: ['Onboarded', 'Pending'],
+          datasets: [{
+            data: [summary.onboarding.onboarded, summary.onboarding.pending],
+            backgroundColor: ['#60a5fa', '#fbbf24']
+          }]
+        },
+        options: {
+          plugins: {
+            datalabels: {
+              color: '#fff',
+              formatter: (value, ctx) => {
+                const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                return total ? `${Math.round((value / total) * 100)}%` : '0%';
+              }
+            },
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+
+      makeChart('ch_content', {
+        type: 'bar',
+        data: {
+          labels: ['Draft', 'Scheduled', 'Posted'],
+          datasets: [{
+            label: 'Total Konten',
+            backgroundColor: ['#2563eb', '#f59e0b', '#10b981'],
+            data: [
+              summary.content.draft,
+              summary.content.scheduled,
+              summary.content.posted
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              color: '#111827',
+              anchor: 'end',
+              align: 'start',
+              offset: -4
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 }
+            }
+          }
+        }
+      });
+
+      makeChart('ch_campaign', {
+        type: 'bar',
+        data: {
+          labels: ['Draft', 'Running', 'Paused', 'Completed'],
+          datasets: [{
+            label: 'Jumlah Campaign',
+            backgroundColor: ['#f97316', '#22c55e', '#f43f5e', '#6366f1'],
+            data: [
+              summary.campaign.draft,
+              summary.campaign.running,
+              summary.campaign.paused,
+              summary.campaign.completed
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function populateIndustryFilter() {
+      const select = document.getElementById('cg_filter_ind');
+      if (!select) return;
+      const industries = Array.from(new Set(contentGenerate.map(row => row.industry))).sort();
+      select.innerHTML = ['<option value="">Industri: Semua</option>', ...industries.map(ind => `<option value="${ind}">${ind}</option>`)].join('');
+      if (state.content.industryFilter && !industries.includes(state.content.industryFilter)) {
+        state.content.industryFilter = '';
+      }
+      select.value = state.content.industryFilter || '';
+    }
+
+    function openModal(title, html) {
+      const modalBackdrop = document.getElementById('modal');
+      if (!modalBackdrop) return;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').innerHTML = html;
+      modalBackdrop.style.display = 'flex';
+    }
+
+    function closeModal() {
+      const modalBackdrop = document.getElementById('modal');
+      if (modalBackdrop) modalBackdrop.style.display = 'none';
+    }
+
+    function handleModalClick(e) {
+      const target = e.target.closest('[data-modal]');
+      if (!target) return;
+      const type = target.dataset.modal;
+      const name = target.dataset.name;
+
+      if (type === 'client') {
+        const client = clients.find(c => c.name === name);
+        if (!client) return;
+        // Build profiling detail view for UMKM
+        const profileHtml = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <p style="margin:6px 0"><strong>Nama Brand:</strong><br>${client.brand || client.name}</p>
+              <p style="margin:6px 0"><strong>Industri:</strong><br>${client.industry || '-'}</p>
+              <p style="margin:6px 0"><strong>Wilayah target:</strong><br>${client.targetRegion || '-'}</p>
+            </div>
+            <div>
+              <p style="margin:6px 0"><strong>Gender target:</strong><br>${client.gender || 'all'}</p>
+              <p style="margin:6px 0"><strong>Rentang umur:</strong><br>${(client.ageFrom || '-') + (client.ageFrom ? ' — ' + (client.ageTo || '-') : '')}</p>
+              <p style="margin:6px 0"><strong>Tujuan bisnis:</strong><br>${client.businessGoal || '-'}</p>
+            </div>
+          </div>
+          <hr style="margin:12px 0;border:none;border-top:1px solid var(--border)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <p style="margin:6px 0"><strong>Email:</strong><br>${client.email}</p>
+              <p style="margin:6px 0"><strong>Status User:</strong><br><span class="status ${client.userStatus === 'active' ? 'green' : 'red'}">${client.userStatus}</span></p>
+            </div>
+            <div>
+              <p style="margin:6px 0"><strong>Status Onboarding:</strong><br><span class="status ${client.onboarding === 'onboarded' ? 'blue' : 'orange'}">${client.onboarding}</span></p>
+              <p style="margin:6px 0"><strong>Waktu Onboarding:</strong><br>${formatDateTime(client.onboardingTimestamp)}</p>
+              <p style="margin:6px 0"><strong>Type User:</strong><br><span class="type-badge ${client.typeUser}">${client.typeUser}</span></p>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:12px">
+            <div class="card" style="flex:1;padding:10px">
+              <div style="font-size:12px;color:var(--muted)">Token Used</div>
+              <div style="font-weight:700">${formatNumber(client.tokenUsed)}</div>
+            </div>
+            <div class="card" style="flex:1;padding:10px">
+              <div style="font-size:12px;color:var(--muted)">Token Available</div>
+              <div style="font-weight:700">${formatNumber(client.tokenAvailable)}</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:12px">
+            <div style="flex:1">
+              <p style="margin:6px 0"><strong>No. HP:</strong><br>${client.phone || '-'}</p>
+            </div>
+            <div style="flex:1">
+              <p style="margin:6px 0"><strong>Akun Terhubung:</strong><br>${(client.connectedAccounts && client.connectedAccounts.length) ? client.connectedAccounts.map(function(a){ return '<span class="type-badge" style="margin-right:8px; text-transform:none;">'+a+'</span>'; }).join('') : '-'}</p>
+            </div>
+          </div>
+        `;
+        openModal(`Profiling: ${client.name}`, profileHtml);
+      }
+
+      if (type === 'content') {
+        const row = contentGenerate.find(r => r.client === name);
+        if (!row) return;
+        openModal(`Content: ${row.client}`, `
+          <p><strong>Industri:</strong> ${row.industry}</p>
+          <p><strong>Draft:</strong> ${row.draft}</p>
+          <p><strong>Scheduled:</strong> ${row.scheduled}</p>
+          <p><strong>Posted:</strong> ${row.posted}</p>
+        `);
+      }
+
+      if (type === 'scheduler') {
+        const row = scheduler.find(r => r.client === name);
+        if (!row) return;
+        openModal(`Scheduler: ${row.client}`, `
+          <p><strong>Total Konten:</strong> ${row.total}</p>
+          <p><strong>Scheduled:</strong> ${row.scheduled}</p>
+          <p><strong>Unscheduled:</strong> ${row.unscheduled}</p>
+          <p><strong>Next Publish:</strong> ${row.nextPublish}</p>
+        `);
+      }
+
+      if (type === 'campaign') {
+        const row = campaigns.find(r => r.name === name);
+        if (!row) return;
+        openModal(`Campaign: ${row.name}`, `
+          <p><strong>Client:</strong> ${row.client}</p>
+          <p><strong>Status:</strong> ${row.status}</p>
+          <p><strong>Budget:</strong> ${formatCurrency(row.budget)}</p>
+          <p><strong>Spend:</strong> ${formatCurrency(row.spend)}</p>
+        `);
+      }
+    }
+
+    function setupSidebar() {
+      document.getElementById('sidebar-menu').addEventListener('click', (e) => {
+        const target = e.target.closest('.menu-item');
+        if (!target) return;
+        switchView(target.dataset.view);
+      });
+    }
+
+    function setupFilters() {
+      document.getElementById('cl_search').addEventListener('input', (e) => {
+        state.clients.search = e.target.value.trim().toLowerCase();
+        renderClientsTable();
+      });
+      document.getElementById('cl_sort_field').addEventListener('change', (e) => {
+        state.clients.sortField = e.target.value;
+        renderClientsTable();
+      });
+      document.getElementById('cl_sort_dir').addEventListener('change', (e) => {
+        state.clients.sortDir = e.target.value;
+        renderClientsTable();
+      });
+      document.getElementById('cl_filter_user').addEventListener('change', (e) => {
+        state.clients.userFilter = e.target.value;
+        renderClientsTable();
+      });
+      document.getElementById('cl_filter_onb').addEventListener('change', (e) => {
+        state.clients.onboardingFilter = e.target.value;
+        renderClientsTable();
+      });
+      document.getElementById('cl_filter_type').addEventListener('change', (e) => {
+        state.clients.typeFilter = e.target.value;
+        renderClientsTable();
+      });
+      document.getElementById('cl_reset').addEventListener('click', () => {
+        Object.assign(state.clients, { search: '', sortField: 'name', sortDir: 'asc', userFilter: '', onboardingFilter: '', typeFilter: '' });
+        document.getElementById('cl_search').value = '';
+        document.getElementById('cl_sort_field').value = 'name';
+        document.getElementById('cl_sort_dir').value = 'asc';
+        document.getElementById('cl_filter_user').value = '';
+        document.getElementById('cl_filter_onb').value = '';
+        document.getElementById('cl_filter_type').value = '';
+        renderClientsTable();
+      });
+
+      document.getElementById('cg_search').addEventListener('input', (e) => {
+        state.content.search = e.target.value.trim().toLowerCase();
+        renderContentTable();
+      });
+      document.getElementById('cg_sort_field').addEventListener('change', (e) => {
+        state.content.sortField = e.target.value;
+        renderContentTable();
+      });
+      document.getElementById('cg_sort_dir').addEventListener('change', (e) => {
+        state.content.sortDir = e.target.value;
+        renderContentTable();
+      });
+      document.getElementById('cg_filter_ind').addEventListener('change', (e) => {
+        state.content.industryFilter = e.target.value;
+        renderContentTable();
+      });
+      document.getElementById('cg_reset').addEventListener('click', () => {
+        Object.assign(state.content, { search: '', sortField: 'client', sortDir: 'asc', industryFilter: '' });
+        document.getElementById('cg_search').value = '';
+        document.getElementById('cg_sort_field').value = 'client';
+        document.getElementById('cg_sort_dir').value = 'asc';
+        document.getElementById('cg_filter_ind').value = '';
+        renderContentTable();
+      });
+
+      document.getElementById('sc_search').addEventListener('input', (e) => {
+        state.scheduler.search = e.target.value.trim().toLowerCase();
+        renderSchedulerTable();
+      });
+      document.getElementById('sc_sort_field').addEventListener('change', (e) => {
+        state.scheduler.sortField = e.target.value;
+        renderSchedulerTable();
+      });
+      document.getElementById('sc_sort_dir').addEventListener('change', (e) => {
+        state.scheduler.sortDir = e.target.value;
+        renderSchedulerTable();
+      });
+      document.getElementById('sc_filter').addEventListener('change', (e) => {
+        state.scheduler.statusFilter = e.target.value;
+        renderSchedulerTable();
+      });
+      document.getElementById('sc_reset').addEventListener('click', () => {
+        Object.assign(state.scheduler, { search: '', sortField: 'client', sortDir: 'asc', statusFilter: '' });
+        document.getElementById('sc_search').value = '';
+        document.getElementById('sc_sort_field').value = 'client';
+        document.getElementById('sc_sort_dir').value = 'asc';
+        document.getElementById('sc_filter').value = '';
+        renderSchedulerTable();
+      });
+
+      document.getElementById('cm_search').addEventListener('input', (e) => {
+        state.campaigns.search = e.target.value.trim().toLowerCase();
+        renderCampaignTable();
+      });
+      document.getElementById('cm_sort_field').addEventListener('change', (e) => {
+        state.campaigns.sortField = e.target.value;
+        renderCampaignTable();
+      });
+      document.getElementById('cm_sort_dir').addEventListener('change', (e) => {
+        state.campaigns.sortDir = e.target.value;
+        renderCampaignTable();
+      });
+      document.getElementById('cm_filter_status').addEventListener('change', (e) => {
+        state.campaigns.statusFilter = e.target.value;
+        renderCampaignTable();
+      });
+      document.getElementById('cm_reset').addEventListener('click', () => {
+        Object.assign(state.campaigns, { search: '', sortField: 'name', sortDir: 'asc', statusFilter: '' });
+        document.getElementById('cm_search').value = '';
+        document.getElementById('cm_sort_field').value = 'name';
+        document.getElementById('cm_sort_dir').value = 'asc';
+        document.getElementById('cm_filter_status').value = '';
+        renderCampaignTable();
+      });
+    }
+
+    function setupModal() {
+      document.body.addEventListener('click', handleModalClick);
+      document.getElementById('modal-close').addEventListener('click', closeModal);
+      document.getElementById('modal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeModal();
+      });
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_KEY) {
+        refreshData();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      switchView('clients');
+      setupSidebar();
+      setupFilters();
+      setupModal();
+      const statusField = document.querySelector('[name="content_status"]') || document.getElementById('content-status');
+      if (statusField) statusField.value = 'draft';
+
+      await loadLibsForCharts();
+      refreshData();
+    });
+        </script>
+    </body>
+    </html>

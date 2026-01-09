@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Client Campaign Module — Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{--bg:#f7f9fc;--card:#fff;--muted:#6b7280;--accent:#2563eb;--success:#16a34a}
+    *, *::before, *::after { box-sizing: border-box; }
+    body{font-family:Inter,Arial,sans-serif;background:var(--bg);margin:0;color:#111}
+    .container{max-width:920px;margin:32px auto;padding:20px}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 8px 28px rgba(15,23,42,0.06);margin-bottom:16px}
+    h1{font-size:1.25rem;margin:0 0 8px}
+    p.lead{color:var(--muted);margin:0 0 16px}
+    .placements{display:flex;gap:12px;margin:12px 0 18px;align-items:stretch;flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px}
+    .placements::-webkit-scrollbar{height:10px}
+    .placement{flex:0 0 160px;min-width:140px;background:#f9fafb;border-radius:10px;padding:14px 12px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .15s;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:110px}
+    .placement:hover{transform:translateY(-6px)}
+    .placement.active{border-color:var(--accent);box-shadow:0 6px 18px rgba(37,99,235,0.08);background:linear-gradient(180deg,#fff,#fbfdff)}
+    .placement .name{font-weight:700;margin-top:8px}
+    .placement .sub{color:var(--muted);font-size:13px;margin-top:6px}
+    form .row{display:flex;gap:12px;flex-wrap:wrap}
+    form .col{flex:1 1 240px;min-width:180px}
+    label{display:block;font-size:13px;margin-bottom:6px;color:#111;font-weight:600}
+    input[type=text], input[type=number], input[type=date], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:14px}
+    textarea{min-height:90px}
+    .small{font-size:13px;color:var(--muted)}
+    .meta{display:flex;align-items:center;gap:12px;margin-top:12px}
+    .meta .badge{background:#eef2ff;color:var(--accent);padding:6px 8px;border-radius:8px;font-weight:700}
+    .actions{display:flex;gap:12px;margin-top:18px}
+    button.primary{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer}
+    button.ghost{background:#fff;border:1px solid #e6e9ef;padding:10px 14px;border-radius:8px;cursor:pointer}
+    .summary{margin-top:16px;padding:12px;border-radius:8px;background:#f8fffa;border:1px solid #d1fae5;color:var(--success);display:none}
+    /* AdSet styles */
+    #adsets .card{background:#fff;padding:14px;border-radius:10px;border:1px solid #eef2f6}
+    .adset-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .adset-actions button{padding:6px 10px;border-radius:8px;border:1px solid #e6e9ef;background:#fff;cursor:pointer}
+    .adset-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:10px;align-items:start}
+    .adset-col label{display:block;font-size:13px;margin-bottom:6px}
+    .adset-col input[type=date], .adset-col input[type=number], .adset-col input[type=text], .adset-col select{width:100%;padding:8px;border-radius:8px;border:1px solid #e6e9ef}
+    @media (max-width:900px){ .adset-grid{grid-template-columns:1fr} }
+    @media (max-width:760px){.placements{flex-wrap:nowrap;overflow-x:auto}.row{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Buat Campaign — POV UMKM</h1>
+      <p class="lead">Template cepat untuk UMKM: pilih placement, atur budget, dan jalankan promosi (simulasi).</p>
+
+      <div>
+        <div class="placements" role="tablist" aria-label="Pilih Placement">
+          <div class="placement active" data-placement="fb_feed" role="tab" tabindex="0">
+            <div style="font-size:20px;color:#1877f2">&#x1F4F7;</div>
+            <div class="name">Facebook Feed</div>
+            <div class="sub">Gambar + Headline</div>
+          </div>
+          <div class="placement" data-placement="ig_feed" role="tab" tabindex="0">
+            <div style="font-size:20px;color:#E4405F">&#x1F4F8;</div>
+            <div class="name">Instagram Feed</div>
+            <div class="sub">Caption + Media</div>
+          </div>
+          <div class="placement" data-placement="ig_story" role="tab" tabindex="0">
+            <div style="font-size:20px;color:#C13584">&#x1F4F9;</div>
+            <div class="name">Instagram Story</div>
+            <div class="sub">Vertical media + Swipe-up</div>
+          </div>
+          <div class="placement" data-placement="reels" role="tab" tabindex="0">
+            <div style="font-size:20px;color:#000">&#x25B6;</div>
+            <div class="name">Reels</div>
+            <div class="sub">Vertical short video</div>
+          </div>
+          <div class="placement" data-placement="tiktok" role="tab" tabindex="0">
+            <div style="font-size:20px;color:#00F2EA">🎵</div>
+            <div class="name">TikTok</div>
+            <div class="sub">Short vertical video</div>
+          </div>
+          <div class="placement" data-placement="shopee" role="tab" tabindex="0">
+            <div style="font-size:20px;color:#ee4d2d">🛒</div>
+            <div class="name">Shopee</div>
+            <div class="sub">Marketplace product ad</div>
+          </div>
+        </div>
+      </div>
+
+      <form id="campaign-form">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div style="flex:1">
+            <label for="name">Nama Campaign</label>
+            <input id="name" type="text" placeholder="Contoh: Promo Diskon Nov 2025" required />
+          </div>
+          <div style="width:220px">
+            <label for="objective">Objective</label>
+            <select id="objective">
+              <option value="awareness">Brand Awareness</option>
+              <option value="reach">Reach</option>
+              <option value="traffic">Traffic</option>
+              <option value="engagement">Engagement</option>
+              <option value="app_installs">App Installs</option>
+              <option value="video_views">Video Views</option>
+              <option value="lead_generation">Lead Generation</option>
+              <option value="conversions">Conversions</option>
+              <option value="catalog_sales">Catalog Sales</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="placement-form" style="margin-top:14px">
+          <!-- dynamic fields will be rendered here -->
+        </div>
+
+        <!-- Ad Set layer -->
+        <div style="margin-top:18px">
+          <h3 style="margin:0 0 8px">Ad Set</h3>
+          <p class="small" style="margin:0 0 10px">Tambahkan satu atau beberapa ad set. Setiap ad set memiliki budget, targeting, dan jadwal sendiri.</p>
+          <div id="adsets"></div>
+          <div style="margin-top:10px">
+            <button type="button" id="add-adset" class="ghost">+ Add Ad Set</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div class="col">
+            <label for="daily-budget">Budget Harian (IDR)</label>
+            <input id="daily-budget" type="number" min="0" value="100000" />
+            <div class="small">Masukkan budget harian campaign.</div>
+          </div>
+          <div class="col">
+            <label for="end-date">End Date</label>
+            <input id="end-date" type="date" />
+            <div class="small">Pilih tanggal akhir campaign (kita hitung "left time").</div>
+          </div>
+        </div>
+
+        <div class="meta">
+          <div class="badge">Preview</div>
+          <div class="small">Total daily budget: <span id="preview-daily">IDR 100.000</span></div>
+          <div class="small">Left time: <span id="preview-left">—</span></div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="primary">Buat Campaign</button>
+          <button type="button" class="ghost" id="preview-btn">Preview Summary</button>
+        </div>
+
+        <div class="summary" id="summary-box"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Initial setup
+    const placements = document.querySelectorAll('.placement');
+    const placementForm = document.getElementById('placement-form');
+    const dailyInput = document.getElementById('daily-budget');
+    const endDateInput = document.getElementById('end-date');
+    const previewDaily = document.getElementById('preview-daily');
+    const previewLeft = document.getElementById('preview-left');
+    const summaryBox = document.getElementById('summary-box');
+
+    // Utility: format IDR
+    function fmtIDR(v){ return 'IDR ' + Number(v).toLocaleString('id-ID'); }
+
+    // Default end date = +7 days
+    const d = new Date(); d.setDate(d.getDate() + 7); endDateInput.valueAsDate = d;
+
+    // Compute preview
+    function updatePreview(){
+      previewDaily.textContent = fmtIDR(dailyInput.value || 0);
+      if (!endDateInput.value) { previewLeft.textContent = '—'; return; }
+      const end = new Date(endDateInput.value + 'T23:59:59');
+      const today = new Date();
+      const diff = Math.ceil((end - today) / (1000*60*60*24));
+      previewLeft.textContent = diff > 0 ? diff + ' hari' : 'Sudah lewat';
+    }
+    dailyInput.addEventListener('input', updatePreview);
+    endDateInput.addEventListener('change', updatePreview);
+
+    // Render form fields per placement
+    const placementTemplates = {
+      fb_feed: `
+        <div>
+          <label>Primary Text</label>
+          <textarea id="fb_text" placeholder="Tulis teks utama untuk Facebook feed..."></textarea>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <label>Headline</label>
+            <input id="fb_headline" type="text" placeholder="Judul singkat (max 25 char)" />
+          </div>
+          <div class="col">
+            <label>Destination URL</label>
+            <input id="fb_url" type="text" placeholder="https://..." />
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label>Image (simulasi)</label>
+          <input id="fb_image" type="text" placeholder="Nama file: banner.jpg (demo)" />
+          <div class="small">Aspect ratio: 1.91:1 atau 1:1 untuk square.</div>
+        </div>
+      `,
+      ig_feed: `
+        <div>
+          <label>Caption</label>
+          <textarea id="ig_caption" placeholder="Tulis caption untuk Instagram feed..."></textarea>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <label>Media (simulasi)</label>
+            <input id="ig_media" type="text" placeholder="Nama file: post.jpg / post.mp4" />
+            <div class="small">Square or vertical recommended (1:1 or 4:5).</div>
+          </div>
+          <div class="col">
+            <label>Call To Action</label>
+            <select id="ig_cta"><option>Learn More</option><option>Shop Now</option><option>Sign Up</option></select>
+          </div>
+        </div>
+      `,
+      ig_story: `
+        <div>
+          <label>Swipe-up / Link</label>
+          <input id="ig_story_link" type="text" placeholder="https://..." />
+        </div>
+        <div style="margin-top:10px">
+          <label>Vertical media (simulasi)</label>
+          <input id="ig_story_media" type="text" placeholder="story.mp4 atau story.jpg" />
+          <div class="small">Preferred 9:16, max 15s for static demo.</div>
+        </div>
+      `,
+      reels: `
+        <div>
+          <label>Video file (simulasi)</label>
+          <input id="reels_media" type="text" placeholder="reel.mp4" />
+          <div class="small">Vertical short video, up to 60s (demo).</div>
+        </div>
+        <div style="margin-top:10px">
+          <label>Caption</label>
+          <textarea id="reels_caption" placeholder="Tulis caption untuk Reels..."></textarea>
+        </div>
+      `
+      ,
+      tiktok: `
+        <div>
+          <label>Caption</label>
+          <textarea id="tiktok_caption" placeholder="Tulis caption pendek (hashtag, CTA)"></textarea>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <label>Video file (simulasi)</label>
+            <input id="tiktok_video" type="text" placeholder="reel_tiktok.mp4" />
+            <div class="small">Format vertikal 9:16. Recommended length: 9-60s.</div>
+          </div>
+          <div class="col">
+            <label>Sound / Music</label>
+            <input id="tiktok_sound" type="text" placeholder="Sound name (optional)" />
+            <label style="margin-top:8px">Call To Action</label>
+            <select id="tiktok_cta"><option>Learn More</option><option>Shop Now</option><option>Install</option></select>
+          </div>
+        </div>
+      `,
+      shopee: `
+        <div>
+          <label>Shop ID / Name</label>
+          <input id="shopee_shop" type="text" placeholder="Contoh: tokobagus123" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <label>Product ID / SKU</label>
+            <input id="shopee_product_id" type="text" placeholder="Product ID atau SKU" />
+          </div>
+          <div class="col">
+            <label>Product Image (simulasi)</label>
+            <input id="shopee_image" type="text" placeholder="product.jpg" />
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label>Offer / Promo text</label>
+          <input id="shopee_offer" type="text" placeholder="Diskon 20% + gratis ongkir" />
+        </div>
+        <div style="margin-top:10px">
+          <label>Price (IDR)</label>
+          <input id="shopee_price" type="number" placeholder="50000" />
+          <label style="margin-top:8px">Coupon Code (optional)</label>
+          <input id="shopee_coupon" type="text" placeholder="KODEPROMO" />
+        </div>
+      `
+    };
+
+    function renderPlacement(name){
+      placementForm.innerHTML = placementTemplates[name] || '<div class="small">No form for this placement.</div>';
+    }
+
+    // --- Ad Set management ---
+    const adsetsEl = document.getElementById('adsets');
+    let adsets = [];
+
+    function newAdSet(defaultName){
+      return {
+        id: 'ads_' + Math.random().toString(36).slice(2,9),
+        name: defaultName || 'Ad Set ' + (adsets.length+1),
+        budget: 50000,
+        budgetType: 'daily', // or lifetime
+        startDate: (new Date()).toISOString().slice(0,10),
+        endDate: (function(){ const d = new Date(); d.setDate(d.getDate()+7); return d.toISOString().slice(0,10); })(),
+        location: 'Indonesia',
+        ageFrom: 18,
+        ageTo: 45,
+        optimization: 'link_clicks'
+      };
+    }
+
+    function renderAdSets(){
+      if (!adsets.length) { adsets = [ newAdSet('Ad Set 1') ]; }
+      adsetsEl.innerHTML = adsets.map((s, idx) => {
+        const selDaily = s.budgetType === 'daily' ? 'selected' : '';
+        const selLife = s.budgetType === 'lifetime' ? 'selected' : '';
+        const optLink = s.optimization === 'link_clicks' ? 'selected' : '';
+        const optImp = s.optimization === 'impressions' ? 'selected' : '';
+        const optConv = s.optimization === 'conversions' ? 'selected' : '';
+        const optOff = s.optimization === 'offsite_conversions' ? 'selected' : '';
+        return `
+          <div class="card" style="margin-top:10px;padding:12px">
+            <div class="adset-top">
+              <div style="font-weight:700">${s.name}</div>
+              <div class="adset-actions">
+                <button data-idx="${idx}" class="rename">Rename</button>
+                <button data-idx="${idx}" class="remove">Remove</button>
+              </div>
+            </div>
+            <div class="adset-grid">
+              <div class="adset-col">
+                <label>Budget Type</label>
+                <select data-field="budgetType" data-idx="${idx}">
+                  <option value="daily" ${selDaily}>Daily</option>
+                  <option value="lifetime" ${selLife}>Lifetime</option>
+                </select>
+                <label style="margin-top:8px">Amount (IDR)</label>
+                <input type="number" data-field="budget" data-idx="${idx}" value="${s.budget}" />
+              </div>
+              <div class="adset-col">
+                <label>Targeting (Location)</label>
+                <input type="text" data-field="location" data-idx="${idx}" value="${s.location}" />
+                <div style="display:flex;gap:8px;margin-top:8px">
+                  <div style="flex:1"><label>Age from</label><input type="number" data-field="ageFrom" data-idx="${idx}" value="${s.ageFrom}" /></div>
+                  <div style="flex:1"><label>Age to</label><input type="number" data-field="ageTo" data-idx="${idx}" value="${s.ageTo}" /></div>
+                </div>
+              </div>
+              <div class="adset-col">
+                <label>Optimization</label>
+                <select data-field="optimization" data-idx="${idx}">
+                  <option value="link_clicks" ${optLink}>Link Clicks</option>
+                  <option value="impressions" ${optImp}>Impressions</option>
+                  <option value="conversions" ${optConv}>Conversions</option>
+                  <option value="offsite_conversions" ${optOff}>Offsite Conversions</option>
+                </select>
+                <div style="margin-top:8px">
+                  <label>Start</label>
+                  <input type="date" data-field="startDate" data-idx="${idx}" value="${s.startDate}" />
+                </div>
+                <div style="margin-top:8px">
+                  <label>End</label>
+                  <input type="date" data-field="endDate" data-idx="${idx}" value="${s.endDate}" />
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Attach handlers
+      adsetsEl.querySelectorAll('select[data-field], input[data-field]').forEach(el => {
+        el.addEventListener('change', (e) => {
+          const idx = Number(el.dataset.idx);
+          const field = el.dataset.field;
+          const val = el.type === 'number' ? Number(el.value) : el.value;
+          adsets[idx][field] = val;
+          updatePreview();
+        });
+      });
+      adsetsEl.querySelectorAll('button.remove').forEach(b => b.addEventListener('click', (e)=>{
+        const idx = Number(b.dataset.idx); adsets.splice(idx,1); renderAdSets();
+      }));
+      adsetsEl.querySelectorAll('button.rename').forEach(b => b.addEventListener('click', (e)=>{
+        const idx = Number(b.dataset.idx); const n = prompt('Rename ad set', adsets[idx].name); if (n) { adsets[idx].name = n; renderAdSets(); }
+      }));
+    }
+
+    document.getElementById('add-adset').addEventListener('click', ()=>{ adsets.push(newAdSet('Ad Set ' + (adsets.length+1))); renderAdSets(); });
+    renderAdSets();
+
+    // Placement selection handling
+    placements.forEach(p => {
+      p.addEventListener('click', () => {
+        placements.forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        renderPlacement(p.dataset.placement);
+      });
+      p.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); p.click(); } });
+    });
+
+    // initial render
+    const initial = document.querySelector('.placement.active').dataset.placement;
+    renderPlacement(initial);
+    updatePreview();
+
+    // Preview summary
+    document.getElementById('preview-btn').addEventListener('click', (e) => {
+      e.preventDefault(); buildSummary(false);
+    });
+
+    function buildSummary(showAlert=true){
+      const name = document.getElementById('name').value || '(no name)';
+      const objective = document.getElementById('objective').value;
+      const placement = document.querySelector('.placement.active').dataset.placement;
+      const budget = dailyInput.value;
+      const end = endDateInput.value; // iso
+      const left = previewLeft.textContent;
+      let details = '';
+      if (placement === 'fb_feed'){
+        details = `Headline: ${document.getElementById('fb_headline')?.value || '-'}\nURL: ${document.getElementById('fb_url')?.value || '-'}\nImage: ${document.getElementById('fb_image')?.value || '-'}\nText: ${document.getElementById('fb_text')?.value?.slice(0,120) || '-'} `;
+      } else if (placement === 'ig_feed'){
+        details = `Media: ${document.getElementById('ig_media')?.value || '-'}\nCTA: ${document.getElementById('ig_cta')?.value || '-'}\nCaption: ${document.getElementById('ig_caption')?.value?.slice(0,120) || '-'}`;
+      } else if (placement === 'ig_story'){
+        details = `Link: ${document.getElementById('ig_story_link')?.value || '-'}\nMedia: ${document.getElementById('ig_story_media')?.value || '-'}`;
+      } else if (placement === 'reels'){
+        details = `Video: ${document.getElementById('reels_media')?.value || '-'}\nCaption: ${document.getElementById('reels_caption')?.value?.slice(0,120) || '-'}`;
+      } else if (placement === 'tiktok'){
+        details = `Video: ${document.getElementById('tiktok_video')?.value || '-'}\nCaption: ${document.getElementById('tiktok_caption')?.value?.slice(0,120) || '-'}\nSound: ${document.getElementById('tiktok_sound')?.value || '-'}\nCTA: ${document.getElementById('tiktok_cta')?.value || '-'}`;
+      } else if (placement === 'shopee'){
+        details = `Shop: ${document.getElementById('shopee_shop')?.value || '-'}\nProduct: ${document.getElementById('shopee_product_id')?.value || '-'}\nPrice: ${document.getElementById('shopee_price')?.value || '-'}\nOffer: ${document.getElementById('shopee_offer')?.value || '-'}\nCoupon: ${document.getElementById('shopee_coupon')?.value || '-'}`;
+      }
+      const summary = `<strong>${name}</strong><br>Objective: ${objective}<br>Placement: ${placement.replace('_',' ')}<br>Daily: ${fmtIDR(budget)}<br>End: ${end || '—'}<br>Left: ${left}<br><pre style="white-space:pre-wrap;margin-top:8px">${details}</pre>`;
+      summaryBox.innerHTML = summary; summaryBox.style.display = 'block';
+      if (showAlert) alert('Preview:\n' + name + '\n' + placement + '\n' + fmtIDR(budget));
+    }
+
+    // Submit handling (simulate create campaign)
+    document.getElementById('campaign-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      buildSummary(false);
+      summaryBox.style.background = '#ecfdf5'; summaryBox.style.border = '1px solid #bbf7d0';
+      summaryBox.style.color = '#065f46';
+      summaryBox.innerHTML += '<div style="margin-top:8px;font-weight:700;color:#065f46">Campaign created (simulated)</div>';
+      // Reset small UI: deselect after 2s
+      setTimeout(()=>{ document.querySelectorAll('.placement').forEach(x=>x.classList.remove('active')); placements[0].classList.add('active'); renderPlacement(placements[0].dataset.placement); }, 2000);
+    });
+  </script>
+</body>
+</html>

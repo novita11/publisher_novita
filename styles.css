@@ -1,0 +1,744 @@
+/* ==================== GENERAL STYLES ==================== */
+:root {
+    --primary-color: #1a472a;
+    --secondary-color: #2d5f3f;
+    --accent-color: #d4a574;
+    --text-dark: #2c3e50;
+    --text-light: #ecf0f1;
+    --border-color: #bdc3c7;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+    background-color: #f8f9fa;
+}
+
+/* ==================== NAVIGATION ==================== */
+.navbar {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    color: var(--accent-color) !important;
+}
+
+.navbar-brand i {
+    margin-right: 0.5rem;
+}
+
+.nav-link {
+    color: #e0e0e0 !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: var(--accent-color) !important;
+    transform: translateY(-2px);
+}
+
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.cart-badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.4rem;
+}
+
+/* ==================== HERO SECTION ==================== */
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.1;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section h1 {
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 1.5rem;
+}
+
+.hero-section .lead {
+    font-size: 1.3rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+#searchInput, #isbnInput {
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 8px 0 0 8px;
+}
+
+#isbnInput {
+    border-radius: 0;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    border-radius: 0 8px 8px 0;
+}
+
+.btn-primary:hover {
+    background-color: #c49460;
+    border-color: #c49460;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 165, 116, 0.4);
+}
+
+/* ==================== STATISTICS SECTION ==================== */
+.stats-section {
+    padding: 5rem 0;
+}
+
+.stat-box {
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+/* ==================== FEATURED BOOKS SECTION ==================== */
+.featured-section {
+    padding: 5rem 0;
+    background: white;
+}
+
+.featured-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+}
+
+.book-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+}
+
+.book-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.book-image {
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.book-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.book-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--accent-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.book-info {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-category {
+    color: var(--secondary-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.book-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.book-author {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.book-rating {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.book-rating i {
+    margin-right: 0.2rem;
+}
+
+.book-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.book-isbn {
+    font-size: 0.8rem;
+    color: #95a5a6;
+    margin-bottom: 1rem;
+}
+
+.book-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.book-actions button {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-detail {
+    background-color: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-detail:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-beli {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-beli:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+/* ==================== SERVICES SECTION ==================== */
+.services-section {
+    padding: 5rem 0;
+}
+
+.services-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.service-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    height: 100%;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-color);
+}
+
+.service-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin: 0 auto 1.5rem;
+}
+
+.service-card h5 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.service-card p {
+    color: #7f8c8d;
+    line-height: 1.6;
+}
+
+/* ==================== ABOUT SECTION ==================== */
+.about-section {
+    padding: 5rem 0;
+    background: white;
+}
+
+.about-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.about-section .lead {
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+.about-image {
+    position: relative;
+}
+
+.about-image img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.about-list {
+    list-style: none;
+}
+
+.about-list li {
+    padding: 0.75rem 0;
+    color: var(--text-dark);
+    font-size: 1rem;
+}
+
+.about-list i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.btn-lg {
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+/* ==================== TESTIMONIALS SECTION ==================== */
+.testimonials-section {
+    padding: 5rem 0;
+}
+
+.testimonials-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.testimonial-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    height: 100%;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stars {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.testimonial-text {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.testimonial-author h6 {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.testimonial-author small {
+    color: var(--secondary-color);
+}
+
+/* ==================== CONTACT SECTION ==================== */
+.contact-section {
+    padding: 5rem 0;
+    background: white;
+}
+
+.contact-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.contact-info {
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.contact-info:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-8px);
+}
+
+.contact-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.contact-info:hover .contact-icon {
+    background: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.contact-info h5 {
+    color: inherit;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.contact-info p {
+    color: inherit;
+    margin-bottom: 0;
+}
+
+.contact-info a {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.contact-info:hover a {
+    color: var(--accent-color);
+}
+
+.contact-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+}
+
+.contact-form .form-control,
+.contact-form .form-select {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.contact-form .form-control:focus,
+.contact-form .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(26, 71, 42, 0.25);
+}
+
+/* ==================== FOOTER ==================== */
+.footer {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--text-light);
+    padding-top: 3rem;
+}
+
+.footer h6 {
+    color: var(--accent-color);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.footer ul li {
+    margin-bottom: 0.75rem;
+}
+
+.footer a {
+    transition: all 0.3s ease;
+}
+
+.footer a:hover {
+    color: var(--accent-color) !important;
+    padding-left: 0.5rem;
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+    background: white;
+    color: var(--primary-color);
+    transform: translateY(-3px) scale(1.1);
+}
+
+.footer .badge {
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+}
+
+/* ==================== MODAL STYLES ==================== */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    border: none;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(26, 71, 42, 0.25);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 400px;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .hero-section .lead {
+        font-size: 1rem;
+    }
+
+    .hero-section .row {
+        flex-direction: column;
+    }
+
+    #searchInput, #isbnInput, .btn-primary {
+        border-radius: 8px !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .featured-section h2,
+    .services-section h2,
+    .about-section h2,
+    .testimonials-section h2,
+    .contact-section h2 {
+        font-size: 1.75rem;
+    }
+
+    .book-card {
+        margin-bottom: 1rem;
+    }
+
+    .about-image {
+        margin-bottom: 2rem;
+    }
+
+    .footer h6 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section h1 {
+        font-size: 1.5rem;
+    }
+
+    .hero-section .row {
+        gap: 0.5rem;
+    }
+
+    .book-card {
+        border-radius: 8px;
+    }
+
+    .service-card,
+    .contact-info,
+    .testimonial-card {
+        padding: 1.5rem;
+    }
+
+    .contact-form {
+        padding: 1.5rem;
+    }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.book-card {
+    animation: fadeInUp 0.6s ease;
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.shadow {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.rounded-3 {
+    border-radius: 12px !important;
+}

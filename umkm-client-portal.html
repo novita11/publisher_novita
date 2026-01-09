@@ -1,0 +1,2688 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>UMKM Client Portal</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #16a34a;
+      --danger: #dc2626;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .container { max-width: 1080px; margin: 0 auto; padding: 16px; }
+    .title { font-size: 22px; font-weight: 700; }
+    .subtitle { color: var(--muted); margin-top: 4px; }
+    .client-banner {
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #e0e7ff;
+      color: #3730a3;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    main { padding: 16px 0 48px; }
+    .layout { display: grid; grid-template-columns: 240px 1fr; gap: 16px; }
+    @media (max-width: 992px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; top: auto; }
+    }
+    .sidebar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      height: fit-content;
+      position: sticky;
+      top: 96px;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.08);
+    }
+    .menu-title { font-weight: 700; margin-bottom: 12px; }
+    .menu { display: grid; gap: 8px; }
+    .menu button {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .menu button:hover { background: #f8fafc; }
+    .menu button.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(37,99,235,0.24);
+    }
+
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 960px) { .grid-2 { grid-template-columns: 1fr; } }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    @media (max-width: 960px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+    .summary-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      display: grid;
+      gap: 6px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+    .summary-card .label {
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .summary-card .value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .summary-card .desc {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Varian warna untuk Ringkasan */
+    .summary-card--draft {
+      background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+      border-color: #93c5fd;
+    }
+    .summary-card--draft .label, .summary-card--draft .desc { color: #1e3a8a; }
+    .summary-card--draft .value { color: #1d4ed8; }
+
+    .summary-card--scheduled {
+      background: linear-gradient(135deg, #fef3c7 0%, #fff7ed 100%);
+      border-color: #facc15;
+    }
+    .summary-card--scheduled .label, .summary-card--scheduled .desc { color: #92400e; }
+    .summary-card--scheduled .value { color: #b45309; }
+
+    .summary-card--next {
+      background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+      border-color: #a78bfa;
+    }
+    .summary-card--next .label, .summary-card--next .desc { color: #5b21b6; }
+    .summary-card--next .value { color: #6d28d9; }
+
+    .summary-card--campaigns {
+      background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+      border-color: #4ade80;
+    }
+    .summary-card--campaigns .label, .summary-card--campaigns .desc { color: #166534; }
+    .summary-card--campaigns .value { color: #16a34a; }
+
+    /* Varian warna Ringkasan Finansial Campaign */
+    .summary-card--budget {
+      background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+      border-color: #93c5fd;
+    }
+    .summary-card--budget .label, .summary-card--budget .desc { color: #1e3a8a; }
+    .summary-card--budget .value { color: #1d4ed8; }
+
+    .summary-card--spend {
+      background: linear-gradient(135deg, #fee2e2 0%, #fff1f2 100%);
+      border-color: #fca5a5;
+    }
+    .summary-card--spend .label, .summary-card--spend .desc { color: #9f1239; }
+    .summary-card--spend .value { color: #dc2626; }
+
+    .summary-card--remaining {
+      background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+      border-color: #86efac;
+    }
+    .summary-card--remaining .label, .summary-card--remaining .desc { color: #166534; }
+    .summary-card--remaining .value { color: #16a34a; }
+
+    .summary-card--progress {
+      background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+      border-color: #c4b5fd;
+    }
+    .summary-card--progress .label, .summary-card--progress .desc { color: #5b21b6; }
+    .summary-card--progress .value { color: #7c3aed; }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 960px) {
+      .chart-grid { grid-template-columns: 1fr; }
+    }
+    .chart-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--card);
+      box-shadow: 0 8px 24px rgba(15,23,42,0.04);
+    }
+    .chart-card h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    canvas { width: 100%; height: 260px; }
+
+    .hidden { display: none; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 12px 32px rgba(15,23,42,0.06);
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .card p.helper {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    form { display: grid; gap: 12px; }
+    .row { display: grid; gap: 12px; }
+    .row-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 640px) { .row-2 { grid-template-columns: 1fr; } }
+
+    label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text); }
+    input, select, textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      background: #fff;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+    textarea { min-height: 96px; resize: vertical; }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .btn.primary:hover { background: var(--primary-hover); }
+    .btn.secondary:hover { background: #f1f5f9; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+    .btn.danger {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+
+    /* Label judul rekomendasi */
+    .trend-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-weight: 600;
+      color: var(--muted);
+      width: max-content;
+    }
+
+    /* Varian warna untuk opsi rekomendasi jadwal */
+    .btn.success { background: #16a34a; color: #fff; border-color: #16a34a; }
+    .btn.warning { background: #f59e0b; color: #fff; border-color: #f59e0b; }
+    .btn.info    { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .btn.selected { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+    .trend-options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    @media (max-width: 960px) { .trend-options { grid-template-columns: 1fr; } }
+    .trend-note { margin-top: 6px; color: var(--muted); font-size: 12px; }
+
+    /* Tombol platform posting */
+    .platform-group { margin-top: 8px; }
+    .platform-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-weight: 600;
+      color: var(--muted);
+      width: max-content;
+    }
+    .platforms {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .platform-btn { background: #fff; }
+    .platform-btn .icon { width: 18px; height: 18px; }
+    .platform-btn.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+
+    /* Override kelas brand ke gaya putih dengan ikon berwarna */
+    .platform-btn.fb, .platform-btn.ig, .platform-btn.tt, .platform-btn.shopee {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    /* Disabled state (abu-abu) */
+    .platform-btn[disabled] {
+      background: #f8fafc;
+      border-color: #e5e7eb;
+      color: #9ca3af;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .table-wrapper {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .status-chip.draft { background: #fef3c7; color: #c2410c; }
+    .status-chip.running { background: #dcfce7; color: #15803d; }
+    .status-chip.paused { background: #fee2e2; color: #b91c1c; }
+    .status-chip.completed { background: #e0e7ff; color: #4338ca; }
+    .status-chip.scheduled { background: #dcfce7; color: #166534; }
+    .status-chip.posted { background: #e0e7ff; color: #1e40af; }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      box-shadow: 0 16px 32px rgba(15,23,42,.12);
+      color: #fff;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .2s ease, transform .2s ease;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .link:hover { text-decoration: underline; }
+
+    /* Profil menu & dropdown */
+    header .container { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .header-left { display: grid; gap: 4px; }
+    .profile-menu { position: relative; display: inline-flex; align-items: center; }
+    .profile-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-weight: 600; color: var(--text); }
+    .profile-avatar { width: 28px; height: 28px; border-radius: 999px; background: #e5e7eb; display: inline-block; }
+    .profile-caret { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid var(--muted); }
+    .profile-dropdown { position: absolute; right: 0; top: calc(100% + 6px); background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 12px 24px rgba(15,23,42,0.10); display: none; min-width: 200px; overflow: hidden; z-index: 20; }
+    .profile-dropdown.show { display: block; }
+    .profile-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; color: var(--text); font-weight: 600; }
+    .profile-item:hover { background: #f8fafc; }
+    .profile-item.danger { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-left">
+        <div class="title">UMKM Client Portal</div>
+        <div class="subtitle">Kelola konten, penjadwalan, dan campaign Anda.</div>
+        <div class="client-banner">Client POV: <span id="client-name-display">-</span></div>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <button id="profile-toggle" class="profile-btn" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="profile-avatar" aria-hidden="true"></span>
+          <span id="profile-name">Batikkita</span>
+          <span class="profile-caret" aria-hidden="true"></span>
+        </button>
+        <div class="profile-dropdown" id="profile-dropdown" role="menu" aria-label="Profil">
+          <div class="profile-item" data-action="view-profile" role="menuitem">Detail Profile</div>
+          <div class="profile-item" data-action="forgot" role="menuitem">Lupa Password</div>
+          <div class="profile-item danger" data-action="logout" role="menuitem">Logout</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="menu-title">Navigasi</div>
+        <div class="menu" id="sidebar-menu">
+          <button class="active" data-view="dashboard">Dashboard</button>
+          <button data-view="content">Content Generator</button>
+          <button data-view="scheduler">Content Scheduler</button>
+          <button data-view="campaign">Campaign Creator</button>
+          <!-- ... existing code ... -->
+          <button data-view="profile">Profile Client</button>
+        </div>
+      </aside>
+
+      <section class="content">
+        <section id="view-dashboard" class="grid">
+          <div class="card">
+            <h2 id="summary-title">Ringkasan Client</h2>
+            <p class="helper" id="summary-helper">Gambaran realtime progres untuk client ini.</p>
+            <div class="summary-grid">
+              <div class="summary-card summary-card--draft">
+                <span class="label">Konten Draft</span>
+                <span class="value" id="summary-draft">0</span>
+                <span class="desc">Siap direview</span>
+              </div>
+              <div class="summary-card summary-card--scheduled">
+                <span class="label">Konten Scheduled</span>
+                <span class="value" id="summary-scheduled">0</span>
+                <span class="desc">Menunggu tayang</span>
+              </div>
+              <div class="summary-card summary-card--next">
+                <span class="label">Next Publish</span>
+                <span class="value" id="summary-next">-</span>
+                <span class="desc">Slot jadwal terdekat</span>
+              </div>
+              <div class="summary-card summary-card--campaigns">
+                <span class="label">Status Campaign</span>
+                <span class="value" id="summary-campaigns">0</span>
+                <span class="desc" id="summary-campaigns-desc">0 draft · 0 running</span>
+              </div>
+            </div>
+
+            <!-- Ringkasan Finansial Campaign -->
+            <div class="summary-grid" id="summary-finance" style="margin-top:16px;">
+              <div class="summary-card summary-card--budget">
+                <span class="label">Total Budget</span>
+                <span class="value" id="summary-budget">Rp 0</span>
+                <span class="desc">Akumulasi semua campaign client</span>
+              </div>
+              <div class="summary-card summary-card--spend">
+                <span class="label">Total Spend</span>
+                <span class="value" id="summary-spend">Rp 0</span>
+                <span class="desc">Belanja iklan yang sudah dikeluarkan</span>
+              </div>
+              <div class="summary-card summary-card--remaining">
+                <span class="label">Sisa Budget</span>
+                <span class="value" id="summary-remaining">Rp 0</span>
+                <span class="desc">Budget yang masih tersedia</span>
+              </div>
+              <div class="summary-card summary-card--progress">
+                <span class="label">Progress Spend</span>
+                <span class="value" id="summary-progress">0%</span>
+                <span class="desc">Spend / Budget (persentase)</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Visualisasi</h2>
+            <p class="helper">Perbandingan status konten dan campaign untuk client ini.</p>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <h3>Konten Draft vs Scheduled vs Posted</h3>
+                <canvas id="chart-content"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>Status Campaign</h3>
+                <canvas id="chart-campaign"></canvas>
+              </div>
+            </div>
+            <!-- Chart tambahan ala AI Digital Marketing -->
+            <div class="chart-grid" style="margin-top:16px;">
+              <div class="chart-card">
+                <h3>Budget vs Spend per Campaign</h3>
+                <canvas id="chart-budget-spend"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>CPA per Campaign</h3>
+                <canvas id="chart-cpa"></canvas>
+              </div>
+            </div>
+            <div class="chart-grid" style="margin-top:16px;">
+              <div class="chart-card">
+                <h3>CPC per Campaign</h3>
+                <canvas id="chart-cpc"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>Acquisitions per Campaign</h3>
+                <canvas id="chart-acq"></canvas>
+              </div>
+            </div>
+            <div class="chart-card" style="margin-top:16px;">
+              <h3>CTR per Campaign</h3>
+              <canvas id="chart-ctr"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-content" class="grid hidden">
+          <section class="card">
+            <h2>Content Generator</h2>
+            <p class="helper">Buat atau perbarui stok konten.</p>
+            <form id="content-form">
+              <div class="row row-2">
+                <label>
+                  Judul Konten
+                  <input id="content-title" type="text" placeholder="Misal: Tips memilih batik" required/>
+                </label>
+                <label>
+                  Industri
+                  <input id="content-industry" type="text" placeholder="Industri client" required readonly aria-readonly="true"/>
+                </label>
+              </div>
+              <label>
+                Deskripsi Konten
+                <textarea id="content-desc" placeholder="Ringkasan konten untuk dipublikasikan" required></textarea>
+              </label>
+
+              <!-- Upload Gambar untuk Konten -->
+              <div id="content-image-drop" style="border:1px dashed var(--muted); border-radius:12px; padding:16px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:#6b7280;">
+                <div id="content-image-preview" style="width:100%; text-align:center;">
+                  Drag & drop or <button type="button" class="link" id="content-image-select">select a file</button>
+                </div>
+                <input id="content-image-input" type="file" accept="image/*" style="display:none" />
+                <input type="hidden" id="content-image-data" />
+              </div>
+
+              <label style="display:flex; align-items:center; gap:8px;">
+                <input id="content-schedule-enable" type="checkbox"/>
+                <span>Assign ke Scheduler</span>
+              </label>
+              <div id="content-schedule-group" class="row row-2" style="display:none;">
+                <div class="row row-2" style="grid-column: 1 / -1;">
+                  <label>
+                    Tanggal Publish
+                    <input id="content-schedule-date" type="date" />
+                  </label>
+                  <label>
+                    Waktu Publish
+                    <input id="content-schedule-time" type="time" step="900" />
+                  </label>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                  <span class="trend-label">Rekomendasi Google Trends</span>
+                  <div id="content-schedule-trend-options" class="trend-options"></div>
+                  <div id="content-schedule-trend-note" class="trend-note"></div>
+                </div>
+              </div>
+
+              <div class="row row-2" id="content-stats-group" style="display:none;">
+                <label>
+                  Draft
+                  <input id="content-draft" type="number" min="0" value="0" required/>
+                </label>
+                <label>
+                  Scheduled
+                  <input id="content-scheduled" type="number" min="0" value="0" required/>
+                </label>
+              </div>
+              <label id="content-posted-group" style="display:none;">
+                Posted
+                <input id="content-posted" type="number" min="0" value="0" required/>
+              </label>
+
+              <!-- Posting platform (multi-select) -->
+              <div class="platform-group">
+                <span class="platform-label">Posting ke:</span>
+                <div class="platforms" id="content-posting-platforms">
+                  <!-- Facebook -->
+                  <button type="button" class="btn platform-btn fb" data-platform="Facebook" aria-label="Facebook">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="2" y="2" width="20" height="20" rx="4" fill="#1877F2"></rect>
+                      <path d="M14.5 8h-1.5c-.6 0-1 .4-1 1v2H14l-.3 2h-1.7v6h-2.2v-6H8v-2h1.8V8.7c0-1.8 1-2.7 2.6-2.7h2.1V8z" fill="#fff"></path>
+                    </svg>
+                    <span class="label">Facebook</span>
+                  </button>
+                  <!-- Instagram -->
+                  <button type="button" class="btn platform-btn ig" data-platform="Instagram" aria-label="Instagram">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="3" y="3" width="18" height="18" rx="5" fill="#E1306C"></rect>
+                      <rect x="5.5" y="5.5" width="13" height="13" rx="4" fill="#fff" opacity="0.25"></rect>
+                      <circle cx="12" cy="12" r="4.2" fill="#fff"></circle>
+                      <circle cx="17.2" cy="6.8" r="1.5" fill="#fff"></circle>
+                    </svg>
+                    <span class="label">Instagram</span>
+                  </button>
+                  <!-- TikTok (disabled / coming soon) -->
+                  <button type="button" class="btn platform-btn tt" data-platform="TikTok" aria-label="TikTok" disabled>
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="3" y="3" width="18" height="18" rx="5" fill="#111827" opacity="0.15"></rect>
+                      <path d="M14 6v6.2c0 2-1.6 3.6-3.6 3.6-1.1 0-2-.5-2.6-1.2v-2c.6.6 1.5 1 2.5 1 1.3 0 2.3-1 2.3-2.3V7.5c1 .9 2.3 1.4 3.7 1.5V7.2c-1.3-.1-2.5-.7-3.3-1.6z" fill="#111827"></path>
+                      <path d="M14 6v6.2c0 2-1.6 3.6-3.6 3.6" fill="#00F2EA" opacity="0.6"></path>
+                      <path d="M18 8.7c-1.3-.1-2.5-.7-3.3-1.6" fill="#FF0050" opacity="0.6"></path>
+                    </svg>
+                    <span class="label">TikTok</span>
+                  </button>
+                  <!-- Shopee (disabled / coming soon) -->
+                  <button type="button" class="btn platform-btn shopee" data-platform="Shopee" aria-label="Shopee" disabled>
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M6 8h12v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8z" fill="#FF6B00" opacity="0.25"></path>
+                      <path d="M8 8c0-2 1.7-3.6 4-3.6S16 6 16 8h2c0-3.1-2.5-5.6-6-5.6S6 4.9 6 8h2z" fill="#FF6B00"></path>
+                      <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="700" fill="#FF6B00">S</text>
+                    </svg>
+                    <span class="label">Shopee</span>
+                  </button>
+                </div>
+                <input type="hidden" id="content-platforms" />
+                <input type="hidden" id="content-edit-id" />
+              </div>
+
+              <div class="actions">
+                <button type="button" class="btn secondary" id="content-ai">AI Suggest</button>
+                <button type="button" class="btn secondary" id="content-reset">Reset</button>
+                <button type="submit" class="btn primary">Simpan Konten</button>
+              </div>
+            </form>
+            <!-- Summary jadwal untuk Content Generator -->
+            <div class="table-wrapper" style="margin-top:12px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Total</th>
+                    <th>Scheduled</th>
+                    <th>Unscheduled</th>
+                    <th>Next Publish</th>
+                  </tr>
+                </thead>
+                <tbody id="content-schedule-summary"></tbody>
+              </table>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Industri</th>
+                    <th>Judul</th>
+                    <th>Deskripsi</th>
+                    <th>Draft</th>
+                    <th>Scheduled</th>
+                    <th>Posted</th>
+                    <th>Jadwal</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="content-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-scheduler" class="grid hidden">
+          <section class="card">
+            <h2>Content Scheduler</h2>
+            <p class="helper">Kelola slot penjadwalan konten agar pipeline selalu penuh.</p>
+
+            <!-- Calendar View -->
+            <div id="scheduler-calendar" style="margin-bottom:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <button type="button" class="btn secondary" id="scheduler-calendar-prev">Prev</button>
+                <div id="scheduler-calendar-label" style="font-weight:700;">-</div>
+                <button type="button" class="btn secondary" id="scheduler-calendar-next">Next</button>
+              </div>
+              <div class="calendar-grid" id="scheduler-calendar-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px;"></div>
+            </div>
+
+            <!-- Quick Create setelah pilih tanggal -->
+            <form id="scheduler-create-form" style="display:none; border:1px dashed var(--muted); padding:12px; border-radius:12px;">
+              <div style="margin-bottom:8px; font-weight:700;">
+                Jadwal terpilih: <span id="scheduler-selected-date">-</span>
+              </div>
+              <div class="row row-2">
+                <label>
+                  Jam Tayang
+                  <input id="scheduler-create-time" type="time" required />
+                </label>
+                <label>
+                  Industri
+                  <input id="scheduler-create-industry" type="text" readonly aria-readonly="true" />
+                </label>
+              </div>
+              <div class="row">
+                <label>
+                  Judul Konten
+                  <input id="scheduler-create-title" type="text" placeholder="Masukkan judul" required />
+                </label>
+              </div>
+              <div class="row">
+                <label>
+                  Deskripsi
+                  <textarea id="scheduler-create-desc" placeholder="Masukkan deskripsi" required></textarea>
+                </label>
+              </div>
+
+              <!-- Upload Gambar untuk Quick Create -->
+              <div id="scheduler-image-drop" style="border:1px dashed var(--muted); border-radius:12px; padding:16px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:#6b7280; margin-bottom:8px;">
+                <div id="scheduler-image-preview" style="width:100%; text-align:center;">
+                  Drag & drop or <button type="button" class="link" id="scheduler-image-select">select a file</button>
+                </div>
+                <input id="scheduler-image-input" type="file" accept="image/*" style="display:none" />
+                <input type="hidden" id="scheduler-image-data" />
+              </div>
+
+              <div class="platform-group">
+                <span class="platform-label">Posting ke:</span>
+                <div class="platforms" id="scheduler-posting-platforms">
+                  <!-- Facebook -->
+                  <button type="button" class="btn platform-btn facebook" data-platform="Facebook" aria-label="Facebook">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" fill="#1877F2"></circle>
+                      <path d="M13.5 12h2.6l.4-2.6h-3V8.4c0-.8.4-1.2 1.3-1.2h1.6V4.8c-.3 0-.9-.1-1.7-.1-2.6 0-3.9 1.2-3.9 3.4v2h-2.3V12h2.3v7h3V12z" fill="#fff"></path>
+                    </svg>
+                    <span class="label">Facebook</span>
+                  </button>
+                  <!-- Instagram -->
+                  <button type="button" class="btn platform-btn instagram" data-platform="Instagram" aria-label="Instagram">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <linearGradient id="igg2" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#f58529"></stop>
+                        <stop offset="50%" stop-color="#dd2a7b"></stop>
+                        <stop offset="100%" stop-color="#8134af"></stop>
+                      </linearGradient>
+                      <rect x="3" y="3" width="18" height="18" rx="5" fill="url(#igg2)"></rect>
+                      <circle cx="12" cy="12" r="4.2" fill="#fff" opacity="0.9"></circle>
+                      <circle cx="17" cy="7" r="1.6" fill="#fff"></circle>
+                    </svg>
+                    <span class="label">Instagram</span>
+                  </button>
+                  <!-- TikTok (disabled) -->
+                  <button type="button" class="btn platform-btn tiktok" data-platform="TikTok" aria-label="TikTok" disabled>
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M14 6v6.2c0 2-1.6 3.6-3.6 3.6-1.1 0-2-.5-2.6-1.2v-2c.6.6 1.5 1 2.5 1 1.3 0 2.3-1 2.3-2.3V7.5c1 .9 2.3 1.4 3.7 1.5V7.2c-1.3-.1-2.5-.7-3.3-1.6z" fill="#111827"></path>
+                      <path d="M14 6v6.2c0 2-1.6 3.6-3.6 3.6" fill="#00F2EA" opacity="0.6"></path>
+                      <path d="M18 8.7c-1.3-.1-2.5-.7-3.3-1.6" fill="#FF0050" opacity="0.6"></path>
+                    </svg>
+                    <span class="label">TikTok</span>
+                  </button>
+                  <!-- Shopee (disabled) -->
+                  <button type="button" class="btn platform-btn shopee" data-platform="Shopee" aria-label="Shopee" disabled>
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M6 8h12v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8z" fill="#FF6B00" opacity="0.25"></path>
+                      <path d="M8 8c0-2 1.7-3.6 4-3.6S16 6 16 8h2c0-3.1-2.5-5.6-6-5.6S6 4.9 6 8h2z" fill="#FF6B00"></path>
+                      <text x="12" y="15" text-anchor="middle" font-size="8" font-weight="700" fill="#FF6B00">S</text>
+                    </svg>
+                    <span class="label">Shopee</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button type="submit" class="btn primary">Buat Konten dengan Jadwal Ini</button>
+                <button type="button" class="btn secondary" id="scheduler-create-cancel">Batal</button>
+              </div>
+            </form>
+
+            <!-- schedule-form dihapus sesuai permintaan -->
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Total</th>
+                    <th>Scheduled</th>
+                    <th>Unscheduled</th>
+                    <th>Next Publish</th>
+                  </tr>
+                </thead>
+                <tbody id="schedule-table"></tbody>
+              </table>
+            </div>
+            <div class="table-wrapper" style="margin-top:16px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Judul</th>
+                    <th>Industri</th>
+                    <th>Status</th>
+                    <th>Jadwal</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="schedule-content-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-campaign" class="grid hidden">
+          <section class="card">
+            <h2>Campaign Creator</h2>
+            <p class="helper">Susun campaign baru. Campaign akan muncul di PBO untuk diaktifkan oleh tim marketing.</p>
+            <form id="campaign-form">
+              <div class="row row-2">
+                <label>
+                  Nama Campaign
+                  <input id="campaign-name" type="text" placeholder="Misal: Promo 11.11" required/>
+                </label>
+              </div>
+              <div class="row row-2">
+                <label>
+                  Objective
+                  <select id="campaign-objective" required>
+                    <option value="Awareness">Awareness</option>
+                    <option value="Engagement">Engagement</option>
+                    <option value="Traffic">Traffic</option>
+                    <option value="Lead">Lead</option>
+                    <option value="Sales">Sales</option>
+                  </select>
+                </label>
+                <label>
+                  Budget (Rp)
+                  <input id="campaign-budget" type="number" min="0" step="500000" placeholder="Contoh: 15000000" required/>
+                </label>
+              </div>
+
+              <!-- Target Audience -->
+              <div class="row row-2">
+                <label>
+                  Target Lokasi
+                  <input id="campaign-location" type="text" placeholder="Contoh: Jakarta, Bandung, Jawa Barat"/>
+                </label>
+                <label>
+                  Gender
+                  <select id="campaign-gender">
+                    <option value="all">All</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </label>
+              </div>
+              <div class="row row-2">
+                <label>
+                  Umur (min)
+                  <input id="campaign-age-min" type="number" min="13" max="65" value="18"/>
+                </label>
+                <label>
+                  Umur (max)
+                  <input id="campaign-age-max" type="number" min="13" max="65" value="55"/>
+                </label>
+              </div>
+
+              <!-- Ad Placements -->
+              <div class="row">
+                <label>
+                  Ad Placement
+                  <div id="campaign-placements" style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <label class="checkbox"><input type="checkbox" name="campaign-placement" value="facebook_feed"> Facebook Feed</label>
+                    <label class="checkbox"><input type="checkbox" name="campaign-placement" value="instagram_feed"> Instagram Feed</label>
+                    <label class="checkbox"><input type="checkbox" name="campaign-placement" value="instagram_story"> Instagram Story</label>
+                    <label class="checkbox"><input type="checkbox" name="campaign-placement" value="reels"> Reels</label>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Upload Gambar (maks 10) -->
+              <div id="campaign-images-drop" style="border:1px dashed var(--muted); border-radius:12px; padding:16px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:#6b7280; margin-bottom:8px;">
+                <div id="campaign-images-preview" style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; width:100%;"></div>
+                <div style="text-align:center; width:100%;">Drag & drop or <button type="button" class="link" id="campaign-images-select">select files</button> (max 10)</div>
+                <input id="campaign-images-input" type="file" accept="image/*" multiple style="display:none"/>
+                <input type="hidden" id="campaign-images-data" />
+              </div>
+
+              <!-- Headline & Click Target -->
+              <div class="row">
+                <label>
+                  Headline
+                  <input id="campaign-headline" type="text" placeholder="Contoh: Promo 11.11 Besar-besaran"/>
+                </label>
+              </div>
+              <div class="row row-2">
+                <label>
+                  Tujuan Klik
+                  <select id="campaign-click-type">
+                    <option value="website">Website URL</option>
+                    <option value="wa">Wa Number</option>
+                    <option value="instagram">Instagram Profile</option>
+                    <option value="messenger">Messenger Chat</option>
+                  </select>
+                </label>
+                <label>
+                  Nilai Tujuan
+                  <input id="campaign-click-value" type="text" placeholder="https://example.com"/>
+                </label>
+              </div>
+
+              <div class="row row-2">
+                <label>
+                  Start Date
+                  <input id="campaign-start" type="date" required/>
+                </label>
+                <label>
+                  End Date
+                  <input id="campaign-end" type="date" required/>
+                </label>
+              </div>
+              <label>
+                Catatan Tambahan
+                <textarea id="campaign-note" placeholder="Opsional: highlight konten, channel, atau CTA"></textarea>
+              </label>
+              <div class="actions">
+                <button type="button" class="btn secondary" id="campaign-ai">AI Suggest</button>
+                <button type="button" class="btn secondary" id="campaign-reset">Reset</button>
+                <button type="button" class="btn" id="campaign-save-draft">Simpan Draft</button>
+                <button type="submit" class="btn primary">Buat Campaign</button>
+              </div>
+            </form>
+
+            <!-- Summary Campaign by Status -->
+            <div id="campaign-status-summary" style="display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:12px 0;">
+              <!-- di-render via JS -->
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nama</th>
+                    <th>Client</th>
+                    <th>Objective</th>
+                    <th>Budget</th>
+                    <th>Tanggal</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="campaign-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-profile" class="grid hidden">
+          <section class="card">
+              <h2>Profile Client</h2>
+            <p class="helper">Informasi umum, status user, token, dan onboarding.</p>
+            <div id="profile-content" style="display:grid; gap:12px;"></div>
+            <div class="actions" style="justify-content:flex-start;">
+              <button type="button" class="btn danger" id="reset-store">Reset Dummy Data</button>
+            </div>
+          </section>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Tambahkan di dekat akhir body, sebelum toast -->
+  <div id="modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:9999;">
+    <div style="background:#fff; border-radius:12px; padding:16px; max-width:720px; width:90%; max-height:80vh; overflow:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h3 id="modal-title" style="margin:0;">Detail</h3>
+        <button type="button" class="btn secondary" id="modal-close">Close</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast success"></div>
+
+  <script src="./pbo-store.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script>
+    const STORAGE_KEY = 'PBO_DATA_V1';
+    const DEFAULT_CLIENT = 'Batikkita';
+
+    let clients = [];
+    let contentGenerate = [];
+    let scheduler = [];
+    let campaigns = [];
+    // Tambahan: daftar item konten per klien
+    let contentItems = [];
+    let currentClientName = '';
+    const charts = {};
+    const calendarState = { currentDate: new Date(), selectedDateISO: '' };
+
+    const $ = (id) => document.getElementById(id);
+
+    const formatNumber = (value) =>
+      Number(value || 0).toLocaleString('id-ID');
+
+    const formatCurrency = (value) =>
+      `Rp ${formatNumber(value || 0)}`;
+
+    const formatDate = (value) => {
+      if (!value) return '-';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
+    const formatDateRange = (start, end) => {
+      if (!start || !end) return '-';
+      const opt = { day: '2-digit', month: 'short', year: 'numeric' };
+      return `${new Date(start).toLocaleDateString('id-ID', opt)} - ${new Date(end).toLocaleDateString('id-ID', opt)}`;
+    };
+
+    function formatDateTime(iso) {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '-';
+      const opt = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return d.toLocaleString('id-ID', opt);
+    }
+
+    function loadData() {
+      if (window.PBOStore && typeof window.PBOStore.getData === 'function') {
+        const data = window.PBOStore.getData();
+        clients = data.clients || [];
+        contentGenerate = data.contentGenerate || [];
+        scheduler = data.scheduler || [];
+        campaigns = data.campaigns || [];
+        // Muat item konten
+        contentItems = data.contentItems || [];
+      }
+    }
+
+    function resolveCurrentClient() {
+      if (!clients.length) {
+        currentClientName = '';
+        return;
+      }
+      const params = new URLSearchParams(window.location.search);
+      const requested = (params.get('client') || '').toLowerCase();
+      const matched = clients.find(client => client.name.toLowerCase() === requested);
+      if (matched) {
+        currentClientName = matched.name;
+      } else {
+        const defaultClient = clients.find(client => client.name === DEFAULT_CLIENT);
+        currentClientName = (currentClientName && clients.some(client => client.name === currentClientName))
+          ? currentClientName
+          : (defaultClient ? defaultClient.name : clients[0].name);
+      }
+      document.title = `${currentClientName} · UMKM Client Portal`;
+      const banner = $('client-name-display');
+      if (banner) banner.textContent = currentClientName;
+      const summaryTitle = $('summary-title');
+      if (summaryTitle) summaryTitle.textContent = `Ringkasan ${currentClientName}`;
+      const helper = $('summary-helper');
+      if (helper) helper.textContent = `Gambaran realtime progres untuk ${currentClientName}.`;
+      const profName = $('profile-name');
+      if (profName) profName.textContent = currentClientName || 'Batikkita';
+    }
+
+    function populateClientSelects() {
+      // ... existing code ...
+      const selects = [
+        $('content-client'),
+        $('schedule-client')
+      ].filter(Boolean);
+      const options = currentClientName
+        ? `<option value="${currentClientName}">${currentClientName}</option>`
+        : '<option value="">Pilih client</option>';
+      selects.forEach(select => {
+        select.innerHTML = options;
+        select.value = currentClientName;
+        select.disabled = true;
+      });
+      // ... existing code ...
+    }
+
+    function setFormAvailability(enabled) {
+      // ... existing code ...
+      const interactive = document.querySelectorAll('form input, form select, form textarea, form button');
+      interactive.forEach(element => {
+        if (element.id === 'reset-store') return;
+        if (element.tagName === 'SELECT') {
+          // Hanya paksa disable untuk SELECT client (POV client)
+          const forceDisabledIds = ['content-client', 'schedule-client'];
+          element.disabled = forceDisabledIds.includes(element.id) ? true : !enabled;
+          return;
+        }
+        element.disabled = !enabled;
+      });
+      if (!enabled) {
+        $('summary-helper').textContent = 'Client belum dipilih. Pastikan data tersedia di store.';
+      }
+      // ... existing code ...
+    }
+
+    function renderContentTable() {
+      // ... existing code ...
+      const tbody = $('content-table');
+      if (!tbody) return;
+      const rows = (contentItems || []).filter(item => item.client === currentClientName);
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;">Belum ada konten.</td></tr>';
+        return;
+      }
+
+      const now = new Date();
+      const getStatus = (scheduleAt) => {
+        if (!scheduleAt) return 'draft';
+        const d = new Date(scheduleAt);
+        return d <= now ? 'posted' : 'scheduled';
+      };
+
+      tbody.innerHTML = rows
+        .slice()
+        .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+        .map(item => {
+          const status = getStatus(item.scheduleAt);
+          const isDraft = status === 'draft';
+          const isScheduled = status === 'scheduled';
+          const isPosted = status === 'posted';
+
+          return `
+        <tr>
+          <td>${item.industry || '-'}</td>
+          <td>${item.title || '-'}</td>
+          <td>${item.description || '-'}</td>
+          <td>${isDraft ? '✓' : '-'}</td>
+          <td>${isScheduled ? '✓' : '-'}</td>
+          <td>${isPosted ? '✓' : '-'}</td>
+          <td>${item.scheduleAt ? formatDateTime(item.scheduleAt) : '-'}</td>
+          <td style="display:flex; gap:8px;">
+            <button type="button" class="btn secondary" data-action="view-content" data-id="${item.id}">Lihat</button>
+            <button type="button" class="btn secondary" data-action="update-content" data-id="${item.id}" ${isPosted ? 'disabled' : ''}>Update</button>
+          </td>
+        </tr>
+      `;
+        }).join('');
+      // ... existing code ...
+    }
+
+    function renderContentScheduleSummary() {
+      const tbody = $('content-schedule-summary');
+      if (!tbody) return;
+      const row = scheduler.find(r => r.client === currentClientName);
+      if (!row) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Belum ada ringkasan.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = `
+        <tr>
+          <td>${row.client}</td>
+          <td>${formatNumber(row.total)}</td>
+          <td>${formatNumber(row.scheduled)}</td>
+          <td>${formatNumber(row.unscheduled)}</td>
+          <td>${formatDate(row.nextPublish)}</td>
+        </tr>
+      `;
+    }
+
+    function renderSchedulerTable() {
+      const tbody = $('schedule-table');
+      if (!tbody) return;
+      const rows = scheduler.filter(row => row.client === currentClientName);
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Belum ada jadwal.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows
+        .slice()
+        .sort((a, b) => a.client.localeCompare(b.client))
+        .map(row => `
+          <tr>
+            <td>${row.client}</td>
+            <td>${formatNumber(row.total)}</td>
+            <td>${formatNumber(row.scheduled)}</td>
+            <td>${formatNumber(row.unscheduled)}</td>
+            <td>${formatDate(row.nextPublish)}</td>
+          </tr>
+        `).join('');
+    }
+
+    function renderSchedulerContentTable() {
+      const tbody = $('schedule-content-table');
+      if (!tbody) return;
+      const rows = (contentItems || []).filter(item => item.client === currentClientName);
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Belum ada konten.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows
+        .slice()
+        .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+        .map(item => `
+          <tr>
+            <td>${item.title || '-'}</td>
+            <td>${item.industry || '-'}</td>
+            <td>${item.scheduleAt ? 'Scheduled' : 'Unscheduled'}</td>
+            <td>${formatDateTime(item.scheduleAt)}</td>
+            <td>
+              ${item.scheduleAt
+                ? '<span style="color:var(--muted);">-</span>'
+                : `<button class="btn primary" data-action="assign-content" data-id="${item.id}">Assign to Scheduler</button>`}
+            </td>
+          </tr>
+        `).join('');
+    }
+
+    function renderSchedulerCalendar() {
+      // ... existing code ...
+      const label = $('scheduler-calendar-label');
+      const grid = $('scheduler-calendar-grid');
+      if (!label || !grid) return;
+
+      // Simpan cursor bulan di state global
+      window.__schedCursor = window.__schedCursor || new Date();
+      const base = new Date(window.__schedCursor);
+      base.setDate(1);
+      const year = base.getFullYear();
+      const month = base.getMonth();
+
+      // Label bulan-tahun
+      label.textContent = base.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+      // Hitung awal minggu dan jumlah hari
+      const startDay = base.getDay(); // 0..6
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const todayISO = new Date().toISOString().slice(0, 10);
+      const cells = [];
+
+      // Header nama hari
+      const dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+      for (const d of dayNames) {
+        cells.push(`<div style="text-align:center; font-weight:700; color:var(--muted);">${d}</div>`);
+      }
+
+      // Padding awal
+      for (let i = 0; i < startDay; i++) {
+        cells.push(`<div></div>`);
+      }
+
+      // Hari bulan
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateISO = new Date(year, month, d).toISOString().slice(0, 10);
+        const isToday = dateISO === todayISO;
+        cells.push(`
+      <button type="button"
+              class="btn secondary"
+              data-cal-date="${dateISO}"
+              style="padding:10px; ${isToday ? 'border:2px solid var(--primary);' : ''}">
+        ${String(d).padStart(2,'0')}
+      </button>
+    `);
+      }
+
+      grid.innerHTML = cells.join('');
+    }
+
+    function openSchedulerCreateForm(dateISO) {
+      const form = $('scheduler-create-form');
+      if (!form) return;
+      $('scheduler-selected-date').textContent = dateISO;
+      // Prefill industri dari client
+      const current = contentGenerate.find(item => item.client === currentClientName) || {};
+      $('scheduler-create-industry').value = current.industry || '';
+      // Default jam tayang: 11:00
+      $('scheduler-create-time').value = '11:00';
+      form.style.display = 'block';
+    }
+
+    function closeSchedulerCreateForm() {
+      const form = $('scheduler-create-form');
+      if (!form) return;
+      form.reset?.();
+      form.style.display = 'none';
+      $('scheduler-selected-date').textContent = '-';
+      // Reset preview gambar
+      const preview = $('scheduler-image-preview');
+      if (preview) {
+        preview.innerHTML = 'Drag & drop or <button type="button" class="link" id="scheduler-image-select">select a file</button>';
+      }
+      const hidden = $('scheduler-image-data');
+      if (hidden) hidden.value = '';
+    }
+
+    function handleSchedulerCreateSubmit(e) {
+      // ... existing code ...
+      e.preventDefault();
+      if (!currentClientName) {
+        notify('Client tidak ditemukan', 'error'); return;
+      }
+      const dateISO = $('scheduler-selected-date').textContent;
+      const time = $('scheduler-create-time').value;
+      const title = $('scheduler-create-title').value.trim();
+      const desc = $('scheduler-create-desc').value.trim();
+      const industry = $('scheduler-create-industry').value.trim();
+      if (!dateISO || !time || !title || !desc) {
+        notify('Lengkapi tanggal, jam, judul, dan deskripsi', 'error'); return;
+      }
+      const selectedPlatforms = Array
+        .from(document.querySelectorAll('#scheduler-posting-platforms .platform-btn.selected'))
+        .map(b => b.dataset.platform);
+      const imageUrl = ($('scheduler-image-data') && $('scheduler-image-data').value) || '';
+
+      const scheduleAt = `${dateISO}T${time}`;
+      window.PBOStore.addContentItem({
+        client: currentClientName,
+        title,
+        description: desc,
+        industry,
+        scheduleAt,
+        imageUrl
+      });
+      // Catatan: platform disimpan di UI saja (opsional untuk payload jika mau dikembangkan)
+      notify('Konten dijadwalkan dan ditambahkan ke daftar', 'success');
+      closeSchedulerCreateForm();
+      refreshUI();
+    }
+
+    function renderCampaignTable() {
+      // ... existing code ...
+      const tbody = $('campaign-table');
+      if (!tbody) return;
+      const rows = campaigns.filter(row => row.client === currentClientName);
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">Belum ada campaign.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows
+        .slice()
+        .sort((a, b) => (b.startDate || '').localeCompare(a.startDate || ''))
+        .map(row => `
+          <tr>
+            <td>${row.name}</td>
+            <td>${row.client}</td>
+            <td>${row.objective || '-'}</td>
+            <td>${formatCurrency(row.budget)}</td>
+            <td>${formatDateRange(row.startDate, row.endDate)}</td>
+            <td><span class="status-chip ${row.status || 'draft'}">${row.status || 'draft'}</span></td>
+            <td style="display:flex; gap:8px;">
+              <button class="btn secondary" data-action="campaign-detail" data-id="${row.id}">Detail</button>
+              <button class="btn danger" data-action="campaign-pause" data-id="${row.id}" ${row.status === 'paused' ? 'disabled' : ''}>Pause</button>
+            </td>
+          </tr>
+        `).join('');
+    }
+
+    function renderCampaignStatusSummary() {
+      // ... existing code ...
+      const container = $('campaign-status-summary');
+      if (!container) return;
+
+      const rows = campaigns.filter(item => item.client === currentClientName);
+      const draft = rows.filter(item => item.status === 'draft').length;
+      const running = rows.filter(item => item.status === 'running').length;
+      const paused = rows.filter(item => item.status === 'paused').length;
+      const completed = rows.filter(item => item.status === 'completed').length;
+
+      const tile = (label, value, colors) => `
+        <div style="border:1px solid ${colors.border}; background:${colors.bg}; border-radius:12px; padding:12px;">
+          <div style="font-size:12px; font-weight:700; color:${colors.text};">${label}</div>
+          <div style="font-size:28px; font-weight:800; color:${colors.value};">${formatNumber(value)}</div>
+        </div>
+      `;
+
+      container.innerHTML = [
+        tile('Draft', draft, { bg:'#fff7ed', border:'#fdba74', text:'#a86a16', value:'#f97316' }),
+        tile('Running', running, { bg:'#ecfdf5', border:'#86efac', text:'#18764a', value:'#22c55e' }),
+        tile('Paused', paused, { bg:'#fff1f2', border:'#fb7185', text:'#9f1239', value:'#f43f5e' }),
+        tile('Completed', completed, { bg:'#eef2ff', border:'#a5b4fc', text:'#243190', value:'#6366f1' })
+      ].join('');
+      // ... existing code ...
+    }
+
+    function renderSummary() {
+      // ... existing code ...
+      if (!currentClientName) {
+        $('summary-draft').textContent = '0';
+        $('summary-scheduled').textContent = '0';
+        $('summary-next').textContent = '-';
+        $('summary-campaigns').textContent = '0';
+        $('summary-campaigns-desc').textContent = '0 draft · 0 running · 0 paused · 0 completed';
+
+        // Finansial: kosongkan jika belum ada client
+        if (document.getElementById('summary-budget')) {
+          $('summary-budget').textContent = formatCurrency(0);
+          $('summary-spend').textContent = formatCurrency(0);
+          $('summary-remaining').textContent = formatCurrency(0);
+          $('summary-progress').textContent = '0%';
+        }
+        return;
+      }
+      // Sumber data diseragamkan dengan summary table (scheduler)
+      const sched = scheduler.find(item => item.client === currentClientName) || { total: 0, scheduled: 0, unscheduled: 0, nextPublish: null };
+      const clientCampaigns = campaigns.filter(item => item.client === currentClientName);
+      const runningCount = clientCampaigns.filter(item => item.status === 'running').length;
+      const draftCount = clientCampaigns.filter(item => item.status === 'draft').length;
+      const pausedCount = clientCampaigns.filter(item => item.status === 'paused').length;
+      const completedCount = clientCampaigns.filter(item => item.status === 'completed').length;
+
+      // KONTEN DRAFT mengikuti nilai Unscheduled dari scheduler summary
+      $('summary-draft').textContent = formatNumber(sched.unscheduled || 0);
+      $('summary-scheduled').textContent = formatNumber(sched.scheduled || 0);
+      $('summary-next').textContent = formatDate(sched.nextPublish);
+      $('summary-campaigns').textContent = formatNumber(clientCampaigns.length);
+      $('summary-campaigns-desc').textContent =
+        `${draftCount} draft · ${runningCount} running · ${pausedCount} paused · ${completedCount} completed`;
+
+      // Ringkasan Finansial Campaign
+      const totalBudget = clientCampaigns.reduce((acc, c) => acc + Number(c.budget || 0), 0);
+      const totalSpend = clientCampaigns.reduce((acc, c) => acc + Number(c.spend || 0), 0);
+      const remaining = Math.max(totalBudget - totalSpend, 0);
+      const progressPct = totalBudget > 0 ? Math.round((totalSpend / totalBudget) * 100) : 0;
+
+      if (document.getElementById('summary-budget')) {
+        $('summary-budget').textContent = formatCurrency(totalBudget);
+        $('summary-spend').textContent = formatCurrency(totalSpend);
+        $('summary-remaining').textContent = formatCurrency(remaining);
+        $('summary-progress').textContent = `${progressPct}%`;
+      }
+      // ... existing code ...
+    }
+
+    function renderProfile() {
+      const container = $('profile-content');
+      if (!container) return;
+      if (!currentClientName) {
+        container.innerHTML = '<div style="padding:12px; border:1px dashed var(--border); border-radius:12px;">Data client tidak ditemukan.</div>';
+        return;
+      }
+      const client = clients.find(item => item.name === currentClientName) || {};
+      const contentData = contentGenerate.find(item => item.client === currentClientName) || {};
+      const scheduleData = scheduler.find(item => item.client === currentClientName) || {};
+      const campaignsData = campaigns.filter(item => item.client === currentClientName);
+      container.innerHTML = `
+        <div style="display:grid; gap:8px;">
+          <div><strong>Nama:</strong> ${client.name || '-'}</div>
+          <div><strong>Email:</strong> ${client.email || '-'}</div>
+          <div><strong>Status User:</strong> <span class="status ${client.userStatus === 'active' ? 'green' : 'red'}">${client.userStatus || '-'}</span></div>
+          <div><strong>Status Onboarding:</strong> <span class="status ${client.onboarding === 'onboarded' ? 'blue' : 'orange'}">${client.onboarding || '-'}</span></div>
+          <div><strong>Type User:</strong> <span class="type-badge ${client.typeUser || ''}">${client.typeUser || '-'}</span></div>
+          <div><strong>Token Used:</strong> ${formatNumber(client.tokenUsed || 0)}</div>
+          <div><strong>Token Available:</strong> ${formatNumber(client.tokenAvailable || 0)}</div>
+          <div><strong>Total Campaign:</strong> ${formatNumber(campaignsData.length)}</div>
+          <div><strong>Total Konten Draft:</strong> ${formatNumber(contentData.draft || 0)}</div>
+          <div><strong>Next Publish:</strong> ${formatDate(scheduleData.nextPublish)}</div>
+        </div>
+        <p class="helper">Data tersimpan secara lokal di browser melalui <code>PBOStore</code>. Buka <a class="link" href="./PBO-cmgmt.html" target="_blank" rel="noopener">PBO-cmgmt.html</a> untuk memantau progres.</p>
+      `;
+    }
+
+    function destroyChart(id) {
+      if (charts[id]) {
+        charts[id].destroy();
+        delete charts[id];
+      }
+    }
+
+    function renderCharts() {
+      const contentCanvas = $('chart-content');
+      const campaignCanvas = $('chart-campaign');
+      destroyChart('chart-content');
+      destroyChart('chart-campaign');
+      if (!currentClientName || !window.Chart || !contentCanvas || !campaignCanvas) return;
+      const contentRow = contentGenerate.find(item => item.client === currentClientName);
+      const totals = {
+        draft: contentRow?.draft || 0,
+        scheduled: contentRow?.scheduled || 0,
+        posted: contentRow?.posted || 0
+      };
+      const clientCampaigns = campaigns.filter(item => item.client === currentClientName);
+      const campaignTotals = ['draft', 'running', 'paused', 'completed'].map(status =>
+        clientCampaigns.filter(item => item.status === status).length
+      );
+
+      charts['chart-content'] = new Chart(contentCanvas, {
+        type: 'bar',
+        data: {
+          labels: ['Draft', 'Scheduled', 'Posted'],
+          datasets: [{
+            label: 'Konten',
+            data: [totals.draft, totals.scheduled, totals.posted],
+            backgroundColor: ['#2563eb', '#f59e0b', '#10b981'],
+            borderRadius: 6,
+            maxBarThickness: 48
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              color: '#0f172a',
+              anchor: 'end',
+              align: 'start',
+              formatter: value => value ? value.toLocaleString('id-ID') : ''
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0,
+                callback: value => value.toLocaleString('id-ID')
+              }
+            }
+          }
+        }
+      });
+
+      charts['chart-campaign'] = new Chart(campaignCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: ['Draft', 'Running', 'Paused', 'Completed'],
+          datasets: [{
+            data: campaignTotals,
+            backgroundColor: ['#f97316', '#22c55e', '#f43f5e', '#6366f1'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '60%',
+          plugins: {
+            legend: { position: 'bottom' },
+            datalabels: {
+              color: '#fff',
+              formatter: (value, ctx) => {
+                const total = ctx.dataset.data.reduce((acc, item) => acc + item, 0);
+                if (!value || !total) return '';
+                const percent = Math.round((value / total) * 100);
+                return `${value} (${percent}%)`;
+              }
+            }
+          }
+        }
+      });
+
+      // Charts tambahan: Budget/Spend, CPA, CPC, Acquisitions, CTR
+      const cvsBudgetSpend = $('chart-budget-spend');
+      const cvsCPA = $('chart-cpa');
+      const cvsCPC = $('chart-cpc');
+      const cvsAcq = $('chart-acq');
+      const cvsCTR = $('chart-ctr');
+
+      ['chart-budget-spend','chart-cpa','chart-cpc','chart-acq','chart-ctr'].forEach(id => destroyChart(id));
+
+      const labels = clientCampaigns.map(c => c.name || c.id);
+      const budgets = clientCampaigns.map(c => Number(c.budget || 0));
+      const spends  = clientCampaigns.map(c => Number(c.spend || 0));
+
+      const baseCtrByObj = (obj) => ({
+        Awareness: 2.5, Traffic: 5.0, Sales: 3.5, Engagement: 7.0, Lead: 6.0
+      }[obj] ?? 4.0);
+
+      const impressions = spends.map(s => Math.round(s * 25));
+      const ctrs = clientCampaigns.map((c, i) => {
+        const ratio = budgets[i] > 0 ? (spends[i] / budgets[i]) : 0;
+        const ctr = Math.max(1, Math.min(15, baseCtrByObj(c.objective) + ratio * 5));
+        return Number(ctr.toFixed(2));
+      });
+      const clicks = impressions.map((imp, i) => Math.max(1, Math.round(imp * (ctrs[i] / 100))));
+      const cpcs = spends.map((s, i) => Number((s / Math.max(1, clicks[i])).toFixed(2)));
+
+      const acqRateByObj = (obj) => ({
+        Sales: 0.020, Lead: 0.015, Traffic: 0.008, Engagement: 0.005, Awareness: 0.003
+      }[obj] ?? 0.006);
+      const acquisitions = clientCampaigns.map((c, i) => Math.max(1, Math.round(clicks[i] * acqRateByObj(c.objective))));
+      const cpas = spends.map((s, i) => Number((s / Math.max(1, acquisitions[i])).toFixed(2)));
+
+      // Budget vs Spend per Campaign (bar)
+      if (cvsBudgetSpend && labels.length) {
+        charts['chart-budget-spend'] = new Chart(cvsBudgetSpend, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Budget', data: budgets, backgroundColor: '#93c5fd', borderRadius: 6, maxBarThickness: 36 },
+              { label: 'Spend',  data: spends,  backgroundColor: '#fca5a5', borderRadius: 6, maxBarThickness: 36 }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'bottom' },
+              datalabels: { color: '#0f172a', anchor: 'end', align: 'start', formatter: v => formatNumber(v) }
+            },
+            scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } }
+          }
+        });
+      }
+
+      // CPA per Campaign (bar)
+      if (cvsCPA && labels.length) {
+        charts['chart-cpa'] = new Chart(cvsCPA, {
+          type: 'bar',
+          data: { labels, datasets: [{ label: 'CPA (Rp)', data: cpas, backgroundColor: '#6366f1', borderRadius: 6 }] },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false }, datalabels: { color: '#0f172a', anchor: 'end', align: 'start', formatter: v => formatCurrency(v) } },
+            scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } }
+          }
+        });
+      }
+
+      // CPC per Campaign (bar)
+      if (cvsCPC && labels.length) {
+        charts['chart-cpc'] = new Chart(cvsCPC, {
+          type: 'bar',
+          data: { labels, datasets: [{ label: 'CPC (Rp)', data: cpcs, backgroundColor: '#22c55e', borderRadius: 6 }] },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false }, datalabels: { color: '#0f172a', anchor: 'end', align: 'start', formatter: v => formatCurrency(v) } },
+            scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } }
+          }
+        });
+      }
+
+      // Acquisitions per Campaign (doughnut)
+      if (cvsAcq && labels.length) {
+        charts['chart-acq'] = new Chart(cvsAcq, {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{
+              data: acquisitions,
+              backgroundColor: ['#3b82f6','#f59e0b','#10b981','#f43f5e','#6366f1','#22c55e','#fb923c','#7c3aed'].slice(0, labels.length),
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            cutout: '60%',
+            plugins: {
+              legend: { position: 'bottom' },
+              datalabels: {
+                color: '#fff',
+                formatter: (v, ctx) => {
+                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                  if (!v || !total) return '';
+                  const p = Math.round((v / total) * 100);
+                  return `${v} (${p}%)`;
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // CTR per Campaign (horizontal bar)
+      if (cvsCTR && labels.length) {
+        charts['chart-ctr'] = new Chart(cvsCTR, {
+          type: 'bar',
+          data: { labels, datasets: [{ label: 'CTR (%)', data: ctrs, backgroundColor: '#f59e0b', borderRadius: 6 }] },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false }, datalabels: { color: '#0f172a', anchor: 'end', align: 'right', formatter: v => `${v}%` } },
+            scales: { x: { beginAtZero: true, ticks: { callback: v => `${v}%` } } }
+          }
+        });
+      }
+    }
+
+    function refreshUI(options = {}) {
+      loadData();
+      resolveCurrentClient();
+      populateClientSelects();
+      renderContentTable();
+      renderSchedulerTable();
+      // Tambahan: render daftar konten untuk assign
+      renderSchedulerContentTable();
+      // Render Calendar Scheduler
+      renderSchedulerCalendar();
+      renderCampaignTable();
+      renderCampaignStatusSummary();
+      renderSummary();
+      renderProfile();
+      setFormAvailability(Boolean(currentClientName));
+      if (currentClientName) {
+        prefillContent(currentClientName);
+        prefillSchedule(currentClientName);
+      }
+      if (!options.skipCharts) renderCharts();
+      // ... existing code ...
+      renderContentScheduleSummary();
+    }
+
+    function notify(message, tone = 'success') {
+      const toast = $('toast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.className = `toast ${tone}`;
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    // Tambahan: actions menu profil
+    function openForgotModal() {
+      const client = clients.find(c => c.name === currentClientName) || {};
+      const defaultEmail = client.email || '';
+      const html = `
+        <form id="forgot-form" style="display:grid; gap:12px;">
+          <p class="helper">Masukkan email Anda untuk menerima tautan reset password.</p>
+          <label>Email
+            <input id="forgot-email" type="email" placeholder="you@example.com" value="${defaultEmail}" required/>
+          </label>
+          <div class="actions">
+            <button type="submit" class="btn primary">Kirim Link Reset</button>
+            <button type="button" class="btn secondary" id="forgot-cancel">Batal</button>
+          </div>
+        </form>
+      `;
+      openModal('Lupa Password', html);
+      const form = document.getElementById('forgot-form');
+      const cancel = document.getElementById('forgot-cancel');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const email = (document.getElementById('forgot-email')?.value || '').trim();
+          if (!email) { notify('Email tidak valid', 'error'); return; }
+          notify(`Tautan reset password dikirim ke ${email}`);
+          closeModal();
+        });
+      }
+      if (cancel) cancel.addEventListener('click', closeModal);
+    }
+
+    function handleLogout() {
+      if (!confirm('Yakin ingin logout?')) return;
+      // Simulasi logout pada prototype: kosongkan POV client & nonaktifkan form
+      currentClientName = '';
+      const banner = document.getElementById('client-name-display');
+      if (banner) banner.textContent = '-';
+      const summaryTitle = document.getElementById('summary-title');
+      if (summaryTitle) summaryTitle.textContent = 'Ringkasan Client';
+      const helper = document.getElementById('summary-helper');
+      if (helper) helper.textContent = 'Gambaran realtime progres untuk client ini.';
+      refreshUI({ skipCharts: true });
+      notify('Anda berhasil logout');
+    }
+
+    function prefillContent(clientName) {
+      // ... existing code ...
+      const current = contentGenerate.find(item => item.client === clientName);
+      $('content-industry').value = current?.industry || '';
+      $('content-title').value = current?.title || '';
+      $('content-desc').value = current?.description || '';
+
+      const enabled = !!current?.scheduleEnabled;
+      $('content-schedule-enable').checked = enabled;
+      const group = $('content-schedule-group');
+      if (group) group.style.display = enabled ? 'grid' : 'none';
+
+      const scheduleAt = current?.scheduleAt || '';
+      $('content-schedule-date').value = scheduleAt ? scheduleAt.slice(0,10) : '';
+      $('content-schedule-time').value = scheduleAt && scheduleAt.includes('T') ? scheduleAt.split('T')[1].slice(0,5) : '';
+
+      // Jika assign aktif saat prefill, render opsi tren langsung
+      if (enabled) {
+        renderTrendOptions($('content-industry').value.trim());
+        const trendNote = $('content-schedule-trend-note');
+        if (trendNote) trendNote.textContent = 'Rekomendasi dari Google Trends: pilih salah satu slot yang disarankan untuk performa optimal.';
+      }
+
+      $('content-draft').value = current?.draft ?? 0;
+      $('content-scheduled').value = current?.scheduled ?? 0;
+      $('content-posted').value = current?.posted ?? 0;
+      // ... existing code ...
+    }
+
+    function prefillSchedule(clientName) {
+      const current = scheduler.find(item => item.client === clientName);
+      const totalEl = $('schedule-total');
+      const scheduledEl = $('schedule-scheduled');
+      const unscheduledEl = $('schedule-unscheduled');
+      const nextEl = $('schedule-next');
+
+      // Jika form sudah dihapus, cukup keluar tanpa melakukan apa-apa
+      if (!totalEl || !scheduledEl || !unscheduledEl || !nextEl) {
+        return;
+      }
+
+      totalEl.value = current?.total ?? 0;
+      scheduledEl.value = current?.scheduled ?? 0;
+      unscheduledEl.value = current?.unscheduled ?? 0;
+      nextEl.value = current?.nextPublish ? toISODate(current.nextPublish) : '';
+    }
+
+    function toISODate(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      return date.toISOString().slice(0, 10);
+    }
+
+    function updateContentScheduleVisibility() {
+      const group = $('content-schedule-group');
+      const checkbox = $('content-schedule-enable');
+      if (!group || !checkbox) return;
+      group.style.display = checkbox.checked ? '' : 'none';
+    }
+
+    // Tambahan: rekomendasi jadwal sederhana berbasis industri untuk opsi "Google Trends"
+    function computeTrendSchedule(industry = '') {
+      const now = new Date();
+      const map = [
+        { kw: ['kuliner','makanan','resto','food','minuman','kopi'], day: 5, hour: 17 }, // Jumat 17:00
+        { kw: ['fashion','batik','pakaian','mode','apparel'], day: 0, hour: 20 },       // Minggu 20:00
+        { kw: ['tekno','software','saas','teknologi'], day: 3, hour: 11 },              // Rabu 11:00
+        { kw: ['organik','herbal','kesehatan','wellness'], day: 2, hour: 9 },           // Selasa 09:00
+      ];
+      const text = (industry || '').toLowerCase();
+      let target = { day: 3, hour: 11 }; // default: Rabu 11:00
+      for (const m of map) {
+        if (m.kw.some(k => text.includes(k))) { target = { day: m.day, hour: m.hour }; break; }
+      }
+      // cari tanggal berikutnya untuk hari target
+      const next = new Date(now);
+      const addDays = (target.day - now.getDay() + 7) % 7 || 7;
+      next.setDate(now.getDate() + addDays);
+      next.setHours(target.hour, 0, 0, 0);
+      const dateStr = next.toISOString().slice(0, 10);
+      const timeStr = String(next.getHours()).padStart(2,'0') + ':00';
+      return { date: dateStr, time: timeStr, iso: `${dateStr}T${timeStr}` };
+    }
+
+    // Tambahan: 3 opsi rekomendasi jadwal dengan keterangan
+    function computeTrendOptions(industry = '') {
+      const base = computeTrendSchedule(industry); // opsi utama (peak)
+      const baseDate = new Date(base.iso);
+
+      // Opsi 2: +2 hari, prime time malam 20:00
+      const o2 = new Date(baseDate);
+      o2.setDate(o2.getDate() + 2);
+      o2.setHours(20, 0, 0, 0);
+
+      // Opsi 3: +5 hari, jam istirahat 12:00
+      const o3 = new Date(baseDate);
+      o3.setDate(o3.getDate() + 5);
+      o3.setHours(12, 0, 0, 0);
+
+      const toIsoParts = (d) => {
+        const date = d.toISOString().slice(0,10);
+        const time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        return { date, time, iso: `${date}T${time}` };
+      };
+
+      const labelBase = 'Peak Search';
+      const labelO2   = 'Prime Time';
+      const labelO3   = 'Lunch Break';
+
+      const reasonBase = 'Slot teratas berdasarkan lonjakan minat pencarian';
+      const reasonO2   = 'Waktu tayang malam saat engagement tinggi';
+      const reasonO3   = 'Waktu siang saat CTR cenderung stabil';
+
+      return [
+        { ...base,           label: labelBase, reason: reasonBase, tone: 'success' },
+        { ...toIsoParts(o2), label: labelO2,   reason: reasonO2,   tone: 'warning' },
+        { ...toIsoParts(o3), label: labelO3,   reason: reasonO3,   tone: 'info' }
+      ];
+    }
+
+    function renderTrendOptions(industry = '') {
+      const container = $('content-schedule-trend-options');
+      const note = $('content-schedule-trend-note');
+      if (!container || !note) return;
+      const options = computeTrendOptions(industry);
+      container.innerHTML = options.map((opt) => `
+        <button type="button" class="btn ${opt.tone}" data-trend="option" data-iso="${opt.iso}" data-date="${opt.date}" data-time="${opt.time}">
+          <div style="display:flex; flex-direction:column; align-items:center;">
+            <span style="font-weight:700;">${formatDate(opt.date)} · ${opt.time}</span>
+            <span style="font-size:12px; opacity:.9;">${opt.label}</span>
+          </div>
+        </button>
+      `).join('');
+      note.textContent = 'Rekomendasi dari Google Trends: pilih salah satu slot yang disarankan untuk performa optimal.';
+    }
+
+    function handleContentSubmit(event) {
+      // ... existing code ...
+      event.preventDefault();
+      if (!currentClientName) {
+        notify('Client tidak ditemukan', 'error');
+        return;
+      }
+
+      const scheduleEnabled = $('content-schedule-enable').checked;
+      let scheduleAt = '';
+      if (scheduleEnabled) {
+        const date = $('content-schedule-date').value;
+        const time = $('content-schedule-time').value;
+        scheduleAt = (date && time) ? `${date}T${time}` : '';
+      }
+
+      const selectedPlatforms = Array
+        .from(document.querySelectorAll('#content-posting-platforms .platform-btn.selected'))
+        .map(b => b.dataset.platform);
+
+      const payload = {
+        client: currentClientName,
+        industry: $('content-industry').value.trim(),
+        title: $('content-title').value.trim(),
+        description: $('content-desc').value.trim(),
+        scheduleEnabled,
+        scheduleAt,
+        platforms: selectedPlatforms,
+        draft: Number($('content-draft').value) || 0,
+        scheduled: Number($('content-scheduled').value) || 0,
+        posted: Number($('content-posted').value) || 0,
+        // Tambahan: imageUrl dari dropzone
+        imageUrl: $('content-image-data').value || ''
+      };
+      if (!payload.title || !payload.description || !payload.industry) {
+        notify('Lengkapi judul, deskripsi, dan industri', 'error');
+        return;
+      }
+      if (payload.scheduleEnabled && !payload.scheduleAt) {
+        notify('Jadwal belum lengkap. Isi tanggal & waktu atau gunakan “Rekomendasi Google Trends”.', 'error');
+        return;
+      }
+
+      // Simpan agregat konten per klien (tetap)
+      window.PBOStore.upsertContent(payload);
+
+      const editId = $('content-edit-id').value;
+      if (editId) {
+        // Update item konten
+        window.PBOStore.updateContentItem(editId, {
+          title: payload.title,
+          description: payload.description,
+          industry: payload.industry,
+          scheduleAt: payload.scheduleAt || '',
+          imageUrl: payload.imageUrl || ''
+        });
+        notify('Konten berhasil diperbarui');
+        $('content-edit-id').value = '';
+      } else {
+        // Tambah item konten baru
+        window.PBOStore.addContentItem({
+          client: currentClientName,
+          title: payload.title,
+          description: payload.description,
+          industry: payload.industry,
+          scheduleAt: payload.scheduleAt || '',
+          imageUrl: payload.imageUrl || ''
+        });
+        notify(scheduleEnabled ? 'Konten di-assign ke scheduler' : 'Konten berhasil disimpan');
+      }
+
+      refreshUI();
+      // ... existing code ...
+    }
+
+    function handleScheduleSubmit(event) {
+      event.preventDefault();
+      if (!currentClientName) {
+        notify('Client tidak ditemukan', 'error');
+        return;
+      }
+      const scheduled = Number($('schedule-scheduled').value) || 0;
+      const unscheduled = Number($('schedule-unscheduled').value) || 0;
+      const total = Number($('schedule-total').value) || scheduled + unscheduled;
+
+      const payload = {
+        client: currentClientName,
+        total,
+        scheduled,
+        unscheduled,
+        nextPublish: $('schedule-next').value
+      };
+      if (!payload.client || !payload.nextPublish) {
+        notify('Lengkapi data scheduler', 'error');
+        return;
+      }
+      window.PBOStore.upsertScheduler(payload);
+      notify('Scheduler berhasil diperbarui');
+      refreshUI();
+    }
+
+    function handleCampaignSubmit(event) {
+      // ... existing code ...
+      event.preventDefault();
+      if (!currentClientName) {
+        notify('Client tidak ditemukan', 'error');
+        return;
+      }
+      const clickType = $('campaign-click-type').value;
+      const clickValue = $('campaign-click-value').value.trim();
+      const images = JSON.parse($('campaign-images-data').value || '[]');
+      const payloadBase = {
+        client: currentClientName,
+        name: $('campaign-name').value.trim(),
+        objective: $('campaign-objective').value,
+        budget: Number($('campaign-budget').value) || 0,
+        startDate: $('campaign-start').value,
+        endDate: $('campaign-end').value,
+        note: $('campaign-note').value.trim(),
+        headline: $('campaign-headline').value.trim(),
+        targeting: {
+          location: $('campaign-location').value.trim(),
+          gender: $('campaign-gender').value,
+          ageMin: Number($('campaign-age-min').value) || 18,
+          ageMax: Number($('campaign-age-max').value) || 55
+        },
+        placements: Array.from(document.querySelectorAll('input[name="campaign-placement"]:checked')).map(i => i.value),
+        images,
+        click: { type: clickType, value: clickValue }
+      };
+
+      if (!payloadBase.client || !payloadBase.name || !payloadBase.startDate || !payloadBase.endDate) {
+        notify('Lengkapi data campaign', 'error');
+        return;
+      }
+
+      const payload = { ...payloadBase, status: 'running', spend: 0 };
+      window.PBOStore.addCampaign(payload);
+      notify('Campaign dibuat dan status: running');
+      $('campaign-form').reset();
+      refreshUI();
+    }
+
+    function handleCampaignSaveDraft() {
+      if (!currentClientName) {
+        notify('Client tidak ditemukan', 'error'); return;
+      }
+      const clickType = $('campaign-click-type').value;
+      const clickValue = $('campaign-click-value').value.trim();
+      const images = JSON.parse($('campaign-images-data').value || '[]');
+      const payload = {
+        client: currentClientName,
+        name: $('campaign-name').value.trim(),
+        objective: $('campaign-objective').value,
+        budget: Number($('campaign-budget').value) || 0,
+        startDate: $('campaign-start').value,
+        endDate: $('campaign-end').value,
+        note: $('campaign-note').value.trim(),
+        headline: $('campaign-headline').value.trim(),
+        targeting: {
+          location: $('campaign-location').value.trim(),
+          gender: $('campaign-gender').value,
+          ageMin: Number($('campaign-age-min').value) || 18,
+          ageMax: Number($('campaign-age-max').value) || 55
+        },
+        placements: Array.from(document.querySelectorAll('input[name="campaign-placement"]:checked')).map(i => i.value),
+        images,
+        click: { type: clickType, value: clickValue },
+        status: 'draft',
+        spend: 0
+      };
+      if (!payload.client || !payload.name || !payload.startDate || !payload.endDate) {
+        notify('Lengkapi data campaign', 'error');
+        return;
+      }
+      window.PBOStore.addCampaign(payload);
+      notify('Campaign disimpan sebagai draft');
+      $('campaign-form').reset();
+      refreshUI();
+    }
+
+    function resetContentForm() {
+      $('content-form').reset();
+      prefillContent(currentClientName);
+      // Reset preview gambar
+      const preview = $('content-image-preview');
+      if (preview) {
+        preview.innerHTML = 'Drag & drop or <button type="button" class="link" id="content-image-select">select a file</button>';
+      }
+      const hidden = $('content-image-data');
+      if (hidden) hidden.value = '';
+    }
+
+    function resetScheduleForm() {
+      const form = $('schedule-form');
+      if (form) form.reset();
+      prefillSchedule(currentClientName);
+    }
+
+    function resetCampaignForm() {
+      $('campaign-form').reset();
+      const today = new Date().toISOString().slice(0, 10);
+      $('campaign-start').value = today;
+      $('campaign-end').value = today;
+    }
+
+    function contentAISuggest() {
+      // ... existing code ...
+      if (!currentClientName) return;
+      const industry = $('content-industry').value.trim();
+      const base = currentClientName.split(' ')[0] || 'Brand';
+      $('content-title').value = $('content-title').value || `${base}: ${industry ? industry + ' ' : ''}Konten Unggulan`;
+      $('content-desc').value = $('content-desc').value || 'Tampilkan nilai unik brand, manfaat utama produk, dan ajakan bertindak yang jelas.';
+
+      const draft = Number($('content-draft').value) || 0;
+      const scheduled = Number($('content-scheduled').value) || 0;
+      const posted = Number($('content-posted').value) || 0;
+      $('content-draft').value = draft + Math.ceil((scheduled + posted) * 0.4) + 3;
+      $('content-scheduled').value = Math.max(scheduled, posted) + 2;
+      $('content-posted').value = Math.max(posted, Math.ceil((draft + scheduled) * 0.25));
+
+      if ($('content-schedule-enable').checked) {
+        const trend = computeTrendSchedule(industry);
+        $('content-schedule-date').value = trend.date;
+        $('content-schedule-time').value = trend.time;
+      }
+      notify('AI Suggest memperkaya judul, deskripsi, stok konten, serta jadwal berbasis tren.');
+      // ... existing code ...
+    }
+
+    function scheduleAISuggest() {
+      if (!currentClientName) return;
+      const contentRow = contentGenerate.find(item => item.client === currentClientName) || {};
+      const total = (contentRow.draft || 0) + (contentRow.scheduled || 0) + (contentRow.posted || 0) || 12;
+      $('schedule-total').value = total + 6;
+      $('schedule-scheduled').value = Math.ceil((total + 6) * 0.6);
+      $('schedule-unscheduled').value = Math.ceil((total + 6) * 0.4);
+      const nextDate = new Date();
+      nextDate.setDate(nextDate.getDate() + 3);
+      $('schedule-next').value = nextDate.toISOString().slice(0, 10);
+      notify('AI Suggest mengalokasikan jadwal baru berdasarkan backlog konten.');
+    }
+
+    function campaignAISuggest() {
+      if (!currentClientName) return;
+      const focus = ['Awareness', 'Engagement', 'Traffic', 'Sales'][Math.floor(Math.random() * 4)];
+      const baseName = `${currentClientName.split(' ')[0]} ${focus} Boost`;
+      $('campaign-name').value = baseName;
+      $('campaign-objective').value = focus;
+      $('campaign-budget').value = 15000000 + Math.floor(Math.random() * 10000000);
+      const start = new Date();
+      start.setDate(start.getDate() + 5);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 21);
+      $('campaign-start').value = start.toISOString().slice(0, 10);
+      $('campaign-end').value = end.toISOString().slice(0, 10);
+      $('campaign-note').value = 'Fokus pada konten video pendek + retargeting audience lookalike.';
+      notify('AI Suggest menyiapkan blueprint campaign baru.');
+    }
+
+    function attachEvents() {
+      $('content-form').addEventListener('submit', handleContentSubmit);
+      const scheduleForm = $('schedule-form');
+      if (scheduleForm) scheduleForm.addEventListener('submit', handleScheduleSubmit);
+      $('campaign-form').addEventListener('submit', handleCampaignSubmit);
+      const saveDraftBtn = $('campaign-save-draft');
+      if (saveDraftBtn) saveDraftBtn.addEventListener('click', handleCampaignSaveDraft);
+
+      $('content-reset').addEventListener('click', resetContentForm);
+      const scheduleResetBtn = $('schedule-reset');
+      if (scheduleResetBtn) scheduleResetBtn.addEventListener('click', resetScheduleForm);
+      $('campaign-reset').addEventListener('click', resetCampaignForm);
+      $('content-ai').addEventListener('click', contentAISuggest);
+      const scheduleAiBtn = $('schedule-ai');
+      if (scheduleAiBtn) scheduleAiBtn.addEventListener('click', scheduleAISuggest);
+      $('campaign-ai').addEventListener('click', campaignAISuggest);
+
+      // Event untuk upload gambar konten
+      const imgInput = $('content-image-input');
+      const imgSelectBtn = $('content-image-select');
+      const dropZone = $('content-image-drop');
+
+      function handleImageFiles(files) {
+        const file = files && files[0];
+        if (!file) return;
+        if (!file.type || !file.type.startsWith('image/')) {
+          notify('File harus berupa gambar (JPEG/PNG/WebP)', 'error');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          $('content-image-data').value = dataUrl || '';
+          const preview = $('content-image-preview');
+          if (preview) {
+            preview.innerHTML = `<img src="${dataUrl}" alt="Preview" style="max-width:100%; max-height:160px; display:block; border-radius:8px;">`;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      if (imgSelectBtn && imgInput) {
+        imgSelectBtn.addEventListener('click', () => imgInput.click());
+        imgInput.addEventListener('change', (e) => handleImageFiles(e.target.files));
+      }
+      if (dropZone) {
+        dropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropZone.style.backgroundColor = 'rgba(0,0,0,0.03)';
+        });
+        dropZone.addEventListener('dragleave', () => {
+          dropZone.style.backgroundColor = 'transparent';
+        });
+        dropZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropZone.style.backgroundColor = 'transparent';
+          handleImageFiles(e.dataTransfer.files);
+        });
+      }
+
+      // Upload gambar untuk Scheduler Quick Create
+      const schImgInput = $('scheduler-image-input');
+      const schImgSelectBtn = $('scheduler-image-select');
+      const schDropZone = $('scheduler-image-drop');
+
+      function handleSchedulerImageFiles(files) {
+        const file = files && files[0];
+        if (!file) return;
+        if (!file.type || !file.type.startsWith('image/')) {
+          notify('File harus berupa gambar (JPEG/PNG/WebP)', 'error');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          const dataInput = $('scheduler-image-data');
+          if (dataInput) dataInput.value = dataUrl || '';
+          const preview = $('scheduler-image-preview');
+          if (preview) {
+            preview.innerHTML = `<img src="${dataUrl}" alt="Preview" style="max-width:100%; max-height:160px; display:block; border-radius:8px;">`;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      if (schImgSelectBtn && schImgInput) {
+        schImgSelectBtn.addEventListener('click', () => schImgInput.click());
+        schImgInput.addEventListener('change', (e) => handleSchedulerImageFiles(e.target.files));
+      }
+      if (schDropZone) {
+        schDropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          schDropZone.style.backgroundColor = 'rgba(0,0,0,0.03)';
+        });
+        schDropZone.addEventListener('dragleave', () => {
+          schDropZone.style.backgroundColor = 'transparent';
+        });
+        schDropZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          schDropZone.style.backgroundColor = 'transparent';
+          handleSchedulerImageFiles(e.dataTransfer.files);
+        });
+      }
+
+      // Profil dropdown actions
+      const pToggle = document.getElementById('profile-toggle');
+      const pMenu = document.getElementById('profile-menu');
+      const pDropdown = document.getElementById('profile-dropdown');
+      if (pToggle && pDropdown && pMenu) {
+        pToggle.addEventListener('click', () => {
+          const expanded = pToggle.getAttribute('aria-expanded') === 'true';
+          pToggle.setAttribute('aria-expanded', (!expanded).toString());
+          pDropdown.classList.toggle('show', !expanded);
+        });
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('#profile-menu')) {
+            pToggle.setAttribute('aria-expanded', 'false');
+            pDropdown.classList.remove('show');
+          }
+        });
+        pDropdown.addEventListener('click', (e) => {
+          const item = e.target.closest('[data-action]');
+          if (!item) return;
+          pDropdown.classList.remove('show');
+          pToggle.setAttribute('aria-expanded', 'false');
+          const action = item.dataset.action;
+          if (action === 'view-profile') {
+            // Tampilkan section Profile tanpa tombol sidebar
+            document.querySelectorAll('[id^="view-"]').forEach(section => {
+              section.classList.toggle('hidden', section.id !== 'view-profile');
+            });
+            // Nonaktifkan highlight di sidebar
+            document.querySelectorAll('#sidebar-menu button').forEach(btn => btn.classList.remove('active'));
+          } else if (action === 'forgot') {
+            openForgotModal();
+          } else if (action === 'logout') {
+            handleLogout();
+          }
+        });
+      }
+
+      const scheduleEnable = $('content-schedule-enable');
+      const scheduleGroup = $('content-schedule-group');
+      const scheduleDate = $('content-schedule-date');
+      const scheduleTime = $('content-schedule-time');
+
+      if (scheduleEnable && scheduleGroup) {
+        scheduleEnable.addEventListener('change', () => {
+          const enabled = scheduleEnable.checked;
+          scheduleGroup.style.display = enabled ? 'grid' : 'none';
+          scheduleDate.disabled = !enabled;
+          scheduleTime.disabled = !enabled;
+
+          // Tampilkan 3 opsi jika dicentang; kosongkan jika tidak
+          const trendOptions = $('content-schedule-trend-options');
+          const trendNote = $('content-schedule-trend-note');
+          if (enabled) {
+            renderTrendOptions($('content-industry').value.trim());
+            if (trendNote) trendNote.textContent = 'Rekomendasi dari Google Trends: pilih salah satu slot yang disarankan untuk performa optimal.';
+          } else {
+            if (trendOptions) trendOptions.innerHTML = '';
+            if (trendNote) trendNote.textContent = '';
+          }
+        });
+      }
+
+      // Perbarui opsi jika industri diubah, selama assign aktif
+      const industryInput = $('content-industry');
+      if (industryInput && !industryInput.readOnly) {
+        industryInput.addEventListener('input', () => {
+          if ($('content-schedule-enable').checked) {
+            renderTrendOptions(industryInput.value.trim());
+          }
+        });
+      }
+
+      // Delegasi klik di container opsi rekomendasi (pilih salah satu)
+      const trendOptions = $('content-schedule-trend-options');
+      if (trendOptions) {
+        trendOptions.addEventListener('click', (e) => {
+          const btn = e.target.closest('button[data-trend="option"]');
+          if (!btn) return;
+          const date = btn.dataset.date;
+          const time = btn.dataset.time;
+          scheduleDate.value = date;
+          scheduleTime.value = time;
+
+          // Highlight pilihan tunggal
+          trendOptions.querySelectorAll('button[data-trend="option"]').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          notify('Slot rekomendasi dipilih. Tanggal & waktu terisi otomatis.', 'success');
+        });
+      }
+
+      // Multi-select platform posting
+      const platformContainer = $('content-posting-platforms');
+      if (platformContainer) {
+        platformContainer.addEventListener('click', (e) => {
+          const btn = e.target.closest('.platform-btn:not([disabled])');
+          if (!btn) return;
+          btn.classList.toggle('selected'); // toggle on/off tanpa menghapus lainnya
+          const selected = Array
+            .from(platformContainer.querySelectorAll('.platform-btn.selected'))
+            .map(b => b.dataset.platform);
+          $('content-platforms').value = selected.join(',');
+          notify(selected.length
+            ? `Posting ke ${selected.join(', ')} dipilih`
+            : 'Tidak ada platform dipilih', 'success');
+        });
+      }
+
+      // Aksi pada daftar konten (view, update, assign)
+      const contentTable = $('content-table');
+      if (contentTable) {
+        contentTable.addEventListener('click', (e) => {
+          const btn = e.target.closest('button[data-action]');
+          if (!btn || btn.disabled) return; // prevent actions on disabled buttons
+          const id = btn.dataset.id;
+          const item = (contentItems || []).find(x => x.id === id);
+          if (!item) return;
+
+          if (btn.dataset.action === 'view-content') {
+            const detail = [
+              `Judul: ${item.title || '-'}`,
+              `Industri: ${item.industry || '-'}`,
+              `Deskripsi: ${item.description || '-'}`,
+              `Jadwal: ${item.scheduleAt ? formatDateTime(item.scheduleAt) : '-'}`
+            ].join('\n');
+            alert(detail);
+            return;
+          }
+
+          if (btn.dataset.action === 'update-content') {
+            const editIdEl = $('content-edit-id');
+            if (editIdEl) editIdEl.value = item.id;
+            $('content-title').value = item.title || '';
+            $('content-desc').value = item.description || '';
+            $('content-industry').value = item.industry || '';
+            const enabled = !!item.scheduleAt;
+            $('content-schedule-enable').checked = enabled;
+            $('content-schedule-group').style.display = enabled ? 'grid' : 'none';
+            $('content-schedule-date').value = item.scheduleAt ? item.scheduleAt.slice(0,10) : '';
+            $('content-schedule-time').value = item.scheduleAt && item.scheduleAt.includes('T') ? item.scheduleAt.split('T')[1].slice(0,5) : '';
+            if (enabled) renderTrendOptions(item.industry || '');
+            notify('Form terisi untuk update konten');
+            return;
+          }
+
+          if (btn.dataset.action === 'assign-content') {
+            const trend = computeTrendSchedule(item.industry || '');
+            if (window.PBOStore && typeof window.PBOStore.assignContentToSchedule === 'function') {
+              window.PBOStore.assignContentToSchedule(id, trend.iso);
+            }
+            notify('Konten di-assign ke scheduler berdasarkan rekomendasi Google Trends');
+            refreshUI();
+            return;
+          }
+        });
+      }
+
+      $('reset-store').addEventListener('click', () => {
+        if (confirm('Reset data dummy dan kembali ke kondisi awal?')) {
+          window.PBOStore.reset();
+          notify('Data berhasil direset');
+          refreshUI();
+        }
+      });
+
+      const sidebar = $('sidebar-menu');
+      if (sidebar) {
+        sidebar.addEventListener('click', (event) => {
+          const button = event.target.closest('button[data-view]');
+          if (!button) return;
+          document.querySelectorAll('#sidebar-menu button').forEach(btn => btn.classList.toggle('active', btn === button));
+          const targetView = button.dataset.view;
+          document.querySelectorAll('[id^="view-"]').forEach(section => {
+            section.classList.toggle('hidden', section.id !== `view-${targetView}`);
+          });
+          if (targetView === 'dashboard') renderCharts();
+        });
+      }
+
+      // Calendar navigation
+      const prevBtn = $('scheduler-calendar-prev');
+      const nextBtn = $('scheduler-calendar-next');
+      if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => {
+          window.__schedCursor = window.__schedCursor || new Date();
+          const d = new Date(window.__schedCursor);
+          d.setMonth(d.getMonth() - 1);
+          window.__schedCursor = d;
+          renderSchedulerCalendar();
+        });
+        nextBtn.addEventListener('click', () => {
+          window.__schedCursor = window.__schedCursor || new Date();
+          const d = new Date(window.__schedCursor);
+          d.setMonth(d.getMonth() + 1);
+          window.__schedCursor = d;
+          renderSchedulerCalendar();
+        });
+      }
+
+      // Klik tanggal pada calendar
+      const calGrid = $('scheduler-calendar-grid');
+      if (calGrid) {
+        calGrid.addEventListener('click', (e) => {
+          const btn = e.target.closest('button[data-cal-date]');
+          if (!btn) return;
+          openSchedulerCreateForm(btn.dataset.calDate);
+        });
+      }
+
+      // Multi-select platform (scheduler quick create)
+      const schedPlatforms = $('scheduler-posting-platforms');
+      if (schedPlatforms) {
+        schedPlatforms.addEventListener('click', (e) => {
+          const btn = e.target.closest('.platform-btn:not([disabled])');
+          if (!btn) return;
+          btn.classList.toggle('selected');
+        });
+      }
+
+      // Submit Quick Create & Cancel
+      const quickForm = $('scheduler-create-form');
+      const quickCancel = $('scheduler-create-cancel');
+      if (quickForm) quickForm.addEventListener('submit', handleSchedulerCreateSubmit);
+      if (quickCancel) quickCancel.addEventListener('click', closeSchedulerCreateForm);
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_KEY) refreshUI();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.ChartDataLabels && window.Chart) {
+        Chart.register(ChartDataLabels);
+      }
+      attachEvents();
+      refreshUI({ skipCharts: true });
+      renderCharts();
+      const today = new Date().toISOString().slice(0, 10);
+      $('campaign-start').value = today;
+      $('campaign-end').value = today;
+      if (currentClientName) {
+        prefillContent(currentClientName);
+        prefillSchedule(currentClientName);
+      }
+    });
+  </script>
+<script>
+  // ... existing code ...
+
+  function openModal(title, html) {
+    // ... existing code ...
+    const modal = document.getElementById('modal');
+    if (!modal) return;
+    document.getElementById('modal-title').textContent = title || 'Detail';
+    document.getElementById('modal-body').innerHTML = html || '';
+    modal.style.display = 'flex';
+    const closer = document.getElementById('modal-close');
+    closer.onclick = closeModal;
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  // Data ringkasan
+  const dataSummary = {
+    clientName: 'Batikita',
+    status: 'Aktif',
+    draft: 12,
+    scheduled: 6,
+    posted: 4,
+    campaign: { draft: 1, running: 0, paused: 0, completed: 0 },
+    nextPublish: '19 Nov 2025'
+  };
+
+  // Helper: isi seluruh elemen Ringkasan pada semua section
+  function renderSummary() {
+    const totalCampaign = dataSummary.campaign.draft +
+                          dataSummary.campaign.running +
+                          dataSummary.campaign.paused +
+                          dataSummary.campaign.completed;
+
+    document.querySelectorAll('[data-summary="draft"]').forEach(el => el.textContent = dataSummary.draft);
+    document.querySelectorAll('[data-summary="scheduled"]').forEach(el => el.textContent = dataSummary.scheduled);
+    document.querySelectorAll('[data-summary="nextPublish"]').forEach(el => el.textContent = dataSummary.nextPublish);
+    document.querySelectorAll('[data-summary="campaignTotal"]').forEach(el => el.textContent = totalCampaign);
+    document.querySelectorAll('[data-summary="campaignMeta"]').forEach(el => {
+      el.textContent = `${dataSummary.campaign.draft} draft · ${dataSummary.campaign.running} running · ${dataSummary.campaign.paused} paused · ${dataSummary.campaign.completed} completed`;
+    });
+  }
+  renderSummary();
+
+  // Navigasi: tampilkan section sesuai tombol
+  const sections = {
+    dashboard: document.getElementById('dashboard'),
+    profile: document.getElementById('profile'),
+    generator: document.getElementById('generator'),
+    scheduler: document.getElementById('scheduler'),
+    campaign: document.getElementById('campaign'),
+  };
+  function showSection(name) {
+    Object.values(sections).forEach(s => s.hidden = true);
+    sections[name].hidden = false;
+    // set active tombol
+    document.querySelectorAll('.nav button').forEach(b => {
+      b.classList.toggle('active', b.dataset.target === name);
+    });
+    // resize chart saat kembali ke dashboard
+    if (name === 'dashboard') {
+      contentBarChart?.resize();
+      campaignDonutChart?.resize();
+    }
+  }
+  document.querySelectorAll('.nav button').forEach(btn => {
+    btn.addEventListener('click', () => showSection(btn.dataset.target));
+  });
+  // Default tampilan: Dashboard
+  showSection('dashboard');
+
+  // Inisialisasi Chart dengan ukuran stabil
+  const barColors = ['#3b82f6','#f59e0b','#10b981'];
+  const donutColors = ['#fb923c','#3b82f6','#f59e0b','#10b981'];
+
+  const contentBarChart = new Chart(document.getElementById('contentBar'), {
+    type: 'bar',
+    data: {
+      labels: ['Draft', 'Scheduled', 'Posted'],
+      datasets: [{
+        label: 'Konten',
+        data: [dataSummary.draft, dataSummary.scheduled, dataSummary.posted],
+        backgroundColor: barColors
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2, // lebar:tinggi agar tidak terlalu tinggi
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
+    }
+  });
+
+  const campaignDonutChart = new Chart(document.getElementById('campaignDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Draft', 'Running', 'Paused', 'Completed'],
+      datasets: [{
+        data: [
+          dataSummary.campaign.draft,
+          dataSummary.campaign.running,
+          dataSummary.campaign.paused,
+          dataSummary.campaign.completed
+        ],
+        backgroundColor: donutColors,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2,
+      plugins: { legend: { position: 'bottom' } },
+      cutout: '60%'
+    }
+  });
+
+  // Profil: foto preview & aksi tombol
+  const avatarInput = document.getElementById('avatarInput');
+  document.getElementById('btnChangePhoto').addEventListener('click', ()=> avatarInput.click());
+  document.getElementById('btnRemovePhoto').addEventListener('click', ()=>{
+    document.getElementById('avatarPreview').src = 'logo.png';
+    avatarInput.value = '';
+  });
+  avatarInput.addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    document.getElementById('avatarPreview').src = url;
+  });
+
+  // Profil: submit (demo)
+  document.getElementById('profileForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const payload = {
+      fullName: document.getElementById('fullName').value,
+      email: document.getElementById('email').value,      // read-only
+      businessName: document.getElementById('businessName').value,
+      phone: document.getElementById('phone').value
+    };
+    console.log('Simpan profil:', payload);
+    alert('Perubahan disimpan (demo).');
+  });
+</script>
+</body>
+</html>
+

@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRIX - Content Intelligence & SEO Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #1a202c;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 40px;
+        }
+
+        /* Input Section */
+        .input-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #718096;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2d3748;
+        }
+
+        .card-icon {
+            font-size: 20px;
+        }
+
+        /* Score Cards */
+        .score-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .score-number {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .score-label {
+            font-size: 13px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .score-good { color: #48bb78; }
+        .score-medium { color: #ed8936; }
+        .score-bad { color: #f56565; }
+
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            padding: 16px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* List Items */
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .list-icon {
+            font-size: 20px;
+            min-width: 24px;
+        }
+
+        .list-content {
+            flex: 1;
+        }
+
+        .list-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #2d3748;
+        }
+
+        .list-desc {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        .list-meta {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 4px;
+        }
+
+        /* Keyword Cards */
+        .keyword-card {
+            padding: 16px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .keyword-term {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .keyword-metrics {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+        }
+
+        .metric {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #718096;
+        }
+
+        .metric strong {
+            color: #2d3748;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-high {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .badge-medium {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .badge-low {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .badge-easy {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .badge-medium-diff {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .badge-hard {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .btn-generate {
+            background: #667eea;
+            color: white;
+            border: none;
+        }
+
+        .btn-generate:hover {
+            background: #5568d3;
+        }
+
+        /* Competitor Card */
+        .competitor-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .competitor-info h4 {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #2d3748;
+        }
+
+        .competitor-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .competitor-score {
+            text-align: right;
+        }
+
+        .competitor-score-num {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .competitor-score-label {
+            font-size: 11px;
+            color: #718096;
+        }
+
+        /* Alert Box */
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-warning {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+        }
+
+        .alert-info {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .alert-text {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Progress Bar */
+        .progress {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        /* Table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 12px;
+            background: #f7fafc;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table td {
+            padding: 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Chart Container */
+        .chart-wrapper {
+            margin-top: 16px;
+            height: 250px;
+        }
+
+        /* Content Idea Card Special */
+        .content-idea-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 1px solid #667eea30;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .content-idea-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .content-idea-desc {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .content-idea-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>🎯 Content Intelligence & SEO Analyzer</h1>
+            <p>Temukan ide konten yang tepat, kata kunci yang menguntungkan, dan strategi kompetitor</p>
+        </div>
+    </div>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- Input Section -->
+        <div class="input-card">
+            <div class="input-row">
+                <input type="text" id="websiteUrl" placeholder="URL website Anda (contoh: https://tokoku-fashion.com)" value="https://tokoku-fashion.com">
+                <button class="btn btn-primary" onclick="analyzeWebsite()">🔍 Analisis Website</button>
+            </div>
+            <div class="input-row">
+                <input type="text" id="targetKeyword" placeholder="Keyword utama (contoh: fashion hijab modern)" value="fashion hijab modern">
+                <input type="text" id="competitorUrl" placeholder="URL kompetitor (opsional)" value="https://kompetitor-fashion.com">
+                <button class="btn btn-secondary" onclick="addCompetitor()">+ Tambah Kompetitor</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('overview')">📊 Overview</button>
+                <button class="tab" onclick="switchTab('content')">💡 Content Ideas</button>
+                <button class="tab" onclick="switchTab('keywords')">🔑 Keywords</button>
+                <button class="tab" onclick="switchTab('competitor')">🎯 Kompetitor</button>
+                <button class="tab" onclick="switchTab('seo')">✅ SEO Check</button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="card hidden">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Sedang menganalisis website dan mencari peluang konten...</p>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div id="resultsContainer" class="hidden">
+            
+            <!-- TAB: OVERVIEW -->
+            <div id="tab-overview" class="tab-content active">
+                <!-- Main Score Card -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="grid-4">
+                        <div class="score-card">
+                            <div class="score-number score-good">78</div>
+                            <div class="score-label">SEO Health Score</div>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-number score-medium">~2.5K</div>
+                            <div class="score-label">Est. Organic Traffic/bulan</div>
+                            <div style="font-size: 11px; color: #48bb78; margin-top: 4px;">↑ +18% vs bulan lalu</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-number score-good">47</div>
+                            <div class="score-label">Total Ranking Keywords</div>
+                            <div style="font-size: 11px; color: #48bb78; margin-top: 4px;">12 di top 10</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-number score-medium">23</div>
+                            <div class="score-label">Referring Domains</div>
+                            <div style="font-size: 11px; color: #48bb78; margin-top: 4px;">+5 domain baru</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <!-- Quick Wins -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">⚡</span>
+                            Quick Wins (Prioritas Tinggi)
+                        </h3>
+                        
+                        <div class="alert alert-warning">
+                            <div class="alert-icon">🎯</div>
+                            <div class="alert-content">
+                                <div class="alert-title">5 Halaman dengan Impression Tinggi tapi Ranking Rendah</div>
+                                <div class="alert-text">Optimasi halaman ini bisa tingkatkan traffic 40-60%</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">📄</div>
+                            <div class="list-content">
+                                <div class="list-title">/blog/tips-mix-match-hijab</div>
+                                <div class="list-desc">Impression: 1.2K/bulan • Position: #12 • CTR: 2.1%</div>
+                                <div class="list-meta">💡 Butuh: Tambah 300 kata + optimalkan title tag</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">📄</div>
+                            <div class="list-content">
+                                <div class="list-title">/produk/gamis-syari-modern</div>
+                                <div class="list-desc">Impression: 890/bulan • Position: #15 • CTR: 1.8%</div>
+                                <div class="list-meta">💡 Butuh: Tambah review pelanggan + FAQ schema</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">📄</div>
+                            <div class="list-content">
+                                <div class="list-title">/blog/fashion-hijab-kantor</div>
+                                <div class="list-desc">Impression: 650/bulan • Position: #18 • CTR: 1.2%</div>
+                                <div class="list-meta">💡 Butuh: Update konten (sudah 8 bulan tidak diupdate)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Gap -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">📊</span>
+                            Content Gap vs Kompetitor
+                        </h3>
+
+                        <div class="alert alert-info">
+                            <div class="alert-icon">💡</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Kompetitor punya 12 topik yang belum Anda bahas</div>
+                                <div class="alert-text">Total potensi traffic: ~3.8K/bulan dari topik-topik ini</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">📌</div>
+                            <div class="list-content">
+                                <div class="list-title">Panduan Ukuran Baju (Size Chart)</div>
+                                <div class="list-desc">Kompetitor ranking #3 • Traffic: 820/bulan</div>
+                                <div class="list-meta">🎯 Difficulty: Easy • Intent: Informational</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">📌</div>
+                            <div class="list-content">
+                                <div class="list-title">Cara Merawat Kain Hijab</div>
+                                <div class="list-desc">Kompetitor ranking #5 • Traffic: 540/bulan</div>
+                                <div class="list-meta">🎯 Difficulty: Easy • Intent: Informational</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">📌</div>
+                            <div class="list-content">
+                                <div class="list-title">Inspirasi OOTD Hijab untuk Lebaran</div>
+                                <div class="list-desc">Kompetitor ranking #2 • Traffic: 1.8K/bulan</div>
+                                <div class="list-meta">🎯 Difficulty: Medium • Intent: Inspirational</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Issues -->
+                <div class="card" style="margin-top: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">⚠️</span>
+                        Technical Issue Summary
+                    </h3>
+                    <div class="grid-3">
+                        <div class="alert alert-warning">
+                            <div class="alert-icon">🔴</div>
+                            <div class="alert-content">
+                                <div class="alert-title">5 Critical Issues</div>
+                                <div class="alert-text" style="font-size: 12px;">
+                                    • 3 broken links (404)<br>
+                                    • 2 halaman duplicate content<br>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <div class="alert-icon">🟡</div>
+                            <div class="alert-content">
+                                <div class="alert-title">8 Warnings</div>
+                                <div class="alert-text" style="font-size: 12px;">
+                                    • 5 missing meta description<br>
+                                    • 3 thin content pages<br>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-success">
+                            <div class="alert-icon">🟢</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Core Web Vitals</div>
+                                <div class="alert-text" style="font-size: 12px;">
+                                    ✅ LCP: 2.1s (Good)<br>
+                                    ✅ CLS: 0.08 (Good)<br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: CONTENT IDEAS -->
+            <div id="tab-content" class="tab-content">
+                <!-- AI Content Suggestions -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">🤖</span>
+                        AI-Powered Content Suggestions
+                    </h3>
+                    <p style="font-size: 13px; color: #718096; margin-bottom: 16px;">
+                        Berdasarkan trending keywords, search intent, dan content gap analysis
+                    </p>
+
+                    <div class="content-idea-card">
+                        <div class="content-idea-title">
+                            📝 "10 Inspirasi Mix & Match Hijab Modern untuk Kerja dan Hangout"
+                        </div>
+                        <div class="content-idea-desc">
+                            <strong>Why:</strong> Keyword "mix match hijab modern" trending +85% (1.8K search/bulan), kompetitor belum bahas spesifik untuk konteks kerja + hangout.
+                        </div>
+                        <div class="content-idea-meta">
+                            <span>🎯 Target: fashion hijab modern, mix match hijab</span>
+                            <span>📊 Difficulty: Easy</span>
+                            <span>💰 Est. Traffic: 600-900/bulan</span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-small btn-generate" onclick="generateContent('artikel1')">
+                                🤖 Generate Artikel dengan AI
+                            </button>
+                            <button class="btn btn-small btn-secondary">📋 Copy Brief</button>
+                        </div>
+                    </div>
+
+                    <div class="content-idea-card">
+                        <div class="content-idea-title">
+                            📝 "Panduan Lengkap: Cara Memilih Gamis Syari Sesuai Bentuk Tubuh"
+                        </div>
+                        <div class="content-idea-desc">
+                            <strong>Why:</strong> People Also Ask: "Gamis cocok untuk tubuh pendek?", "Cara pilih gamis biar keliatan langsing?" - high search intent, low competition.
+                        </div>
+                        <div class="content-idea-meta">
+                            <span>🎯 Target: gamis syari, tips memilih gamis</span>
+                            <span>📊 Difficulty: Easy</span>
+                            <span>💰 Est. Traffic: 450-700/bulan</span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-small btn-generate" onclick="generateContent('artikel2')">
+                                🤖 Generate Artikel dengan AI
+                            </button>
+                            <button class="btn btn-small btn-secondary">📋 Copy Brief</button>
+                        </div>
+                    </div>
+
+                    <div class="content-idea-card">
+                        <div class="content-idea-title">
+                            🎥 "Video Tutorial: 5 Cara Pakai Pashmina Simple dalam 2 Menit"
+                        </div>
+                        <div class="content-idea-desc">
+                            <strong>Why:</strong> Video content untuk TikTok/IG Reels - keyword "cara pakai pashmina simple" 2.1K search/bulan, kompetitor fokus blog tapi belum video tutorial.
+                        </div>
+                        <div class="content-idea-meta">
+                            <span>🎯 Target: cara pakai pashmina, tutorial hijab simple</span>
+                            <span>📊 Format: Video (TikTok, IG Reels, YouTube Shorts)</span>
+                            <span>💰 Est. Views: 5K-10K</span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-small btn-generate">
+                                🎬 Generate Video Script
+                            </button>
+                            <button class="btn btn-small btn-secondary">📋 Copy Brief</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <!-- Seasonal Content Ideas -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">📅</span>
+                            Seasonal Content Ideas (Next 30 Days)
+                        </h3>
+                        
+                        <div class="list-item">
+                            <div class="list-icon">🌙</div>
+                            <div class="list-content">
+                                <div class="list-title">Ramadan Fashion Trends 2026</div>
+                                <div class="list-desc">
+                                    Peak: 15 Feb - 15 Mar • Search volume akan naik 300%
+                                </div>
+                                <div class="list-meta">
+                                    Keywords: baju lebaran 2026, gamis ramadan, fashion ramadan
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">💼</div>
+                            <div class="list-content">
+                                <div class="list-title">Back to Office Fashion (Post Holiday)</div>
+                                <div class="list-desc">
+                                    Peak: 5 Jan - 25 Jan • Orang cari outfit baru pasca liburan
+                                </div>
+                                <div class="list-meta">
+                                    Keywords: outfit kantor 2026, fashion kerja trendy
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">🎓</div>
+                            <div class="list-content">
+                                <div class="list-title">Wisuda Season Fashion Guide</div>
+                                <div class="list-desc">
+                                    Peak: Jan - Feb • Mahasiswa cari outfit wisuda & keluarga
+                                </div>
+                                <div class="list-meta">
+                                    Keywords: baju wisuda, dress wisuda, outfit wisuda keluarga
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Topic Clusters -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">🗂️</span>
+                            Topic Cluster Suggestions
+                        </h3>
+                        <p style="font-size: 12px; color: #718096; margin-bottom: 12px;">
+                            Buat pillar content + supporting articles untuk topical authority
+                        </p>
+
+                        <div class="list-item" style="background: linear-gradient(135deg, #667eea15, #764ba215); border-left: 3px solid #667eea;">
+                            <div class="list-content">
+                                <div class="list-title" style="color: #667eea;">
+                                    🎯 Pillar: "Panduan Lengkap Fashion Hijab Modern 2026"
+                                </div>
+                                <div class="list-desc" style="margin-top: 8px;">
+                                    Supporting articles (10 konten):<br>
+                                    • Mix match hijab untuk berbagai acara<br>
+                                    • Jenis kain hijab dan karakteristiknya<br>
+                                    • Cara merawat hijab agar awet<br>
+                                    • Warna hijab yang cocok untuk kulit sawo matang<br>
+                                    • Tutorial hijab untuk pemula<br>
+                                    <span style="color: #a0aec0;">+ 5 artikel lainnya...</span>
+                                </div>
+                                <div class="action-buttons" style="margin-top: 12px;">
+                                    <button class="btn btn-small btn-generate">
+                                        📊 Lihat Detail Cluster
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item" style="margin-top: 12px;">
+                            <div class="list-content">
+                                <div class="list-title">
+                                    🎯 Pillar: "Size Guide & Cara Memilih Baju Online"
+                                </div>
+                                <div class="list-desc" style="margin-top: 8px; font-size: 12px; color: #718096;">
+                                    Supporting: 8 konten (size chart, tips mengukur, return policy, dll)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Ideas -->
+                <div class="card" style="margin-top: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">❓</span>
+                        FAQ Ideas from "People Also Ask"
+                    </h3>
+                    <div class="grid-3">
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Bagaimana cara mix and match hijab untuk pemula?</div>
+                                <div class="list-meta">Volume: 890/bulan</div>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Apa perbedaan gamis syari dan gamis biasa?</div>
+                                <div class="list-meta">Volume: 620/bulan</div>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Dimana beli fashion hijab modern yang terpercaya?</div>
+                                <div class="list-meta">Volume: 1.2K/bulan</div>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Berapa harga gamis syari yang bagus?</div>
+                                <div class="list-meta">Volume: 540/bulan</div>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Apakah fashion hijab cocok untuk orang pendek?</div>
+                                <div class="list-meta">Volume: 380/bulan</div>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Bagaimana cara styling hijab untuk acara formal?</div>
+                                <div class="list-meta">Volume: 720/bulan</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-small btn-generate" style="margin-top: 16px;">
+                        🤖 Generate FAQ Schema Markup
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB: KEYWORDS -->
+            <div id="tab-keywords" class="tab-content">
+                <!-- Keyword Research -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">🔑</span>
+                        Keyword Opportunities (Low Competition, High Volume)
+                    </h3>
+                    <p style="font-size: 13px; color: #718096; margin-bottom: 16px;">
+                        Keyword dengan peluang ranking tinggi untuk website Anda
+                    </p>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Keyword</th>
+                                <th>Volume</th>
+                                <th>Difficulty</th>
+                                <th>Intent</th>
+                                <th>CPC</th>
+                                <th>Ranking</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>fashion hijab simple</strong></td>
+                                <td>4.2K/bulan</td>
+                                <td><span class="badge badge-easy">Easy (18)</span></td>
+                                <td>Informational</td>
+                                <td>Rp 1.200</td>
+                                <td>Not ranking</td>
+                                <td><button class="btn btn-small btn-generate">Generate Content</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>baju gamis casual</strong></td>
+                                <td>3.8K/bulan</td>
+                                <td><span class="badge badge-easy">Easy (22)</span></td>
+                                <td>Commercial</td>
+                                <td>Rp 2.100</td>
+                                <td>Not ranking</td>
+                                <td><button class="btn btn-small btn-generate">Generate Content</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>outfit kondangan simple hijab</strong></td>
+                                <td>5.1K/bulan</td>
+                                <td><span class="badge badge-medium-diff">Medium (45)</span></td>
+                                <td>Inspirational</td>
+                                <td>Rp 890</td>
+                                <td>#18</td>
+                                <td><button class="btn btn-small btn-secondary">Optimize</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>cara pakai pashmina</strong></td>
+                                <td>2.1K/bulan</td>
+                                <td><span class="badge badge-easy">Easy (15)</span></td>
+                                <td>Tutorial</td>
+                                <td>Rp 450</td>
+                                <td>Not ranking</td>
+                                <td><button class="btn btn-small btn-generate">Generate Content</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>fashion kerja wanita muslimah</strong></td>
+                                <td>2.9K/bulan</td>
+                                <td><span class="badge badge-easy">Easy (20)</span></td>
+                                <td>Informational</td>
+                                <td>Rp 1.850</td>
+                                <td>Not ranking</td>
+                                <td><button class="btn btn-small btn-generate">Generate Content</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid-2">
+                    <!-- Keyword Clusters -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">📂</span>
+                            Keyword Clustering
+                        </h3>
+                        <p style="font-size: 12px; color: #718096; margin-bottom: 12px;">
+                            Grouping keyword berdasarkan search intent & topic similarity
+                        </p>
+
+                        <div class="keyword-card" style="margin-bottom: 12px;">
+                            <div class="keyword-term">Cluster 1: Fashion Hijab (18 keywords)</div>
+                            <div style="font-size: 12px; color: #718096; margin-top: 8px; line-height: 1.6;">
+                                fashion hijab modern (4.2K) • fashion hijab casual (3.1K) • fashion hijab kantor (2.8K) • fashion hijab simple (4.2K) • fashion hijab remaja (1.9K)
+                            </div>
+                            <div style="margin-top: 8px; font-size: 12px;">
+                                <strong>Total Volume:</strong> 24.8K/bulan • <strong>Avg. Difficulty:</strong> Easy
+                            </div>
+                        </div>
+
+                        <div class="keyword-card" style="margin-bottom: 12px;">
+                            <div class="keyword-term">Cluster 2: Gamis (12 keywords)</div>
+                            <div style="font-size: 12px; color: #718096; margin-top: 8px; line-height: 1.6;">
+                                gamis syari modern (5.6K) • gamis casual (3.8K) • gamis polos (2.4K) • gamis set (1.8K)
+                            </div>
+                            <div style="margin-top: 8px; font-size: 12px;">
+                                <strong>Total Volume:</strong> 18.2K/bulan • <strong>Avg. Difficulty:</strong> Medium
+                            </div>
+                        </div>
+
+                        <div class="keyword-card">
+                            <div class="keyword-term">Cluster 3: Tutorial & Tips (9 keywords)</div>
+                            <div style="font-size: 12px; color: #718096; margin-top: 8px; line-height: 1.6;">
+                                cara pakai hijab (6.2K) • tutorial hijab simple (4.8K) • mix match hijab (3.5K)
+                            </div>
+                            <div style="margin-top: 8px; font-size: 12px;">
+                                <strong>Total Volume:</strong> 16.1K/bulan • <strong>Avg. Difficulty:</strong> Easy
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Intent Analysis -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">🎯</span>
+                            Search Intent Distribution
+                        </h3>
+                        <canvas id="intentChart" height="200"></canvas>
+                        
+                        <div style="margin-top: 16px; font-size: 13px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>🔍 Informational (cara, tips, panduan)</span>
+                                <strong>42%</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>🛒 Commercial (beli, harga, toko)</span>
+                                <strong>28%</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>🎨 Inspirational (ide, inspirasi, contoh)</span>
+                                <strong>18%</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>📍 Navigational (brand, tokoku)</span>
+                                <strong>12%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SERP Features -->
+                <div class="card" style="margin-top: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">🏆</span>
+                        SERP Feature Opportunities
+                    </h3>
+                    <p style="font-size: 13px; color: #718096; margin-bottom: 16px;">
+                        Keyword dengan peluang muncul di Featured Snippet, PAA, atau Image Pack
+                    </p>
+
+                    <div class="grid-3">
+                        <div class="list-item" style="background: #f0fff4; border-left: 3px solid #48bb78;">
+                            <div class="list-content">
+                                <div class="list-title">Featured Snippet Opportunity</div>
+                                <div class="list-desc">
+                                    <strong>5 keywords</strong> dengan format "Bagaimana cara..." dan "Apa itu..." - cocok untuk featured snippet
+                                </div>
+                                <div class="list-meta" style="margin-top: 8px;">
+                                    Contoh: "Bagaimana cara mix and match hijab?"
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item" style="background: #fffaf0; border-left: 3px solid #ed8936;">
+                            <div class="list-content">
+                                <div class="list-title">People Also Ask (PAA)</div>
+                                <div class="list-desc">
+                                    <strong>12 questions</strong> yang sering muncul di PAA untuk keyword Anda
+                                </div>
+                                <div class="list-meta" style="margin-top: 8px;">
+                                    Buat FAQ section untuk capture ini
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item" style="background: #ebf8ff; border-left: 3px solid #4299e1;">
+                            <div class="list-content">
+                                <div class="list-title">Image Pack</div>
+                                <div class="list-desc">
+                                    <strong>8 keywords</strong> yang trigger Image Pack di SERP
+                                </div>
+                                <div class="list-meta" style="margin-top: 8px;">
+                                    Optimasi gambar produk dengan alt text
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: COMPETITOR -->
+            <div id="tab-competitor" class="tab-content">
+                <!-- Competitor Comparison -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">📊</span>
+                        SEO Strength Comparison
+                    </h3>
+                    <canvas id="competitorChart" height="100"></canvas>
+                </div>
+
+                <div class="grid-2">
+                    <!-- Keyword Overlap -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">🔄</span>
+                            Keyword Overlap & Gap
+                        </h3>
+
+                        <div class="stats-row" style="margin-bottom: 20px;">
+                            <div class="stat-item">
+                                <div class="stat-value" style="color: #667eea;">18</div>
+                                <div class="stat-label">Common Keywords</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" style="color: #ed8936;">34</div>
+                                <div class="stat-label">Competitor Only</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" style="color: #48bb78;">12</div>
+                                <div class="stat-label">You Only</div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <div class="alert-icon">🎯</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Keyword Gap Analysis</div>
+                                <div class="alert-text">
+                                    Kompetitor ranking untuk 34 keywords yang belum Anda target - potensi traffic: ~8.2K/bulan
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 12px;">
+                            <strong style="font-size: 13px;">Top Keyword Gaps:</strong>
+                            <div class="list-item" style="margin-top: 8px;">
+                                <div class="list-content">
+                                    <div class="list-title">panduan ukuran baju</div>
+                                    <div class="list-desc">Kompetitor: #3 • Volume: 1.8K • Difficulty: Easy</div>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="list-content">
+                                    <div class="list-title">cara merawat kain hijab</div>
+                                    <div class="list-desc">Kompetitor: #5 • Volume: 920 • Difficulty: Easy</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Performing Pages -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">🏆</span>
+                            Top Performing Pages Kompetitor
+                        </h3>
+
+                        <div class="competitor-card">
+                            <div class="competitor-info">
+                                <h4>/blog/inspirasi-ootd-hijab-2026</h4>
+                                <div class="competitor-stats">
+                                    <span>Traffic: 2.1K/bulan</span>
+                                    <span>Keywords: 23</span>
+                                    <span>Backlinks: 45</span>
+                                </div>
+                            </div>
+                            <div class="competitor-score">
+                                <div class="competitor-score-num">92</div>
+                                <div class="competitor-score-label">Content Score</div>
+                            </div>
+                        </div>
+
+                        <div class="competitor-card">
+                            <div class="competitor-info">
+                                <h4>/panduan-lengkap-size-chart</h4>
+                                <div class="competitor-stats">
+                                    <span>Traffic: 1.8K/bulan</span>
+                                    <span>Keywords: 18</span>
+                                    <span>Backlinks: 28</span>
+                                </div>
+                            </div>
+                            <div class="competitor-score">
+                                <div class="competitor-score-num">88</div>
+                                <div class="competitor-score-label">Content Score</div>
+                            </div>
+                        </div>
+
+                        <div class="competitor-card">
+                            <div class="competitor-info">
+                                <h4>/tips-mix-match-fashion-hijab</h4>
+                                <div class="competitor-stats">
+                                    <span>Traffic: 1.2K/bulan</span>
+                                    <span>Keywords: 14</span>
+                                    <span>Backlinks: 19</span>
+                                </div>
+                            </div>
+                            <div class="competitor-score">
+                                <div class="competitor-score-num">85</div>
+                                <div class="competitor-score-label">Content Score</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Strategy -->
+                <div class="card" style="margin-top: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">📝</span>
+                        Content Length & Depth Comparison
+                    </h3>
+
+                    <div class="grid-3">
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Average Word Count</div>
+                                <div class="list-desc" style="margin-top: 8px;">
+                                    <strong style="color: #ed8936;">Kompetitor:</strong> 1.850 kata<br>
+                                    <strong style="color: #667eea;">Website Anda:</strong> 680 kata
+                                </div>
+                                <div class="list-meta" style="margin-top: 8px; color: #ed8936;">
+                                    ⚠️ Konten kompetitor 2.7x lebih panjang
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Publishing Frequency</div>
+                                <div class="list-desc" style="margin-top: 8px;">
+                                    <strong style="color: #ed8936;">Kompetitor:</strong> 12 artikel/bulan<br>
+                                    <strong style="color: #667eea;">Website Anda:</strong> 3 artikel/bulan
+                                </div>
+                                <div class="list-meta" style="margin-top: 8px; color: #ed8936;">
+                                    ⚠️ Kompetitor 4x lebih produktif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-content">
+                                <div class="list-title">Multimedia Usage</div>
+                                <div class="list-desc" style="margin-top: 8px;">
+                                    <strong style="color: #ed8936;">Kompetitor:</strong> 15 gambar, 2 video<br>
+                                    <strong style="color: #667eea;">Website Anda:</strong> 5 gambar, 0 video
+                                </div>
+                                <div class="list-meta" style="margin-top: 8px; color: #ed8936;">
+                                    ⚠️ Kompetitor lebih engage dengan visual
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" style="margin-top: 16px;">
+                        <div class="alert-icon">💡</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Recommendation</div>
+                            <div class="alert-text">
+                                Target minimal <strong>1.200 kata</strong> per artikel + tambahkan <strong>video tutorial</strong> untuk meningkatkan engagement dan SEO
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backlink Gap -->
+                <div class="card" style="margin-top: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">🔗</span>
+                        Backlink Gap Summary
+                    </h3>
+                    <p style="font-size: 13px; color: #718096; margin-bottom: 16px;">
+                        Website yang link ke kompetitor tapi belum ke Anda
+                    </p>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Domain</th>
+                                <th>Domain Authority</th>
+                                <th>Links to Competitor</th>
+                                <th>Link Type</th>
+                                <th>Opportunity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>fashion-blog-indonesia.com</td>
+                                <td><span class="badge badge-medium">DA: 45</span></td>
+                                <td>3 links</td>
+                                <td>Editorial</td>
+                                <td><button class="btn btn-small btn-secondary">Outreach</button></td>
+                            </tr>
+                            <tr>
+                                <td>muslimahfashion.id</td>
+                                <td><span class="badge badge-medium">DA: 38</span></td>
+                                <td>2 links</td>
+                                <td>Guest Post</td>
+                                <td><button class="btn btn-small btn-secondary">Outreach</button></td>
+                            </tr>
+                            <tr>
+                                <td>lifestyleblog.co.id</td>
+                                <td><span class="badge badge-low">DA: 28</span></td>
+                                <td>1 link</td>
+                                <td>Resource</td>
+                                <td><button class="btn btn-small btn-secondary">Outreach</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: SEO CHECK -->
+            <div id="tab-seo" class="tab-content">
+                <div class="grid-2">
+                    <!-- On-Page SEO -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">📄</span>
+                            On-Page SEO Issues
+                        </h3>
+
+                        <div class="list-item">
+                            <div class="list-icon">❌</div>
+                            <div class="list-content">
+                                <div class="list-title">5 Pages Missing Meta Description</div>
+                                <div class="list-desc">
+                                    /produk/gamis-a, /blog/artikel-1, /blog/artikel-2, /about, /contact
+                                </div>
+                                <div class="list-meta">Impact: High • Effort: Low • Est. time: 15 menit</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">⚠️</div>
+                            <div class="list-content">
+                                <div class="list-title">3 Pages with Duplicate Title Tags</div>
+                                <div class="list-desc">
+                                    Multiple pages menggunakan title "Toko Fashion Online"
+                                </div>
+                                <div class="list-meta">Impact: High • Effort: Low</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">⚠️</div>
+                            <div class="list-content">
+                                <div class="list-title">8 Pages with Thin Content</div>
+                                <div class="list-desc">
+                                    Halaman dengan < 300 kata (terlalu pendek untuk SEO)
+                                </div>
+                                <div class="list-meta">Impact: Medium • Effort: High</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">⚠️</div>
+                            <div class="list-content">
+                                <div class="list-title">12 Images Without Alt Text</div>
+                                <div class="list-desc">
+                                    Gambar produk tanpa alt text (buruk untuk accessibility & SEO)
+                                </div>
+                                <div class="list-meta">Impact: Medium • Effort: Low</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">✅</div>
+                            <div class="list-content">
+                                <div class="list-title">H1-H6 Structure: Good</div>
+                                <div class="list-desc">
+                                    Heading hierarchy sudah benar di 90% halaman
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical SEO -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <span class="card-icon">🔧</span>
+                            Technical SEO Issues
+                        </h3>
+
+                        <div class="list-item">
+                            <div class="list-icon">🔴</div>
+                            <div class="list-content">
+                                <div class="list-title">3 Broken Links (404 Errors)</div>
+                                <div class="list-desc">
+                                    /old-product, /blog/deleted-post, /promo-expired
+                                </div>
+                                <div class="list-meta">Impact: High • Fix: Redirect atau remove link</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">⚠️</div>
+                            <div class="list-content">
+                                <div class="list-title">2 Redirect Chains</div>
+                                <div class="list-desc">
+                                    URL → 301 → 301 → Final URL (lebih dari 1 redirect)
+                                </div>
+                                <div class="list-meta">Impact: Medium • Slow down crawling</div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">✅</div>
+                            <div class="list-content">
+                                <div class="list-title">Core Web Vitals: PASS</div>
+                                <div class="list-desc">
+                                    LCP: 2.1s (Good) • CLS: 0.08 (Good) • INP: 180ms (Good)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">✅</div>
+                            <div class="list-content">
+                                <div class="list-title">Mobile Usability: Good</div>
+                                <div class="list-desc">
+                                    100% halaman mobile-friendly, no tap target issues
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item">
+                            <div class="list-icon">✅</div>
+                            <div class="list-content">
+                                <div class="list-title">Sitemap & Robots.txt: Valid</div>
+                                <div class="list-desc">
+                                    Sitemap submitted (45 URLs) • Robots.txt properly configured
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Local SEO Check -->
+                <div class="card" style="margin-top: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">🏪</span>
+                        Local SEO Check (untuk UMKM)
+                    </h3>
+
+                    <div class="grid-3">
+                        <div class="list-item" style="background: #f0fff4;">
+                            <div class="list-icon">✅</div>
+                            <div class="list-content">
+                                <div class="list-title">NAP (Name, Address, Phone) Detected</div>
+                                <div class="list-desc" style="margin-top: 8px; font-size: 12px;">
+                                    <strong>Name:</strong> Tokoku Fashion<br>
+                                    <strong>Address:</strong> Jl. Contoh No. 123, Jakarta Selatan<br>
+                                    <strong>Phone:</strong> +62812-3456-7890<br>
+                                    <strong>WhatsApp:</strong> Ada
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item" style="background: #fffaf0;">
+                            <div class="list-icon">⚠️</div>
+                            <div class="list-content">
+                                <div class="list-title">Schema LocalBusiness: Missing</div>
+                                <div class="list-desc">
+                                    Tambahkan JSON-LD structured data untuk Google Maps & Local Pack
+                                </div>
+                                <div class="action-buttons" style="margin-top: 8px;">
+                                    <button class="btn btn-small btn-generate">Generate Schema</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item" style="background: #fed7d7;">
+                            <div class="list-icon">❌</div>
+                            <div class="list-content">
+                                <div class="list-title">Google Maps Embed: Not Found</div>
+                                <div class="list-desc">
+                                    Embed Google Maps di halaman kontak untuk memudahkan pelanggan
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" style="margin-top: 16px;">
+                        <div class="alert-icon">💡</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Google Business Profile Recommendation</div>
+                            <div class="alert-text">
+                                Daftar di Google Business Profile (GRATIS) untuk muncul di Google Maps dan Local Search - dapat tingkatkan visibility 70%+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Quality Check -->
+                <div class="card" style="margin-top: 20px;">
+                    <h3 class="card-title">
+                        <span class="card-icon">📊</span>
+                        Content Quality Analysis
+                    </h3>
+
+                    <div class="grid-4" style="margin-bottom: 20px;">
+                        <div class="score-card">
+                            <div class="score-number score-medium">680</div>
+                            <div class="score-label">Avg. Word Count</div>
+                            <div style="font-size: 11px; color: #ed8936; margin-top: 4px;">Target: 1.200+</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-number score-good">88</div>
+                            <div class="score-label">Readability Score</div>
+                            <div style="font-size: 11px; color: #48bb78; margin-top: 4px;">Easy to read</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-number score-medium">72</div>
+                            <div class="score-label">Unique Content %</div>
+                            <div style="font-size: 11px; color: #ed8936; margin-top: 4px;">2 pages near-duplicate</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-number score-bad">45</div>
+                            <div class="score-label">Content Freshness</div>
+                            <div style="font-size: 11px; color: #f56565; margin-top: 4px;">8 bulan tidak update</div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Content Improvement Needed</div>
+                            <div class="alert-text">
+                                • Tambahkan 400-500 kata per artikel untuk SEO optimal<br>
+                                • Update konten lama (minimal setiap 6 bulan)<br>
+                                • Fix 2 near-duplicate pages (konten terlalu mirip)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'overview';
+        let chart1, chart2;
+
+        // Switch Tab
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Update button states
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            currentTab = tabName;
+
+            // Initialize charts if needed
+            if (tabName === 'keywords' && !chart1) {
+                initIntentChart();
+            }
+            if (tabName === 'competitor' && !chart2) {
+                initCompetitorChart();
+            }
+        }
+
+        // Analyze Website
+        function analyzeWebsite() {
+            const url = document.getElementById('websiteUrl').value;
+            const keyword = document.getElementById('targetKeyword').value;
+            
+            if (!url) {
+                alert('Masukkan URL website terlebih dahulu');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('resultsContainer').classList.add('hidden');
+
+            // Simulate API call
+            setTimeout(() => {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('resultsContainer').classList.remove('hidden');
+            }, 2000);
+        }
+
+        // Add Competitor
+        function addCompetitor() {
+            const url = document.getElementById('competitorUrl').value;
+            if (!url) {
+                alert('Masukkan URL kompetitor terlebih dahulu');
+                return;
+            }
+            alert('✅ Kompetitor ditambahkan: ' + url + '\n\nAnalisis kompetitor akan muncul di tab "Kompetitor"');
+        }
+
+        // Generate Content (Integration with BRIX Content Writer)
+        function generateContent(articleId) {
+            alert('🤖 Fitur ini akan terintegrasi dengan BRIX Content Writer\n\n✅ Content brief akan dikirim ke AI Writer\n✅ Artikel akan di-generate otomatis\n✅ Anda tinggal review & publish');
+        }
+
+        // Initialize Intent Chart
+        function initIntentChart() {
+            const ctx = document.getElementById('intentChart').getContext('2d');
+            chart1 = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Informational', 'Commercial', 'Inspirational', 'Navigational'],
+                    datasets: [{
+                        data: [42, 28, 18, 12],
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(72, 187, 120, 0.8)',
+                            'rgba(237, 137, 54, 0.8)',
+                            'rgba(245, 101, 101, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize Competitor Chart
+        function initCompetitorChart() {
+            const ctx = document.getElementById('competitorChart').getContext('2d');
+            chart2 = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['SEO Score', 'Content Quality', 'Technical SEO', 'Backlinks', 'Traffic', 'Publishing Freq.'],
+                    datasets: [
+                        {
+                            label: 'Website Anda',
+                            data: [78, 68, 82, 45, 62, 55],
+                            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Kompetitor #1',
+                            data: [85, 88, 78, 92, 85, 90],
+                            backgroundColor: 'rgba(237, 137, 54, 0.2)',
+                            borderColor: 'rgba(237, 137, 54, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Auto-run analysis on page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                analyzeWebsite();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
