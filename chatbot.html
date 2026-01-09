@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - Penerbit Nusantara</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0f0f0f;
+            --secondary-color: #1a1a1a;
+            --accent-color: #d4af37;
+            --bg-card: #1a1a1a;
+            --text-dark: #ffffff;
+            --text-light: #e8e8e8;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .chatbot-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-bottom: 2px solid var(--accent-color);
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            margin-bottom: 0;
+        }
+
+        .chat-header h2 {
+            color: var(--accent-color);
+            margin-bottom: 0;
+            font-weight: 700;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #c49460 100%);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .bot .message-content {
+            background: var(--bg-card);
+            color: var(--text-light);
+            border: 1px solid #3a3a3a;
+        }
+
+        .chat-input-area {
+            background: var(--secondary-color);
+            border-top: 2px solid var(--accent-color);
+            padding: 20px;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .input-group {
+            gap: 10px;
+        }
+
+        .chat-input {
+            background-color: var(--bg-card);
+            border: 1px solid #3a3a3a;
+            color: var(--text-dark);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .chat-input::placeholder {
+            color: #888;
+        }
+
+        .chat-input:focus {
+            background-color: var(--bg-card);
+            border-color: var(--accent-color);
+            color: var(--text-dark);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #c49460 100%);
+            border: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 12px 24px;
+        }
+
+        .btn-send:hover {
+            background: linear-gradient(135deg, #e6c200 0%, #d49a3a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid #3a3a3a;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .quick-responses {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .quick-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .message-content {
+                max-width: 90%;
+            }
+
+            .chatbot-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chat-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-robot"></i> Asisten AI Penerbit Nusantara</h2>
+                    <small class="text-gold">Siap membantu Anda 24/7</small>
+                </div>
+                <a href="index.html" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </a>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-content">
+                    <strong>🎉 Selamat datang!</strong><br>
+                    Saya adalah asisten AI dari Penerbit Nusantara. Saya siap membantu Anda dengan:
+                    <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                        <li>Informasi tentang buku kami</li>
+                        <li>Proses penerbitan</li>
+                        <li>Layanan kami</li>
+                        <li>Pertanyaan umum</li>
+                    </ul>
+                    Ada yang bisa saya bantu?
+                </div>
+            </div>
+            <div class="quick-responses" id="quickResponses">
+                <button class="quick-btn" onclick="sendQuickMessage('Saya ingin terbit buku')">Terbit Buku</button>
+                <button class="quick-btn" onclick="sendQuickMessage('Bagaimana proses penerbitan?')">Proses Penerbitan</button>
+                <button class="quick-btn" onclick="sendQuickMessage('Berapa harga layanan?')">Harga Layanan</button>
+                <button class="quick-btn" onclick="sendQuickMessage('Hubungi customer service')">Customer Service</button>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    class="chat-input form-control" 
+                    id="chatInput" 
+                    placeholder="Ketik pertanyaan Anda..."
+                    onkeypress="if(event.key === 'Enter') sendMessage()"
+                >
+                <button class="btn btn-send" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> Kirim
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const quickResponses = document.getElementById('quickResponses');
+
+        // Knowledge base untuk chatbot
+        const knowledgeBase = {
+            greetings: {
+                keywords: ['halo', 'hai', 'pagi', 'siang', 'malam', 'helo', 'hello'],
+                response: 'Halo! 👋 Selamat datang di Penerbit Nusantara. Bagaimana saya bisa membantu Anda?'
+            },
+            publish: {
+                keywords: ['terbit', 'terbitkan', 'penerbitan', 'publish', 'menerbitkan'],
+                response: 'Anda tertarik untuk menerbitkan buku? Sempurna! 📚\n\nLangkah-langkahnya:\n1. Persiapkan manuskrip Anda\n2. Isi form pendaftaran\n3. Tim kami akan review\n4. Proses penerbitan dimulai\n\nIngin tahu lebih detail tentang layanan kami?'
+            },
+            process: {
+                keywords: ['bagaimana', 'proses', 'cara', 'alur', 'prosedur', 'langkah'],
+                response: 'Proses penerbitan di Penerbit Nusantara:\n\n📋 Tahap 1: Pendaftaran (1 hari)\n✏️ Tahap 2: Editorial Review (3-5 hari)\n🎨 Tahap 3: Desain & Layout (7-10 hari)\n🖨️ Tahap 4: Cetak (5-7 hari)\n📦 Tahap 5: Distribusi\n\nTotal waktu: 3-4 minggu. Tertarik?'
+            },
+            price: {
+                keywords: ['harga', 'biaya', 'berapa', 'tarif', 'paket', 'pricing'],
+                response: 'Paket penerbitan kami:\n\n💰 Paket Basic: Rp 5.000.000\n- Editing, Layout, ISBN\n\n💎 Paket Premium: Rp 8.500.000\n- + Marketing & Distribusi\n\n👑 Paket Gold: Rp 15.000.000\n- + E-book & Audiobook\n\nBisa disesuaikan sesuai kebutuhan Anda!'
+            },
+            contact: {
+                keywords: ['kontak', 'hubungi', 'nomor', 'telepon', 'whatsapp', 'email', 'alamat'],
+                response: 'Hubungi kami:\n\n📞 Telepon: +62 (21) 2345-678\n📱 WhatsApp: +62 812-3456-7890\n📧 Email: info@penerbitnusantara.com\n📍 Alamat: Jl. Penulis Indonesia No. 123\n    Jakarta Pusat, 12000\n\nJam operasional: Senin-Jumat 09:00-17:00 WIB'
+            },
+            isbn: {
+                keywords: ['isbn', 'nomor', 'sertifikat', 'perpustakaan'],
+                response: 'Semua buku yang diterbitkan oleh kami mendapatkan:\n\n✅ Nomor ISBN resmi\n✅ Sertifikat penerbitan\n✅ Registrasi di Perpustakaan Nasional\n✅ Kode bar internasional\n✅ Standar ISO 2108\n\nSemuanya sudah termasuk dalam paket kami!'
+            },
+            services: {
+                keywords: ['layanan', 'apa', 'menawarkan', 'services', 'fitur'],
+                response: 'Layanan kami mencakup:\n\n📚 Penerbitan Buku\n✏️ Layanan Editor Profesional\n🎨 Desain & Layout\n🖨️ Cetak Berkualitas Tinggi\n📦 Distribusi Nasional\n🌐 Publikasi Digital (E-book)\n🔊 Audiobook\n📢 Marketing & Promosi\n\nSemua dengan standar kelas dunia!'
+            },
+            about: {
+                keywords: ['tentang', 'siapa', 'perusahaan', 'kami', 'profil'],
+                response: 'Penerbit Nusantara adalah penerbit terkemuka di Indonesia dengan:\n\n📖 2.500+ judul buku diterbitkan\n👥 850+ penulis mitra\n🏆 Penghargaan internasional\n✅ ISO 9001:2015 Certified\n🔗 Anggota IKAPI\n\nMisi kami: Memberdayakan penulis & menyebarkan karya berkualitas!'
+            },
+            thanks: {
+                keywords: ['terima kasih', 'thanks', 'makasih', 'terima', 'thank you'],
+                response: 'Sama-sama! 😊 Terima kasih telah menghubungi Penerbit Nusantara. Jika ada pertanyaan lain, jangan ragu untuk bertanya!'
+            }
+        };
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Display user message
+            addMessage(message, 'user');
+            chatInput.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Simulate AI processing delay
+            setTimeout(() => {
+                const response = generateAIResponse(message);
+                removeTypingIndicator();
+                addMessage(response, 'bot');
+            }, 1000 + Math.random() * 1000);
+        }
+
+        function sendQuickMessage(message) {
+            addMessage(message, 'user');
+            showTypingIndicator();
+
+            setTimeout(() => {
+                const response = generateAIResponse(message);
+                removeTypingIndicator();
+                addMessage(response, 'bot');
+            }, 800);
+
+            // Hide quick responses
+            quickResponses.style.display = 'none';
+        }
+
+        function generateAIResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+
+            // Search in knowledge base
+            for (const [key, data] of Object.entries(knowledgeBase)) {
+                for (const keyword of data.keywords) {
+                    if (lowerMessage.includes(keyword)) {
+                        return data.response;
+                    }
+                }
+            }
+
+            // Default responses
+            const defaults = [
+                'Pertanyaan yang menarik! 🤔 Untuk informasi lebih detail, silakan hubungi tim customer service kami.',
+                'Saya kurang memahami pertanyaan Anda. Coba tanyakan tentang:\n- Proses penerbitan\n- Harga/paket\n- Kontak kami\n- Tentang Penerbit Nusantara',
+                'Maaf, saya masih belajar! 📚 Apakah Anda ingin menghubungi customer service kami secara langsung?',
+                'Pertanyaan yang bagus! Untuk jawaban yang lebih akurat, hubungi:\n📞 +62 (21) 2345-678\n📧 info@penerbitnusantara.com'
+            ];
+
+            return defaults[Math.floor(Math.random() * defaults.length)];
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+
+            // Auto scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        // Focus input on load
+        window.addEventListener('load', () => {
+            chatInput.focus();
+        });
+
+        // Prevent sending empty messages
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !this.value.trim()) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

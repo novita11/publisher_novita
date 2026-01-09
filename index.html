@@ -12,9 +12,9 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%); border-bottom: 2px solid #d4af37;">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="#home">
+            <a class="navbar-brand fw-bold" href="#home" style="color: #d4af37 !important;">
                 <i class="fas fa-book-open"></i> PENERBIT NUSANTARA
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -28,6 +28,11 @@
                     <li class="nav-item"><a class="nav-link" href="#tentang">Tentang Kami</a></li>
                     <li class="nav-item"><a class="nav-link" href="#kontak">Kontak</a></li>
                     <li class="nav-item">
+                        <a class="nav-link" href="chatbot.html">
+                            <i class="fas fa-robot"></i> AI Bot
+                        </a>
+                    </li>
+                    <li class="nav-item" data-user-menu>
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
                             <i class="fas fa-user"></i> Masuk
                         </a>
@@ -44,19 +49,19 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="hero-section py-5 text-white text-center">
+    <section id="home" class="hero-section py-5 text-white text-center" style="background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%); min-height: 500px; border-bottom: 2px solid #d4af37;">
         <div class="container">
             <h1 class="display-4 fw-bold mb-4">Penerbit Buku Indonesia Berstandar Internasional</h1>
             <p class="lead mb-5">Terbitkan karya terbaik Anda dengan ISBN resmi dan standar kualitas dunia</p>
             <div class="row g-3">
                 <div class="col-md-4">
-                    <input type="text" class="form-control form-control-lg" id="searchInput" placeholder="Cari judul atau penulis...">
+                    <input type="text" class="form-control form-control-lg" id="searchInput" placeholder="Cari judul atau penulis..." style="background: #ffffff; color: #0f0f0f; border: 2px solid #d4af37;">
                 </div>
                 <div class="col-md-4">
-                    <input type="text" class="form-control form-control-lg" id="isbnInput" placeholder="Cari ISBN...">
+                    <input type="text" class="form-control form-control-lg" id="isbnInput" placeholder="Cari ISBN..." style="background: #ffffff; color: #0f0f0f; border: 2px solid #d4af37;">
                 </div>
                 <div class="col-md-4">
-                    <button class="btn btn-primary btn-lg w-100" onclick="cariKarya()">
+                    <button class="btn btn-lg w-100" onclick="cariKarya()" style="background: #d4af37; color: #0f0f0f; border: none; font-weight: 700;">
                         <i class="fas fa-search"></i> Cari
                     </button>
                 </div>
@@ -406,27 +411,34 @@
     <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Masuk ke Akun</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content" style="background: #1a1a1a; color: #ffffff; border: 2px solid #d4af37;">
+                <div class="modal-header" style="border-bottom: 2px solid #d4af37;">
+                    <h5 class="modal-title" style="color: #d4af37;">Masuk ke Akun</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="loginForm">
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" required>
+                            <input type="email" class="form-control" name="email" id="emailInput" placeholder="novita@testmail.com" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Kata Sandi</label>
-                            <input type="password" class="form-control" required>
+                            <input type="password" class="form-control" name="password" id="passwordInput" placeholder="123456" required>
                         </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="remember">
                             <label class="form-check-label" for="remember">Ingat saya</label>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Masuk</button>
+                        <button type="submit" class="btn w-100" style="background: #d4af37; color: #0f0f0f; font-weight: 700; border: none;">
+                            <i class="fas fa-sign-in-alt"></i> Masuk
+                        </button>
                     </form>
+                    <div class="alert alert-info mt-3 mb-0" role="alert">
+                        <strong>Demo User:</strong><br>
+                        Email: novita@testmail.com<br>
+                        Password: 123456
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <p class="w-100 text-center mb-0">Belum punya akun? <a href="#" onclick="daftarAkun()">Daftar di sini</a></p>

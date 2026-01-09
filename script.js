@@ -1,4 +1,16 @@
-// ==================== DATA BUKU ==================== 
+// ==================== DUMMY USERS DATABASE ==================== 
+const dummyUsers = [
+    {
+        id: 1,
+        email: "novita@testmail.com",
+        password: "123456",
+        name: "Novita Rianta",
+        phone: "+62 812-3456-7890",
+        address: "Jakarta Pusat, Indonesia"
+    }
+];
+
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null; 
 const bukuDatabase = [
     {
         id: 1,
@@ -187,7 +199,72 @@ function tampilkanNotifikasi(pesan, tipe = 'info') {
     }, 3000);
 }
 
-// ==================== SEARCH & FILTER ==================== 
+// ==================== AUTHENTICATION FUNCTIONS ==================== 
+function loginUser(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('emailInput').value.trim();
+    const password = document.getElementById('passwordInput').value.trim();
+    
+    console.log('Login attempt:', email, password); // Debug
+    
+    const user = dummyUsers.find(u => u.email === email && u.password === password);
+    
+    if (user) {
+        currentUser = {
+            id: user.id,
+            email: user.email,
+            name: user.name
+        };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        tampilkanNotifikasi(`Selamat datang, ${user.name}! 🎉`, 'success');
+        
+        // Close modal dan update UI
+        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (loginModal) loginModal.hide();
+        
+        document.getElementById('loginForm').reset();
+        updateUserUI();
+        
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 1500);
+    } else {
+        tampilkanNotifikasi('Email atau password salah. Coba: novita@testmail.com / 123456', 'danger');
+    }
+}
+
+function logoutUser() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    tampilkanNotifikasi('Anda telah logout', 'info');
+    updateUserUI();
+    location.reload();
+}
+
+function updateUserUI() {
+    const userMenu = document.querySelector('.nav-link[data-user-menu]');
+    if (!userMenu) return;
+    
+    if (currentUser) {
+        userMenu.innerHTML = `
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle"></i> ${currentUser.name}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="dashboard.html">Dashboard</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="logoutUser()">Logout</a></li>
+                </ul>
+            </div>
+        `;
+    } else {
+        userMenu.innerHTML = `<a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <i class="fas fa-user"></i> Masuk
+        </a>`;
+    }
+} 
 function cariKarya() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const isbnTerm = document.getElementById('isbnInput').value.toLowerCase();
@@ -391,6 +468,7 @@ function daftarAkun() {
 document.addEventListener('DOMContentLoaded', function() {
     tampilkanBuku(bukuDatabase);
     updateKeranjangBadge();
+    updateUserUI();
     
     // Event untuk search input
     document.getElementById('searchInput').addEventListener('keypress', function(e) {
@@ -404,6 +482,12 @@ document.addEventListener('DOMContentLoaded', function() {
             cariKarya();
         }
     });
+    
+    // Event untuk login form
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', loginUser);
+    }
 });
 
 // ==================== SMOOTH SCROLLING ==================== 
